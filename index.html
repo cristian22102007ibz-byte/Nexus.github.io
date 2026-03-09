@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS — Tecnología de Alto Rendimiento</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="gaming.html">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="soporte.html">Soporte</a>
+    <a href="comparar.html">⚖ Comparar</a>
+    <a href="blog.html">Blog</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <input type="text" class="nav-search" placeholder="Buscar productos..." id="searchInput" oninput="liveSearch(this.value)">
+    <div class="search-dropdown" id="searchDropdown"></div>
+    <a href="carrito.html" class="cart-btn">
+      🛒 Carrito
+      <span class="cart-count" id="cartCount">0</span>
+    </a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">✦ Nueva colección 2025</div>
+    <h1 class="hero-title">TECH<br><span>BEYOND</span><br>LIMITS</h1>
+    <p class="hero-subtitle">Hardware de élite, periféricos de precisión y componentes que llevan tu setup al siguiente nivel.</p>
+    <div class="hero-actions">
+      <a href="productos.html" class="btn-primary">Explorar Catálogo</a>
+      <a href="gaming.html" class="btn-ghost">Gaming Setup →</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-num">+4.200</div><div class="stat-label">Productos</div></div>
+      <div><div class="stat-num">48H</div><div class="stat-label">Envío express</div></div>
+      <div><div class="stat-num">99%</div><div class="stat-label">Satisfacción</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marqueeTrack">
+    <span class="marquee-item">Intel Core Ultra <em>★</em></span>
+    <span class="marquee-item">RTX 5090 <em>★</em></span>
+    <span class="marquee-item">DDR5 RAM <em>★</em></span>
+    <span class="marquee-item">NVMe Gen5 <em>★</em></span>
+    <span class="marquee-item">AMD Ryzen 9 <em>★</em></span>
+    <span class="marquee-item">4K 240Hz <em>★</em></span>
+    <span class="marquee-item">Mechanical Keyboards <em>★</em></span>
+    <span class="marquee-item">Intel Core Ultra <em>★</em></span>
+    <span class="marquee-item">RTX 5090 <em>★</em></span>
+    <span class="marquee-item">DDR5 RAM <em>★</em></span>
+    <span class="marquee-item">NVMe Gen5 <em>★</em></span>
+    <span class="marquee-item">AMD Ryzen 9 <em>★</em></span>
+    <span class="marquee-item">4K 240Hz <em>★</em></span>
+    <span class="marquee-item">Mechanical Keyboards <em>★</em></span>
+  </div>
+</div>
+
+<section class="section">
+  <div class="section-header">
+    <div class="section-tag">// Explorar</div>
+    <h2 class="section-title">Categorías</h2>
+    <p class="section-desc">Encuentra exactamente lo que necesitas.</p>
+  </div>
+  <div class="cats-grid">
+    <a href="productos.html?cat=procesadores" class="cat-card"><div class="cat-icon">⚡</div><div class="cat-name">Procesadores</div><div class="cat-count">124 productos</div></a>
+    <a href="productos.html?cat=gpus" class="cat-card"><div class="cat-icon">🎮</div><div class="cat-name">Tarjetas Gráficas</div><div class="cat-count">89 productos</div></a>
+    <a href="productos.html?cat=ram" class="cat-card"><div class="cat-icon">🧠</div><div class="cat-name">Memoria RAM</div><div class="cat-count">210 productos</div></a>
+    <a href="productos.html?cat=almacenamiento" class="cat-card"><div class="cat-icon">💾</div><div class="cat-name">Almacenamiento</div><div class="cat-count">156 productos</div></a>
+    <a href="productos.html?cat=monitores" class="cat-card"><div class="cat-icon">🖥️</div><div class="cat-name">Monitores</div><div class="cat-count">78 productos</div></a>
+    <a href="productos.html?cat=perifericos" class="cat-card"><div class="cat-icon">⌨️</div><div class="cat-name">Periféricos</div><div class="cat-count">340 productos</div></a>
+    <a href="productos.html?cat=refrigeracion" class="cat-card"><div class="cat-icon">❄️</div><div class="cat-name">Refrigeración</div><div class="cat-count">95 productos</div></a>
+    <a href="productos.html?cat=cajas" class="cat-card"><div class="cat-icon">📦</div><div class="cat-name">Cajas & Fuentes</div><div class="cat-count">112 productos</div></a>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="section-header">
+    <div class="section-tag">// Destacados</div>
+    <h2 class="section-title">Más Vendidos</h2>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterProducts('all',this)">Todo</button>
+    <button class="filter-btn" onclick="filterProducts('cpu',this)">CPUs</button>
+    <button class="filter-btn" onclick="filterProducts('gpu',this)">GPUs</button>
+    <button class="filter-btn" onclick="filterProducts('ram',this)">RAM</button>
+    <button class="filter-btn" onclick="filterProducts('storage',this)">Almacenamiento</button>
+  </div>
+  <div class="products-grid" id="productsGrid">
+    <div class="product-card" data-cat="cpu">
+      <div class="product-badge">−15%</div>
+      <div class="product-img">⚡</div>
+      <div class="product-info">
+        <div class="product-brand">Intel</div>
+        <div class="product-name">Core Ultra 9 285K</div>
+        <div class="product-specs"><span class="spec-tag">24 Cores</span><span class="spec-tag">5.7 GHz</span><span class="spec-tag">LGA1851</span></div>
+        <div class="product-footer">
+          <div><span class="product-price">589€</span><span class="product-price-old">699€</span></div>
+          <button class="add-btn cart-add" data-name="Intel Core Ultra 9 285K" data-price="589">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card" data-cat="gpu">
+      <div class="product-badge new">Nuevo</div>
+      <div class="product-img">🎮</div>
+      <div class="product-info">
+        <div class="product-brand">NVIDIA</div>
+        <div class="product-name">GeForce RTX 5080 16GB</div>
+        <div class="product-specs"><span class="spec-tag">16 GB GDDR7</span><span class="spec-tag">DLSS 4</span></div>
+        <div class="product-footer">
+          <div><span class="product-price">1.199€</span></div>
+          <button class="add-btn cart-add" data-name="GeForce RTX 5080 16GB" data-price="1199">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card" data-cat="ram">
+      <div class="product-img">🧠</div>
+      <div class="product-info">
+        <div class="product-brand">Corsair</div>
+        <div class="product-name">Dominator Titanium DDR5 32GB</div>
+        <div class="product-specs"><span class="spec-tag">DDR5-6400</span><span class="spec-tag">2×16GB</span><span class="spec-tag">CL32</span></div>
+        <div class="product-footer">
+          <div><span class="product-price">219€</span></div>
+          <button class="add-btn cart-add" data-name="Corsair Dominator Titanium DDR5 32GB" data-price="219">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card" data-cat="storage">
+      <div class="product-badge">−20%</div>
+      <div class="product-img">💾</div>
+      <div class="product-info">
+        <div class="product-brand">Samsung</div>
+        <div class="product-name">990 Pro NVMe SSD 2TB</div>
+        <div class="product-specs"><span class="spec-tag">7450 MB/s</span><span class="spec-tag">PCIe 4.0</span><span class="spec-tag">M.2</span></div>
+        <div class="product-footer">
+          <div><span class="product-price">159€</span><span class="product-price-old">199€</span></div>
+          <button class="add-btn cart-add" data-name="Samsung 990 Pro NVMe SSD 2TB" data-price="159">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card" data-cat="cpu">
+      <div class="product-img">⚡</div>
+      <div class="product-info">
+        <div class="product-brand">AMD</div>
+        <div class="product-name">Ryzen 9 9950X</div>
+        <div class="product-specs"><span class="spec-tag">16 Cores</span><span class="spec-tag">5.7 GHz</span><span class="spec-tag">AM5</span></div>
+        <div class="product-footer">
+          <div><span class="product-price">649€</span></div>
+          <button class="add-btn cart-add" data-name="AMD Ryzen 9 9950X" data-price="649">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card" data-cat="gpu">
+      <div class="product-img">🎮</div>
+      <div class="product-info">
+        <div class="product-brand">AMD</div>
+        <div class="product-name">Radeon RX 9070 XT 16GB</div>
+        <div class="product-specs"><span class="spec-tag">16 GB GDDR6</span><span class="spec-tag">FSR 4</span></div>
+        <div class="product-footer">
+          <div><span class="product-price">699€</span></div>
+          <button class="add-btn cart-add" data-name="AMD Radeon RX 9070 XT 16GB" data-price="699">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:48px">
+    <a href="productos.html" class="btn-ghost">Ver todo el catálogo →</a>
+  </div>
+</section>
+
+<div class="banner">
+  <div class="banner-content">
+    <div class="banner-title">GAMING<br><span>SETUP</span><br>DEFINITIVO</div>
+    <p class="banner-sub">Todo lo que necesitas para dominar. Configura tu estación de juego perfecta.</p>
+    <a href="gaming.html" class="btn-primary" style="margin-top:28px;display:inline-block">Ver Gaming →</a>
+  </div>
+  <div class="banner-img">🖥️</div>
+</div>
+
+<section class="section">
+  <div class="section-header">
+    <div class="section-tag">// Partners</div>
+    <h2 class="section-title">Marcas Oficiales</h2>
+  </div>
+  <div class="brands-row">
+    <div class="brand-cell">INTEL</div>
+    <div class="brand-cell">AMD</div>
+    <div class="brand-cell">NVIDIA</div>
+    <div class="brand-cell">CORSAIR</div>
+    <div class="brand-cell">SAMSUNG</div>
+    <div class="brand-cell">ASUS</div>
+    <div class="brand-cell">MSI</div>
+  </div>
+</section>
+
+<div class="newsletter">
+  <h2 class="newsletter-title">MANTENTE ACTUALIZADO</h2>
+  <p class="newsletter-sub">Ofertas exclusivas, lanzamientos y novedades directamente en tu bandeja.</p>
+  <div class="newsletter-form">
+    <input type="email" class="newsletter-input" placeholder="tu@email.com" id="nlEmail">
+    <button class="newsletter-submit" onclick="subscribeNL()">Suscribirse</button>
+  </div>
+</div>
+
+<!-- TRUST BAR -->
+<div style="background:var(--dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:32px 40px;display:flex;flex-wrap:wrap;gap:0;justify-content:space-between;align-items:center">
+  <div style="display:flex;align-items:center;gap:14px;padding:12px 24px;flex:1;min-width:200px">
+    <span style="font-size:28px">🚚</span>
+    <div><div style="font-size:13px;color:var(--white);font-weight:400">Envío gratis +99€</div><div style="font-size:12px;color:var(--muted)">Entrega en 24–48h express</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;padding:12px 24px;flex:1;min-width:200px;border-left:1px solid var(--border)">
+    <span style="font-size:28px">↩</span>
+    <div><div style="font-size:13px;color:var(--white);font-weight:400">30 días de devolución</div><div style="font-size:12px;color:var(--muted)">Sin preguntas, sin coste</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;padding:12px 24px;flex:1;min-width:200px;border-left:1px solid var(--border)">
+    <span style="font-size:28px">🔒</span>
+    <div><div style="font-size:13px;color:var(--white);font-weight:400">Pago 100% seguro</div><div style="font-size:12px;color:var(--muted)">SSL · PCI DSS · 3D Secure</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;padding:12px 24px;flex:1;min-width:200px;border-left:1px solid var(--border)">
+    <span style="font-size:28px">🛡</span>
+    <div><div style="font-size:13px;color:var(--white);font-weight:400">Garantía oficial</div><div style="font-size:12px;color:var(--muted)">Fabricante + soporte NEXUS 2 años</div></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand">
+    <span class="nav-logo" style="display:block;margin-bottom:16px">NEXUS</span>
+    <p class="footer-desc">Tu tienda de confianza para hardware, periféricos y componentes de alto rendimiento desde 2010. Más de 180.000 clientes satisfechos.</p>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">𝕏</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">📸</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">💬</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Tienda</div>
+    <div class="footer-links">
+      <a href="productos.html">Todos los productos</a>
+      <a href="gaming.html">Gaming Setup</a>
+      <a href="ofertas.html">Ofertas y chollos</a>
+      <a href="comparar.html">⚖ Comparador</a>
+      <a href="perfil.html">Mi cuenta</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Soporte</div>
+    <div class="footer-links">
+      <a href="soporte.html">Centro de ayuda</a>
+      <a href="soporte.html">Seguir mi pedido</a>
+      <a href="soporte.html">Envíos y plazos</a>
+      <a href="soporte.html">Devoluciones</a>
+      <a href="soporte.html">Garantías</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Legal</div>
+    <div class="footer-links">
+      <a href="#">Sobre nosotros</a>
+      <a href="#">Condiciones de uso</a>
+      <a href="#">Política de privacidad</a>
+      <a href="#">Política de cookies</a>
+      <a href="#">Aviso legal</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Payment methods + certifications -->
+<div style="background:var(--dark);border-top:1px solid var(--border);padding:28px 40px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px">
+  <div>
+    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:12px">Métodos de pago</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span style="background:var(--card);border:1px solid var(--border);padding:6px 12px;font-size:12px;color:var(--muted);border-radius:4px;font-family:'JetBrains Mono',monospace">VISA</span>
+      <span style="background:var(--card);border:1px solid var(--border);padding:6px 12px;font-size:12px;color:var(--muted);border-radius:4px;font-family:'JetBrains Mono',monospace">MC</span>
+      <span style="background:var(--card);border:1px solid var(--border);padding:6px 12px;font-size:12px;color:var(--muted);border-radius:4px;font-family:'JetBrains Mono',monospace">AMEX</span>
+      <span style="background:var(--card);border:1px solid var(--border);padding:6px 12px;font-size:12px;color:var(--muted);border-radius:4px;font-family:'JetBrains Mono',monospace">PAYPAL</span>
+      <span style="background:var(--card);border:1px solid var(--border);padding:6px 12px;font-size:12px;color:var(--muted);border-radius:4px;font-family:'JetBrains Mono',monospace">BIZUM</span>
+      <span style="background:var(--card);border:1px solid var(--border);padding:6px 12px;font-size:12px;color:var(--muted);border-radius:4px;font-family:'JetBrains Mono',monospace">SEPA</span>
+      <span style="background:rgba(0,180,255,0.08);border:1px solid rgba(0,180,255,0.2);padding:6px 12px;font-size:12px;color:var(--accent);border-radius:4px;font-family:'JetBrains Mono',monospace">0% FINANCIACIÓN</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+    <div style="background:rgba(0,255,148,0.06);border:1px solid rgba(0,255,148,0.2);padding:8px 16px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;color:#00ff94">🔒 SSL SECURE</div>
+    <div style="background:var(--card);border:1px solid var(--border);padding:8px 16px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted)">PCI DSS v4</div>
+    <div style="background:var(--card);border:1px solid var(--border);padding:8px 16px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted)">ISO 27001</div>
+    <div style="background:rgba(255,179,71,0.06);border:1px solid rgba(255,179,71,0.2);padding:8px 16px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;color:#ffb347">⭐ 4.9/5 · 12.400 reseñas</div>
+  </div>
+</div>
+
+<div class="footer-bottom">
+  <span class="footer-copy">© 2025 NEXUS TECH S.L. — CIF B-12345678 — Todos los derechos reservados</span>
+  <span class="footer-copy">🇪🇸 España · EUR € · IVA 21% incluido · <a href="#" style="color:var(--muted)">Cookies</a></span>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+<script src="nexus-extras.js"></script>
+<script>
+const searchData = [
+  { name: 'Intel Core Ultra 9 285K', price: 589, cat: 'CPU', url: 'productos.html' },
+  { name: 'GeForce RTX 5080 16GB', price: 1199, cat: 'GPU', url: 'productos.html' },
+  { name: 'Corsair Dominator DDR5 32GB', price: 219, cat: 'RAM', url: 'productos.html' },
+  { name: 'Samsung 990 Pro 2TB', price: 159, cat: 'SSD', url: 'productos.html' },
+  { name: 'AMD Ryzen 9 9950X', price: 649, cat: 'CPU', url: 'productos.html' },
+  { name: 'AMD Radeon RX 9070 XT', price: 699, cat: 'GPU', url: 'productos.html' },
+];
+
+function liveSearch(q) {
+  const dd = document.getElementById('searchDropdown');
+  if (!q) { dd.style.display = 'none'; return; }
+  const res = searchData.filter(p => p.name.toLowerCase().includes(q.toLowerCase()));
+  if (!res.length) { dd.style.display = 'none'; return; }
+  dd.innerHTML = res.map(p => `<a href="${p.url}" class="search-result-item"><span>${p.name}</span><span class="search-price">${p.price}€</span></a>`).join('');
+  dd.style.display = 'block';
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.nav-actions')) document.getElementById('searchDropdown').style.display = 'none';
+});
+
+function filterProducts(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.product-card').forEach(card => {
+    card.style.display = (cat === 'all' || card.dataset.cat === cat) ? 'flex' : 'none';
+  });
+}
+function subscribeNL() {
+  const email = document.getElementById('nlEmail').value;
+  if (email && email.includes('@')) {
+    showToast('✓ Suscripción confirmada');
+    document.getElementById('nlEmail').value = '';
+  } else { showToast('⚠ Introduce un email válido'); }
+}
+
+// Cart add delegation — works for all .cart-add buttons on page
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.cart-add');
+  if (!btn) return;
+  addToCart(btn.dataset.name, parseFloat(btn.dataset.price));
+  const orig = btn.textContent;
+  btn.textContent = '✓';
+  btn.style.background = 'var(--accent)';
+  btn.style.color = 'var(--black)';
+  btn.style.borderColor = 'var(--accent)';
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }, 1200);
+});
+</script>
+</body>
+</html>

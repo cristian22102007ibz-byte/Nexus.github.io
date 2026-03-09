@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparar Productos — NEXUS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .compare-hero { padding: 120px 40px 60px; background: var(--dark); border-bottom: 1px solid var(--border); }
+    .compare-hero-inner { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .compare-page-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px,8vw,96px); letter-spacing: 2px; color: var(--white); line-height: 1; }
+    .compare-page-title span { color: var(--accent); }
+
+    /* Empty state */
+    .compare-empty { text-align: center; padding: 120px 40px; }
+    .compare-empty-icon { font-size: 80px; margin-bottom: 24px; }
+    .compare-empty-title { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 2px; color: var(--white); margin-bottom: 12px; }
+    .compare-empty-desc { color: var(--muted); font-size: 15px; }
+
+    /* Table */
+    .compare-wrap { padding: 60px 40px; overflow-x: auto; }
+    .compare-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    .compare-table th { background: var(--dark); padding: 0; border: 1px solid var(--border); vertical-align: top; }
+    .compare-table td { padding: 0; border: 1px solid var(--border); vertical-align: middle; }
+    .compare-table td:first-child { background: var(--dark); padding: 18px 24px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; width: 160px; }
+    .compare-table td.better { background: rgba(0,180,255,0.04); }
+    .compare-table td.worse { background: rgba(255,94,94,0.03); }
+    .compare-table tr:hover td { background: rgba(0,180,255,0.03); }
+    .compare-table tr:hover td:first-child { background: var(--dark); }
+
+    /* Product header cell */
+    .cmp-head { padding: 28px 24px; text-align: center; }
+    .cmp-icon { font-size: 56px; margin-bottom: 12px; }
+    .cmp-brand { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+    .cmp-name { font-size: 16px; color: var(--white); margin: 6px 0 12px; line-height: 1.4; }
+    .cmp-price { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--accent); letter-spacing: 1px; }
+    .cmp-add { margin-top: 16px; width: 100%; background: var(--accent); color: var(--black); border: none; padding: 12px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity 0.2s; border-radius: 4px; }
+    .cmp-add:hover { opacity: 0.85; }
+    .cmp-remove { margin-top: 8px; width: 100%; background: none; color: var(--muted); border: 1px solid var(--border); padding: 8px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; border-radius: 4px; }
+    .cmp-remove:hover { border-color: #ff5e5e; color: #ff5e5e; }
+
+    /* Spec cell */
+    .cmp-value { padding: 16px 24px; text-align: center; font-size: 14px; color: var(--text); }
+    .cmp-value .good { color: #00ff94; font-weight: 500; }
+    .cmp-value .bad  { color: #ff5e5e; }
+    .cmp-value .mid  { color: #ffb347; }
+    .cmp-rating-stars { color: #ffb347; font-size: 14px; letter-spacing: 1px; }
+    .cmp-bar-wrap { padding: 16px 24px; }
+    .cmp-bar-track { background: var(--border); height: 6px; border-radius: 3px; }
+    .cmp-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 1s ease; }
+    .cmp-bar-val { font-size: 12px; color: var(--text); margin-top: 4px; text-align: center; }
+
+    .compare-section-label { padding: 10px 24px; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; color: var(--accent); background: rgba(0,180,255,0.05); border-top: 1px solid var(--border); }
+
+    /* Add slot */
+    .cmp-add-slot { padding: 40px 24px; text-align: center; cursor: pointer; color: var(--muted); transition: color 0.2s; }
+    .cmp-add-slot:hover { color: var(--accent); }
+    .cmp-add-slot-icon { font-size: 32px; margin-bottom: 8px; }
+    .cmp-add-slot-label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+
+    @media(max-width:600px) { .compare-wrap { padding: 20px; } }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="gaming.html">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="soporte.html">Soporte</a>
+    <a href="comparar.html">⚖ Comparar</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="compare-hero">
+  <div class="compare-hero-inner">
+    <div>
+      <div class="section-tag">// Herramienta</div>
+      <h1 class="compare-page-title">COMPARAR<br><span>PRODUCTOS</span></h1>
+    </div>
+    <p style="color:var(--muted);font-size:15px;max-width:320px;text-align:right">Analiza lado a lado las especificaciones de hasta 3 productos para tomar la mejor decisión.</p>
+  </div>
+</div>
+
+<div id="compareContent"></div>
+
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+<script src="nexus-extras.js"></script>
+<script>
+// Fallback product data for demo
+const productDB = [
+  { name:'NVIDIA GeForce RTX 5090 32GB', brand:'NVIDIA', price:1999, icon:'🎮', cat:'GPU',
+    specs:{ 'VRAM':'32 GB GDDR7','Bus':'512-bit','TDP':'575W','Arquitectura':'Blackwell','CUDA Cores':'21760','Clock':'2.41 GHz','Rating':5,'Score':98 }},
+  { name:'NVIDIA GeForce RTX 5080 16GB', brand:'NVIDIA', price:1199, icon:'🎮', cat:'GPU',
+    specs:{ 'VRAM':'16 GB GDDR7','Bus':'256-bit','TDP':'360W','Arquitectura':'Blackwell','CUDA Cores':'10752','Clock':'2.62 GHz','Rating':5,'Score':85 }},
+  { name:'AMD Radeon RX 9070 XT 16GB', brand:'AMD', price:699, icon:'🎮', cat:'GPU',
+    specs:{ 'VRAM':'16 GB GDDR6','Bus':'256-bit','TDP':'304W','Arquitectura':'RDNA 4','CUDA Cores':'—','Clock':'3.1 GHz','Rating':4,'Score':72 }},
+  { name:'Intel Core Ultra 9 285K', brand:'Intel', price:589, icon:'⚡', cat:'CPU',
+    specs:{ 'Cores':'24 (8P+16E)','Clock base':'3.7 GHz','Clock boost':'5.7 GHz','Cache':'36 MB L3','TDP':'125W','Socket':'LGA1851','Rating':5,'Score':94 }},
+  { name:'AMD Ryzen 9 9950X', brand:'AMD', price:649, icon:'⚡', cat:'CPU',
+    specs:{ 'Cores':'16','Clock base':'4.3 GHz','Clock boost':'5.7 GHz','Cache':'64 MB L3','TDP':'170W','Socket':'AM5','Rating':5,'Score':91 }},
+  { name:'AMD Ryzen 7 9700X', brand:'AMD', price:329, icon:'⚡', cat:'CPU',
+    specs:{ 'Cores':'8','Clock base':'3.8 GHz','Clock boost':'5.5 GHz','Cache':'32 MB L3','TDP':'65W','Socket':'AM5','Rating':4,'Score':78 }},
+  { name:'Samsung 990 Pro NVMe SSD 2TB', brand:'Samsung', price:159, icon:'💾', cat:'SSD',
+    specs:{ 'Capacidad':'2 TB','Lectura':'7450 MB/s','Escritura':'6900 MB/s','Interfaz':'PCIe 4.0','Formato':'M.2 2280','TBW':'1200 TB','Rating':5,'Score':88 }},
+  { name:'WD Black SN850X 4TB', brand:'WD', price:299, icon:'💾', cat:'SSD',
+    specs:{ 'Capacidad':'4 TB','Lectura':'7300 MB/s','Escritura':'6600 MB/s','Interfaz':'PCIe 4.0','Formato':'M.2 2280','TBW':'2400 TB','Rating':4,'Score':82 }},
+];
+
+function getCompareList() {
+  return JSON.parse(sessionStorage.getItem('nexusCompare') || '[]');
+}
+
+function findProduct(name) {
+  return productDB.find(p => p.name === name) || { name, brand:'', price:0, icon:'📦', cat:'—', specs:{ 'Info':'No disponible', Rating:0, Score:0 } };
+}
+
+function renderCompare() {
+  const list = getCompareList();
+  const container = document.getElementById('compareContent');
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div class="compare-empty">
+        <div class="compare-empty-icon">⚖️</div>
+        <div class="compare-empty-title">Sin productos para comparar</div>
+        <div class="compare-empty-desc" style="margin-bottom:32px">Ve al catálogo y pulsa el botón ⚖ en los productos que quieras comparar</div>
+        <a href="productos.html" class="btn-primary">Ir al catálogo</a>
+      </div>`;
+    return;
+  }
+
+  const products = list.map(p => findProduct(p.name));
+  // Collect all spec keys (excluding Score, Rating)
+  const allKeys = [...new Set(products.flatMap(p => Object.keys(p.specs)))].filter(k => k !== 'Score' && k !== 'Rating');
+  const maxSlots = 3;
+
+  // Build header row
+  let headerCells = `<th style="width:160px;background:var(--dark);border:1px solid var(--border)"></th>`;
+  products.forEach((p, i) => {
+    headerCells += `
+      <th>
+        <div class="cmp-head">
+          <div class="cmp-icon">${p.icon}</div>
+          <div class="cmp-brand">${p.brand || '—'}</div>
+          <div class="cmp-name">${p.name}</div>
+          <div class="cmp-price">${p.price}€</div>
+          <button class="cmp-add cart-add" data-name="${p.name.replace(/"/g,'&quot;')}" data-price="${p.price}">+ Carrito</button>
+          <button class="cmp-remove" onclick="removeFromCompare(${i})">Quitar</button>
+        </div>
+      </th>`;
+  });
+  for (let i = products.length; i < maxSlots; i++) {
+    headerCells += `<th><div class="cmp-add-slot" onclick="window.location.href='productos.html'"><div class="cmp-add-slot-icon">＋</div><div class="cmp-add-slot-label">Añadir producto</div></div></th>`;
+  }
+
+  // Score row
+  let scoreRow = `<td>Puntuación NEXUS</td>`;
+  const scores = products.map(p => parseInt(p.specs['Score'] || 0));
+  const maxScore = Math.max(...scores);
+  products.forEach(p => {
+    const s = parseInt(p.specs['Score'] || 0);
+    scoreRow += `
+      <td class="${s === maxScore && scores.filter(x=>x===maxScore).length===1 ? 'better':''}">
+        <div class="cmp-bar-wrap">
+          <div class="cmp-bar-track"><div class="cmp-bar-fill" style="width:${s}%"></div></div>
+          <div class="cmp-bar-val">${s}/100</div>
+        </div>
+      </td>`;
+  });
+  for (let i = products.length; i < maxSlots; i++) scoreRow += '<td></td>';
+
+  // Rating row
+  let ratingRow = `<td>Valoración usuarios</td>`;
+  const ratings = products.map(p => parseInt(p.specs['Rating'] || 0));
+  const maxRating = Math.max(...ratings);
+  products.forEach(p => {
+    const r = parseInt(p.specs['Rating'] || 0);
+    ratingRow += `<td class="${r===maxRating&&ratings.filter(x=>x===maxRating).length===1?'better':''}"><div class="cmp-value"><span class="cmp-rating-stars">${'★'.repeat(r)}${'☆'.repeat(5-r)}</span></div></td>`;
+  });
+  for (let i = products.length; i < maxSlots; i++) ratingRow += '<td></td>';
+
+  // Price row
+  let priceRow = `<td>Precio</td>`;
+  const prices = products.map(p => p.price);
+  const minPrice = Math.min(...prices);
+  products.forEach(p => {
+    priceRow += `<td class="${p.price===minPrice&&prices.filter(x=>x===minPrice).length===1?'better':''}"><div class="cmp-value"><strong style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent)">${p.price}€</strong></div></td>`;
+  });
+  for (let i = products.length; i < maxSlots; i++) priceRow += '<td></td>';
+
+  // Spec rows
+  let specRows = '';
+  allKeys.forEach(key => {
+    specRows += `<tr><td>${key}</td>`;
+    products.forEach(p => {
+      const val = p.specs[key] || '—';
+      specRows += `<td><div class="cmp-value">${val}</div></td>`;
+    });
+    for (let i = products.length; i < maxSlots; i++) specRows += '<td></td>';
+    specRows += '</tr>';
+  });
+
+  container.innerHTML = `
+    <div class="compare-wrap">
+      <table class="compare-table">
+        <thead><tr>${headerCells}</tr></thead>
+        <tbody>
+          <tr class="compare-section-label"><td colspan="${maxSlots+1}">PUNTUACIÓN Y PRECIO</td></tr>
+          <tr>${scoreRow}</tr>
+          <tr>${ratingRow}</tr>
+          <tr>${priceRow}</tr>
+          <tr class="compare-section-label"><td colspan="${maxSlots+1}">ESPECIFICACIONES TÉCNICAS</td></tr>
+          ${specRows}
+        </tbody>
+      </table>
+    </div>`;
+
+  // Animate score bars
+  setTimeout(() => {
+    document.querySelectorAll('.cmp-bar-fill').forEach(b => {
+      b.style.width = b.style.width; // trigger reflow
+    });
+  }, 100);
+
+  // Wire cart add buttons
+  document.querySelectorAll('.cmp-add.cart-add').forEach(btn => {
+    btn.addEventListener('click', () => {
+      addToCart(btn.dataset.name, parseFloat(btn.dataset.price));
+      btn.textContent = '✓ Añadido';
+      setTimeout(() => { btn.textContent = '+ Carrito'; }, 1500);
+    });
+  });
+}
+
+function removeFromCompare(idx) {
+  const list = getCompareList();
+  list.splice(idx, 1);
+  sessionStorage.setItem('nexusCompare', JSON.stringify(list));
+  window._compareList = list;
+  renderCompare();
+}
+
+renderCompare();
+</script>
+</body>
+</html>

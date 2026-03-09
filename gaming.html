@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gaming — NEXUS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .gaming-hero {
+      min-height: 70vh; display: flex; align-items: center; padding: 120px 40px 60px;
+      position: relative; overflow: hidden;
+      background: radial-gradient(ellipse 100% 80% at 50% 50%, rgba(0,180,255,0.05) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 40% at 80% 30%, rgba(123,47,255,0.08) 0%, transparent 60%);
+    }
+    .gaming-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 59px, var(--border) 59px, var(--border) 60px),
+                  repeating-linear-gradient(90deg, transparent, transparent 59px, var(--border) 59px, var(--border) 60px);
+      opacity: 0.15;
+    }
+    .gaming-hero-content { position: relative; z-index: 1; max-width: 640px; }
+    .gaming-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px, 10vw, 120px); line-height: 0.9; letter-spacing: 2px; }
+    .gaming-title .y { color: var(--accent2); }
+    .gaming-title .g { color: var(--accent); }
+    .setup-builder {
+      background: var(--dark); border: 1px solid var(--border); padding: 48px;
+      margin: 0 40px;
+    }
+    .setup-header { margin-bottom: 40px; }
+    .setup-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; color: var(--white); }
+    .setup-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 32px; }
+    .setup-slot {
+      background: var(--card); padding: 28px 24px; cursor: pointer;
+      transition: background 0.2s; position: relative; min-height: 140px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .setup-slot:hover { background: #1a1a1a; }
+    .setup-slot.filled { border-left: 3px solid var(--accent); }
+    .slot-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 12px; }
+    .slot-icon { font-size: 28px; margin-bottom: 8px; }
+    .slot-name { font-size: 14px; color: var(--white); font-weight: 400; }
+    .slot-price { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--accent); margin-top: 8px; }
+    .slot-empty { color: var(--muted); font-size: 13px; font-style: italic; }
+    .slot-add { position: absolute; top: 16px; right: 16px; background: var(--border); border: none; color: var(--muted); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .slot-add:hover { background: var(--accent); color: var(--black); }
+    .setup-total { display: flex; align-items: center; justify-content: space-between; padding-top: 24px; border-top: 1px solid var(--border); }
+    .total-label { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; font-family: 'JetBrains Mono', monospace; }
+    .total-price { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--accent); letter-spacing: 2px; }
+    .gaming-packs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .pack-card { background: var(--dark); padding: 40px 32px; position: relative; overflow: hidden; transition: background 0.2s; cursor: pointer; }
+    .pack-card:hover { background: var(--card); }
+    .pack-card.featured { background: var(--card); }
+    .pack-card.featured::before { content: 'POPULAR'; position: absolute; top: 16px; right: -20px; background: var(--accent); color: var(--black); font-size: 10px; letter-spacing: 2px; padding: 4px 32px; transform: rotate(45deg); font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+    .pack-tier { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .pack-name { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: var(--white); margin-bottom: 24px; }
+    .pack-items { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+    .pack-items li { font-size: 14px; color: var(--muted); display: flex; gap: 10px; align-items: flex-start; }
+    .pack-items li::before { content: '→'; color: var(--accent); font-size: 12px; margin-top: 2px; flex-shrink: 0; }
+    .pack-price { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--accent); letter-spacing: 1px; }
+    .pack-price-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    @media(max-width:900px){ .setup-builder{margin:0 20px;padding:24px;} .gaming-packs{grid-template-columns:1fr;} .gaming-hero{padding:100px 20px 40px;} }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="gaming.html" class="active">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="soporte.html">Soporte</a>
+    <a href="comparar.html">⚖ Comparar</a>
+    <a href="blog.html">Blog</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="carrito.html" class="cart-btn">🛒 Carrito <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="gaming-hero">
+  <div class="gaming-hero-content">
+    <div class="hero-tag">✦ Gaming Zone</div>
+    <h1 class="gaming-title">
+      <span class="g">LEVEL</span><br>
+      UP YOUR<br>
+      <span class="y">GAME</span>
+    </h1>
+    <p class="hero-subtitle" style="margin-top:20px">Construye el setup de tus sueños. Configura, compara y domina.</p>
+    <div class="hero-actions" style="margin-top:32px">
+      <a href="#builder" class="btn-primary">Configurar Setup</a>
+      <a href="#packs" class="btn-ghost">Ver Packs →</a>
+    </div>
+  </div>
+</div>
+
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">RTX 5090 <em>★</em></span>
+    <span class="marquee-item">240Hz OLED <em>★</em></span>
+    <span class="marquee-item">Mechanical Switches <em>★</em></span>
+    <span class="marquee-item">Wireless Gaming <em>★</em></span>
+    <span class="marquee-item">RGB Everything <em>★</em></span>
+    <span class="marquee-item">4K Ultra Settings <em>★</em></span>
+    <span class="marquee-item">RTX 5090 <em>★</em></span>
+    <span class="marquee-item">240Hz OLED <em>★</em></span>
+    <span class="marquee-item">Mechanical Switches <em>★</em></span>
+    <span class="marquee-item">Wireless Gaming <em>★</em></span>
+    <span class="marquee-item">RGB Everything <em>★</em></span>
+    <span class="marquee-item">4K Ultra Settings <em>★</em></span>
+  </div>
+</div>
+
+<!-- SETUP BUILDER -->
+<section class="section" id="builder">
+  <div class="setup-builder">
+    <div class="setup-header">
+      <div class="section-tag">// Configurador</div>
+      <div class="setup-title">CONSTRUYE TU SETUP</div>
+      <p style="color:var(--muted);font-size:14px;margin-top:8px">Haz clic en cada componente para seleccionarlo y añadirlo a tu configuración.</p>
+    </div>
+    <div class="setup-slots" id="setupSlots">
+      <div class="setup-slot" id="slot-cpu" onclick="selectComponent('cpu')">
+        <div>
+          <div class="slot-label">Procesador</div>
+          <div class="slot-icon">⚡</div>
+          <div class="slot-name slot-empty" id="name-cpu">Seleccionar CPU</div>
+        </div>
+        <div class="slot-price" id="price-cpu" style="display:none"></div>
+        <button class="slot-add">+</button>
+      </div>
+      <div class="setup-slot" id="slot-gpu" onclick="selectComponent('gpu')">
+        <div>
+          <div class="slot-label">Tarjeta Gráfica</div>
+          <div class="slot-icon">🎮</div>
+          <div class="slot-name slot-empty" id="name-gpu">Seleccionar GPU</div>
+        </div>
+        <div class="slot-price" id="price-gpu" style="display:none"></div>
+        <button class="slot-add">+</button>
+      </div>
+      <div class="setup-slot" id="slot-ram" onclick="selectComponent('ram')">
+        <div>
+          <div class="slot-label">Memoria RAM</div>
+          <div class="slot-icon">🧠</div>
+          <div class="slot-name slot-empty" id="name-ram">Seleccionar RAM</div>
+        </div>
+        <div class="slot-price" id="price-ram" style="display:none"></div>
+        <button class="slot-add">+</button>
+      </div>
+      <div class="setup-slot" id="slot-storage" onclick="selectComponent('storage')">
+        <div>
+          <div class="slot-label">Almacenamiento</div>
+          <div class="slot-icon">💾</div>
+          <div class="slot-name slot-empty" id="name-storage">Seleccionar SSD</div>
+        </div>
+        <div class="slot-price" id="price-storage" style="display:none"></div>
+        <button class="slot-add">+</button>
+      </div>
+      <div class="setup-slot" id="slot-monitor" onclick="selectComponent('monitor')">
+        <div>
+          <div class="slot-label">Monitor</div>
+          <div class="slot-icon">🖥️</div>
+          <div class="slot-name slot-empty" id="name-monitor">Seleccionar Monitor</div>
+        </div>
+        <div class="slot-price" id="price-monitor" style="display:none"></div>
+        <button class="slot-add">+</button>
+      </div>
+      <div class="setup-slot" id="slot-peripheral" onclick="selectComponent('peripheral')">
+        <div>
+          <div class="slot-label">Periféricos</div>
+          <div class="slot-icon">⌨️</div>
+          <div class="slot-name slot-empty" id="name-peripheral">Seleccionar Periféricos</div>
+        </div>
+        <div class="slot-price" id="price-peripheral" style="display:none"></div>
+        <button class="slot-add">+</button>
+      </div>
+    </div>
+    <div class="setup-total">
+      <div>
+        <div class="total-label">Total estimado</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px" id="componentCount">0 componentes seleccionados</div>
+      </div>
+      <div style="text-align:right">
+        <div class="total-price" id="totalPrice">0€</div>
+        <button class="btn-primary" style="margin-top:16px" onclick="addSetupToCart()">Añadir todo al carrito</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div id="selectorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:var(--dark);border:1px solid var(--border);width:90%;max-width:600px;max-height:80vh;overflow-y:auto;padding:40px;border-radius:4px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--white)" id="modalTitle">Seleccionar</div>
+      <button onclick="closeModal()" style="background:none;border:1px solid var(--border);color:var(--muted);width:36px;height:36px;cursor:pointer;border-radius:4px;font-size:18px">×</button>
+    </div>
+    <div id="modalContent" class="products-grid" style="grid-template-columns:1fr 1fr"></div>
+  </div>
+</div>
+
+<!-- GAMING PACKS -->
+<section class="section" id="packs">
+  <div class="section-header">
+    <div class="section-tag">// Packs Curados</div>
+    <h2 class="section-title">SETUPS COMPLETOS</h2>
+    <p class="section-desc">Packs preconfigurados por nuestros expertos para cada nivel de juego.</p>
+  </div>
+  <div class="gaming-packs">
+    <div class="pack-card">
+      <div class="pack-tier">Tier 1 · Entry</div>
+      <div class="pack-name">STARTER PACK</div>
+      <ul class="pack-items">
+        <li>AMD Ryzen 5 7600X + B650 Mobo</li>
+        <li>RX 7600 8GB</li>
+        <li>32GB DDR5-5200</li>
+        <li>1TB NVMe SSD</li>
+        <li>Monitor 1080p 144Hz</li>
+        <li>Teclado + Ratón Gaming</li>
+      </ul>
+      <div class="pack-price">899€</div>
+      <div class="pack-price-sub">1080p / High Settings</div>
+      <button class="btn-ghost cart-add" data-name="Starter Pack Gaming" data-price="899" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
+    </div>
+    <div class="pack-card featured">
+      <div class="pack-tier">Tier 2 · Pro</div>
+      <div class="pack-name">PRO GAMER PACK</div>
+      <ul class="pack-items">
+        <li>Intel Core i7-14700K + Z790</li>
+        <li>RTX 4070 Ti Super 16GB</li>
+        <li>32GB DDR5-6000</li>
+        <li>2TB NVMe Gen4 SSD</li>
+        <li>Monitor 1440p 165Hz IPS</li>
+        <li>Kit periféricos pro + auriculares</li>
+      </ul>
+      <div class="pack-price">1.899€</div>
+      <div class="pack-price-sub">1440p / Ultra Settings</div>
+      <button class="btn-primary cart-add" data-name="Pro Gamer Pack" data-price="1899" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
+    </div>
+    <div class="pack-card">
+      <div class="pack-tier">Tier 3 · Elite</div>
+      <div class="pack-name">ELITE SETUP</div>
+      <ul class="pack-items">
+        <li>Intel Core Ultra 9 285K + Z890</li>
+        <li>RTX 5080 16GB</li>
+        <li>64GB DDR5-7200</li>
+        <li>4TB NVMe Gen5 SSD</li>
+        <li>OLED 27" 240Hz 4K</li>
+        <li>Setup completo premium RGB</li>
+      </ul>
+      <div class="pack-price">3.499€</div>
+      <div class="pack-price-sub">4K / Max Settings</div>
+      <button class="btn-ghost cart-add" data-name="Elite Setup Gaming" data-price="3499" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
+    </div>
+  </div>
+</section>
+
+<div class="footer-bottom" style="border-top:1px solid var(--border)">
+  <span class="footer-copy">© 2025 NEXUS TECH</span>
+  <div style="display:flex;gap:24px">
+    <a href="index.html" style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">← Inicio</a>
+    <a href="productos.html" style="font-size:12px;color:var(--accent);font-family:'JetBrains Mono',monospace">Productos →</a>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+<script src="nexus-extras.js"></script>
+<script>
+const componentOptions = {
+  cpu: [
+    { name: 'Intel Core Ultra 9 285K',       price: 589,  icon: '⚡', specs: '24C · 5.7GHz · LGA1851',        badge: '−15%' },
+    { name: 'AMD Ryzen 9 9950X',              price: 649,  icon: '⚡', specs: '16C · 5.7GHz · AM5'             },
+    { name: 'Intel Core i9-14900KS',          price: 499,  icon: '⚡', specs: '24C · 6.2GHz · LGA1700',        badge: '−12%' },
+    { name: 'AMD Ryzen 7 9700X',              price: 329,  icon: '⚡', specs: '8C · 5.5GHz · AM5'              },
+    { name: 'Intel Core Ultra 7 265K',        price: 389,  icon: '⚡', specs: '20C · 5.5GHz · LGA1851',        badge: '−9%'  },
+    { name: 'AMD Ryzen 5 9600X',              price: 249,  icon: '⚡', specs: '6C · 5.4GHz · AM5'              },
+    { name: 'Intel Core i7-14700K',           price: 349,  icon: '⚡', specs: '20C · 5.6GHz · LGA1700',        badge: '−17%' },
+    { name: 'AMD Ryzen Threadripper 7970X',   price: 2499, icon: '⚡', specs: '32C · 5.3GHz · sTR5',           badge: 'PRO'  },
+  ],
+  gpu: [
+    { name: 'NVIDIA GeForce RTX 5090 32GB',   price: 1999, icon: '🎮', specs: '32GB GDDR7 · DLSS 4 · 575W',   badge: 'Nuevo' },
+    { name: 'NVIDIA GeForce RTX 5080 16GB',   price: 1199, icon: '🎮', specs: '16GB GDDR7 · DLSS 4 · 360W',   badge: 'Nuevo' },
+    { name: 'NVIDIA GeForce RTX 4090 24GB',   price: 1549, icon: '🎮', specs: '24GB GDDR6X · DLSS 3 · 450W',  badge: '−14%'  },
+    { name: 'NVIDIA RTX 4070 Ti Super 16GB',  price: 799,  icon: '🎮', specs: '16GB GDDR6X · DLSS 3.5',        badge: '−11%'  },
+    { name: 'NVIDIA GeForce RTX 4060 Ti 16GB',price: 449,  icon: '🎮', specs: '16GB GDDR6 · DLSS 3 · 165W'    },
+    { name: 'AMD Radeon RX 9070 XT 16GB',     price: 699,  icon: '🎮', specs: '16GB GDDR6 · FSR 4 · 304W'     },
+    { name: 'AMD Radeon RX 7900 XTX 24GB',    price: 799,  icon: '🎮', specs: '24GB GDDR6 · FSR 3 · 355W',    badge: '−20%'  },
+    { name: 'AMD Radeon RX 7600 XT 16GB',     price: 329,  icon: '🎮', specs: '16GB GDDR6 · FSR 3 · 165W',    badge: 'Nuevo' },
+  ],
+  ram: [
+    { name: 'Corsair Dominator Titanium DDR5 32GB', price: 219, icon: '🧠', specs: 'DDR5-6400 · 2×16GB · CL32' },
+    { name: 'G.Skill Trident Z5 RGB 64GB',          price: 349, icon: '🧠', specs: 'DDR5-7200 · 2×32GB · CL36' },
+    { name: 'G.Skill Ripjaws S5 96GB',              price: 489, icon: '🧠', specs: 'DDR5-6800 · 2×48GB · CL34', badge: 'Nuevo' },
+    { name: 'Kingston Fury Renegade DDR5 128GB',    price: 699, icon: '🧠', specs: 'DDR5-6400 · 4×32GB · CL32', badge: 'PRO'   },
+    { name: 'Kingston Fury Beast DDR5 32GB',        price: 149, icon: '🧠', specs: 'DDR5-6000 · 2×16GB · CL36', badge: '−17%'  },
+    { name: 'TeamGroup T-Force Delta RGB 32GB',     price: 189, icon: '🧠', specs: 'DDR5-7600 · 2×16GB · CL36' },
+    { name: 'Corsair Vengeance DDR5 16GB',          price: 79,  icon: '🧠', specs: 'DDR5-5200 · 2×8GB · CL40'  },
+  ],
+  storage: [
+    { name: 'Samsung 990 Pro NVMe 2TB',    price: 159, icon: '💾', specs: '7450 MB/s · PCIe 4.0 · M.2',   badge: '−20%'  },
+    { name: 'WD Black SN850X 4TB',         price: 299, icon: '💾', specs: '7300 MB/s · PCIe 4.0 · M.2'   },
+    { name: 'Crucial T705 2TB PCIe 5.0',   price: 249, icon: '💾', specs: '14500 MB/s · Gen5 · M.2',      badge: 'Nuevo' },
+    { name: 'Sabrent Rocket 5 Plus 8TB',   price: 799, icon: '💾', specs: '14000 MB/s · Gen5 · M.2',      badge: 'Nuevo' },
+    { name: 'Seagate FireCuda 530 4TB',    price: 319, icon: '💾', specs: '7300 MB/s · PCIe 4.0 · M.2',   badge: '−20%'  },
+    { name: 'Samsung 870 EVO SATA 4TB',    price: 249, icon: '💾', specs: '560 MB/s · SATA · 2.5"'       },
+    { name: 'WD Red Pro NAS HDD 20TB',     price: 399, icon: '💾', specs: '20TB · 7200 RPM · CMR',        badge: 'NAS'   },
+  ],
+  monitor: [
+    { name: 'ASUS ROG Swift OLED 27" 240Hz',   price: 799,  icon: '🖥️', specs: '1440p · OLED · 240Hz · 1ms',  badge: 'Nuevo' },
+    { name: 'LG UltraGear 4K 32" 144Hz',       price: 649,  icon: '🖥️', specs: '4K · IPS · 144Hz · 1ms',      badge: '−19%'  },
+    { name: 'Samsung Odyssey G9 49" OLED',      price: 1299, icon: '🖥️', specs: '5120×1440 · OLED · 240Hz',    badge: 'Nuevo' },
+    { name: 'MSI MPG 321URX QD-OLED 4K',       price: 899,  icon: '🖥️', specs: '4K · QD-OLED · 240Hz',        badge: 'Nuevo' },
+    { name: 'Acer Predator X34X 34" 175Hz',    price: 549,  icon: '🖥️', specs: '3440×1440 · IPS · 175Hz',     badge: '−15%'  },
+    { name: 'BenQ Mobiuz EX321UX 32" 4K',      price: 499,  icon: '🖥️', specs: '4K · IPS · 144Hz'             },
+  ],
+  peripheral: [
+    { name: 'Logitech G Pro X Superlight 2',    price: 159, icon: '🖱️', specs: '60g · HERO 25K · Wireless'    },
+    { name: 'Razer DeathAdder V3 HyperSpeed',   price: 99,  icon: '🖱️', specs: '59g · Focus Pro 30K',          badge: '−23%'  },
+    { name: 'Logitech MX Master 3S',            price: 99,  icon: '🖱️', specs: '8K DPI · Electromagn. · Silencioso' },
+    { name: 'Corsair Scimitar Elite Wireless',  price: 119, icon: '🖱️', specs: '17 botones · 26K DPI'          },
+    { name: 'Razer Basilisk V3 Pro 35K',        price: 139, icon: '🖱️', specs: '35K DPI · 11 botones · Wireless', badge: 'Nuevo' },
+    { name: 'Corsair K100 Air Wireless',        price: 229, icon: '⌨️', specs: 'MX Ultra Low · RGB · BT 5.0'   },
+    { name: 'Razer BlackWidow V4 Pro 75%',      price: 199, icon: '⌨️', specs: 'Yellow Switch · RGB · BT+USB',  badge: 'Nuevo' },
+    { name: 'Logitech G915 TKL Lightspeed',     price: 189, icon: '⌨️', specs: 'GL Tactile · RGB · Wireless',   badge: '−14%'  },
+    { name: 'SteelSeries Arctis Nova Pro Wireless', price: 249, icon: '🎧', specs: 'Hi-Res · ANC · 40h bat.',   badge: '−24%'  },
+    { name: 'HyperX Cloud Alpha Wireless',      price: 149, icon: '🎧', specs: '50mm Driver · 300h bat. · 7.1'  },
+    { name: 'Elgato Stream Deck MK.2',          price: 149, icon: '🎛️', specs: '15 teclas LCD · USB-C',        badge: 'Stream' },
+    { name: 'Rode NT-USB+ Microphone',          price: 189, icon: '🎙️', specs: 'Cardioide · 192kHz/32bit',     badge: 'Stream' },
+  ],
+};
+
+let setup = {};
+let currentSlot = null;
+
+function selectComponent(slot) {
+  currentSlot = slot;
+  const titles = { cpu: 'Procesador', gpu: 'Tarjeta Gráfica', ram: 'Memoria RAM', storage: 'Almacenamiento', monitor: 'Monitor', peripheral: 'Periféricos' };
+  document.getElementById('modalTitle').textContent = 'Seleccionar ' + titles[slot];
+  const options = componentOptions[slot];
+  document.getElementById('modalContent').innerHTML = options.map((o,i) => `
+    <div class="product-card" style="cursor:pointer;position:relative" onclick="chooseComponent('${slot}', ${i})">
+      ${o.badge ? `<div class="product-badge" style="font-size:9px;padding:3px 8px">${o.badge}</div>` : ''}
+      <div class="product-img" style="aspect-ratio:unset;padding:20px;font-size:44px">${o.icon}</div>
+      <div class="product-info" style="padding:16px">
+        <div class="product-name" style="font-size:13px;line-height:1.4">${o.name}</div>
+        ${o.specs ? `<div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:6px;line-height:1.6">${o.specs}</div>` : ''}
+        <div class="product-footer" style="margin-top:12px;padding-top:10px">
+          <span class="product-price" style="font-size:22px">${o.price}€</span>
+          <div style="background:var(--accent);color:var(--black);width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">→</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('selectorModal').style.display = 'flex';
+}
+
+function chooseComponent(slot, idx) {
+  const opt = componentOptions[slot][idx];
+  setup[slot] = opt;
+  const nameEl = document.getElementById('name-' + slot);
+  nameEl.textContent = opt.name;
+  nameEl.classList.remove('slot-empty');
+  // Show specs below name if available
+  const existingSpecs = document.getElementById('specs-' + slot);
+  if (existingSpecs) existingSpecs.remove();
+  if (opt.specs) {
+    const specsEl = document.createElement('div');
+    specsEl.id = 'specs-' + slot;
+    specsEl.style.cssText = 'font-size:10px;color:var(--muted);font-family:"JetBrains Mono",monospace;margin-top:4px;line-height:1.5';
+    specsEl.textContent = opt.specs;
+    nameEl.after(specsEl);
+  }
+  document.getElementById('price-' + slot).textContent = opt.price.toLocaleString('es-ES') + '€';
+  document.getElementById('price-' + slot).style.display = 'block';
+  document.getElementById('slot-' + slot).classList.add('filled');
+  updateTotal();
+  closeModal();
+}
+
+function closeModal() { document.getElementById('selectorModal').style.display = 'none'; }
+
+function updateTotal() {
+  const total = Object.values(setup).reduce((s, c) => s + c.price, 0);
+  const count = Object.keys(setup).length;
+  document.getElementById('totalPrice').textContent = total.toLocaleString('es-ES') + '€';
+  document.getElementById('componentCount').textContent = count + ' componente' + (count !== 1 ? 's' : '') + ' seleccionado' + (count !== 1 ? 's' : '');
+}
+
+function addSetupToCart() {
+  const items = Object.values(setup);
+  if (!items.length) { showToast('⚠ Selecciona al menos un componente'); return; }
+  items.forEach(i => cart.push({ name: i.name, price: i.price }));
+  localStorage.setItem('nexusCart', JSON.stringify(cart));
+  updateCartCount();
+  showToast('✓ Setup completo añadido al carrito (' + items.length + ' items)');
+}
+
+document.getElementById('selectorModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Pack buttons — event delegation
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.cart-add');
+  if (!btn) return;
+  // Skip modal buttons (handled per-render) and setup builder
+  if (btn.closest('#selectorModal')) return;
+  addToCart(btn.dataset.name, parseFloat(btn.dataset.price));
+  const orig = btn.textContent;
+  btn.textContent = '✓ Añadido';
+  btn.style.opacity = '0.75';
+  setTimeout(() => { btn.textContent = orig; btn.style.opacity = ''; }, 1400);
+});
+</script>
+</body>
+</html>
