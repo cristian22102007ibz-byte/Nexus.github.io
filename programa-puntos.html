@@ -72,7 +72,22 @@
 
     @media(max-width:900px){ .levels-grid{grid-template-columns:1fr 1fr;} .earn-grid{grid-template-columns:1fr;} .redeem-grid{grid-template-columns:1fr 1fr;} .pts-hero{padding:100px 20px 60px;} }
     @media(max-width:600px){ .levels-grid{grid-template-columns:1fr;} .redeem-grid{grid-template-columns:1fr;} }
-  </style>
+  
+@media(max-width:768px){
+  .levels-grid{grid-template-columns:1fr 1fr;}
+  .redeem-grid{grid-template-columns:1fr 1fr;}
+  .earn-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:480px){
+  .pts-hero{padding:68px 16px 36px;}
+  .levels-grid{grid-template-columns:1fr;}
+  .redeem-grid{grid-template-columns:1fr;}
+  .earn-grid{grid-template-columns:1fr;}
+  .my-progress{padding:24px 16px;}
+  .my-pts-num{font-size:56px;}
+  .my-pts-display{flex-direction:column;gap:16px;}
+}
+</style>
 </head>
 <body>
 <nav>

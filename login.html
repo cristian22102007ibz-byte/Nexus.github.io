@@ -202,7 +202,17 @@
       .auth-brand { display: none; }
       .auth-form-panel { width: 100%; padding: 40px 24px; }
     }
-  </style>
+  
+@media(max-width:768px){
+  .login-wrap{padding:80px 20px 40px;grid-template-columns:1fr;}
+  .login-visual{display:none;}
+}
+@media(max-width:480px){
+  .login-wrap{padding:68px 16px 32px;}
+  .login-box{padding:28px 20px;}
+  .social-row{flex-direction:column;}
+}
+</style>
 </head>
 <body>
 

@@ -63,7 +63,23 @@
     .aff-feature-text { font-size: 13px; color: var(--muted); line-height: 1.7; }
 
     @media(max-width:900px){ .aff-hero-inner{grid-template-columns:1fr;gap:40px;} .tiers-grid{grid-template-columns:1fr;} .aff-stats{grid-template-columns:1fr 1fr;} .aff-features{grid-template-columns:1fr;} .aff-hero,.aff-form{padding-left:20px;padding-right:20px;} .aff-form{padding:32px 24px;} .form-row-2{grid-template-columns:1fr;} }
-  </style>
+  
+@media(max-width:768px){
+  .aff-hero{padding:80px 20px 40px;}
+  .aff-hero-inner{grid-template-columns:1fr;gap:32px;}
+  .aff-stats{grid-template-columns:1fr 1fr;}
+  .aff-features{grid-template-columns:1fr 1fr;}
+  .tiers-grid{grid-template-columns:1fr;}
+}
+@media(max-width:480px){
+  .aff-hero{padding:68px 16px 32px;}
+  .aff-stats{grid-template-columns:1fr 1fr;}
+  .aff-features{grid-template-columns:1fr;}
+  .form-row-2{grid-template-columns:1fr;}
+  .aff-form{padding:24px 16px;}
+  #join{padding:40px 16px;}
+}
+</style>
 </head>
 <body>
 <nav>
@@ -239,10 +255,10 @@
   <div><div class="footer-col-title">Empresa</div><div class="footer-links"><a href="sobre-nosotros.html">Sobre nosotros</a><a href="afiliados.html">Afiliados</a></div></div>
   <div><div class="footer-col-title">Ayuda</div><div class="footer-links"><a href="soporte.html">Soporte</a><a href="financiacion.html">Financiación</a><a href="programa-puntos.html">Puntos</a></div></div>
 </footer>
-<div class="footer-bottom"><span class="footer-copy">© 2025 NEXUS TECH S.L.</span><span class="footer-copy">Programa de Afiliados · afiliados@nexustech.es</span></div>
+<div class="footer-bottom"><span class="footer-copy">© 2025 NEXUS TECH S.L.</span><span class="footer-copy">Programa de Afiliados · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c2a3a4abaeaba3a6adb182aca7bab7b1b6a7a1aaeca7b1">[email&#160;protected]</a></span></div>
 
 <div class="toast" id="toast"></div>
-<script src="app.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="app.js"></script>
 <script src="nexus-extras.js"></script>
 <script>
 function submitAffApp() {
@@ -259,10 +275,4 @@ function submitAffApp() {
     <div style="text-align:center;padding:32px">
       <div style="font-size:64px;margin-bottom:16px">🎉</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:var(--white);margin-bottom:12px">SOLICITUD RECIBIDA</div>
-      <div style="font-size:14px;color:var(--muted);line-height:1.7">Hemos recibido tu solicitud, <strong style="color:var(--white)">${name}</strong>.<br>Revisaremos tu canal y te contactaremos en <strong style="color:var(--accent)">menos de 48 horas</strong> en <strong style="color:var(--white)">${email}</strong>.</div>
-      <a href="index.html" class="btn-primary" style="margin-top:28px;display:inline-block">Volver al inicio</a>
-    </div>`; }, 800);
-}
-</script>
-</body>
-</html>
+      <div style="font-size:14px;color:var(--muted);line-height:1.7">Hemos recibido tu solicitud, <strong style="color:var(--white)">${name}</strong>.<br>Revisaremos tu canal y te contactaremos en <strong style="color:var(--accent)">menos de 48 horas</s

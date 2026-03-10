@@ -6,6 +6,21 @@
   <title>NEXUS — Tecnología de Alto Rendimiento</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+<style>
+@media(max-width:900px){
+  .trust-bar{flex-direction:column;gap:0;}
+  .trust-item{padding:14px 20px;border-right:none;border-bottom:1px solid var(--border);}
+  .payment-methods{flex-wrap:wrap;gap:8px;padding:16px 20px;}
+  .cats-grid{grid-template-columns:repeat(2,1fr);}
+  .products-grid{grid-template-columns:repeat(2,1fr);}
+  .hero-stats{gap:20px;}
+}
+@media(max-width:480px){
+  .cats-grid{grid-template-columns:repeat(2,1fr);}
+  .products-grid{grid-template-columns:1fr;}
+  .trust-item{font-size:12px;padding:12px 16px;}
+}
+</style>
 </head>
 <body>
 
@@ -23,9 +38,7 @@
   <div class="nav-actions" id="navActions">
     <input type="text" class="nav-search" placeholder="Buscar productos..." id="searchInput" oninput="liveSearch(this.value)">
     <div class="search-dropdown" id="searchDropdown"></div>
-    <a href="carrito.html" class="cart-btn">
-      🛒 Carrito
-      <span class="cart-count" id="cartCount">0</span>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-text">Carrito</span> <span class="cart-count" id="cartCount">0</span>
     </a>
   </div>
 </nav>
@@ -107,9 +120,11 @@
         <div class="product-name">Core Ultra 9 285K</div>
         <div class="product-specs"><span class="spec-tag">24 Cores</span><span class="spec-tag">5.7 GHz</span><span class="spec-tag">LGA1851</span></div>
         <div class="product-footer">
-          <div><span class="product-price">589€</span><span class="product-price-old">699€</span></div>
-          <button class="add-btn cart-add" data-name="Intel Core Ultra 9 285K" data-price="589">+</button>
-        </div>
+          <div class="product-footer-prices"><span class="product-price">589€</span><span class="product-price-old">699€</span>
+          </div>
+          <div class="product-footer-btns">
+            <button class="add-btn cart-add" data-name="Intel Core Ultra 9 285K" data-price="589">+</button>
+          </div>
       </div>
     </div>
     <div class="product-card" data-cat="gpu">
@@ -120,9 +135,11 @@
         <div class="product-name">GeForce RTX 5080 16GB</div>
         <div class="product-specs"><span class="spec-tag">16 GB GDDR7</span><span class="spec-tag">DLSS 4</span></div>
         <div class="product-footer">
-          <div><span class="product-price">1.199€</span></div>
-          <button class="add-btn cart-add" data-name="GeForce RTX 5080 16GB" data-price="1199">+</button>
-        </div>
+          <div class="product-footer-prices"><span class="product-price">1.199€</span>
+          </div>
+          <div class="product-footer-btns">
+            <button class="add-btn cart-add" data-name="GeForce RTX 5080 16GB" data-price="1199">+</button>
+          </div>
       </div>
     </div>
     <div class="product-card" data-cat="ram">
@@ -132,9 +149,11 @@
         <div class="product-name">Dominator Titanium DDR5 32GB</div>
         <div class="product-specs"><span class="spec-tag">DDR5-6400</span><span class="spec-tag">2×16GB</span><span class="spec-tag">CL32</span></div>
         <div class="product-footer">
-          <div><span class="product-price">219€</span></div>
-          <button class="add-btn cart-add" data-name="Corsair Dominator Titanium DDR5 32GB" data-price="219">+</button>
-        </div>
+          <div class="product-footer-prices"><span class="product-price">219€</span>
+          </div>
+          <div class="product-footer-btns">
+            <button class="add-btn cart-add" data-name="Corsair Dominator Titanium DDR5 32GB" data-price="219">+</button>
+          </div>
       </div>
     </div>
     <div class="product-card" data-cat="storage">
@@ -145,9 +164,11 @@
         <div class="product-name">990 Pro NVMe SSD 2TB</div>
         <div class="product-specs"><span class="spec-tag">7450 MB/s</span><span class="spec-tag">PCIe 4.0</span><span class="spec-tag">M.2</span></div>
         <div class="product-footer">
-          <div><span class="product-price">159€</span><span class="product-price-old">199€</span></div>
-          <button class="add-btn cart-add" data-name="Samsung 990 Pro NVMe SSD 2TB" data-price="159">+</button>
-        </div>
+          <div class="product-footer-prices"><span class="product-price">159€</span><span class="product-price-old">199€</span>
+          </div>
+          <div class="product-footer-btns">
+            <button class="add-btn cart-add" data-name="Samsung 990 Pro NVMe SSD 2TB" data-price="159">+</button>
+          </div>
       </div>
     </div>
     <div class="product-card" data-cat="cpu">
@@ -157,9 +178,11 @@
         <div class="product-name">Ryzen 9 9950X</div>
         <div class="product-specs"><span class="spec-tag">16 Cores</span><span class="spec-tag">5.7 GHz</span><span class="spec-tag">AM5</span></div>
         <div class="product-footer">
-          <div><span class="product-price">649€</span></div>
-          <button class="add-btn cart-add" data-name="AMD Ryzen 9 9950X" data-price="649">+</button>
-        </div>
+          <div class="product-footer-prices"><span class="product-price">649€</span>
+          </div>
+          <div class="product-footer-btns">
+            <button class="add-btn cart-add" data-name="AMD Ryzen 9 9950X" data-price="649">+</button>
+          </div>
       </div>
     </div>
     <div class="product-card" data-cat="gpu">
@@ -169,9 +192,11 @@
         <div class="product-name">Radeon RX 9070 XT 16GB</div>
         <div class="product-specs"><span class="spec-tag">16 GB GDDR6</span><span class="spec-tag">FSR 4</span></div>
         <div class="product-footer">
-          <div><span class="product-price">699€</span></div>
-          <button class="add-btn cart-add" data-name="AMD Radeon RX 9070 XT 16GB" data-price="699">+</button>
-        </div>
+          <div class="product-footer-prices"><span class="product-price">699€</span>
+          </div>
+          <div class="product-footer-btns">
+            <button class="add-btn cart-add" data-name="AMD Radeon RX 9070 XT 16GB" data-price="699">+</button>
+          </div>
       </div>
     </div>
   </div>

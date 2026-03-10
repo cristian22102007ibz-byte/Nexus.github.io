@@ -215,7 +215,17 @@
       .auth-brand { display: none; }
       .auth-form-panel { width: 100%; padding: 40px 24px; border-right: none; }
     }
-  </style>
+  
+@media(max-width:768px){
+  .register-wrap{padding:80px 20px 40px;grid-template-columns:1fr;}
+  .register-visual{display:none;}
+}
+@media(max-width:480px){
+  .register-wrap{padding:68px 16px 32px;}
+  .register-box{padding:28px 20px;}
+  .name-row{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
 

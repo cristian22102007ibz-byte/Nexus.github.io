@@ -55,7 +55,21 @@
     .tracker-step-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
     @media(max-width:900px){ .support-grid{grid-template-columns:1fr;} .contact-grid{grid-template-columns:1fr;gap:40px;} .contact-section,.faq-section{padding:60px 20px;} .status-tracker{margin:0 20px 40px;padding:24px;} .tracker-steps{flex-direction:column;gap:16px;} .tracker-steps::before{display:none;} .form-row{grid-template-columns:1fr;} }
-  </style>
+  
+@media(max-width:900px){
+  .support-grid{grid-template-columns:1fr 1fr;}
+  .faq-section{padding:48px 20px;}
+  .contact-section{padding:48px 20px;}
+  .contact-grid{grid-template-columns:1fr;gap:40px;}
+  .tracker-section{padding:48px 20px;}
+}
+@media(max-width:480px){
+  .support-grid{grid-template-columns:1fr;}
+  .support-card{padding:28px 20px;}
+  .faq-section,.contact-section{padding:32px 16px;}
+  .contact-info-item{gap:14px;}
+}
+</style>
 </head>
 <body>
 <nav>
@@ -68,7 +82,7 @@
     <a href="soporte.html" class="active">Soporte</a>
   </div>
   <div class="nav-actions" id="navActions">
-    <a href="carrito.html" class="cart-btn">🛒 Carrito <span class="cart-count" id="cartCount">0</span></a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-text">Carrito</span> <span class="cart-count" id="cartCount">0</span></a>
   </div>
 </nav>
 

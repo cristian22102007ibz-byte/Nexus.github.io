@@ -104,7 +104,23 @@
     .address-card-name { font-size: 14px; color: var(--white); font-weight: 500; margin-bottom: 4px; }
 
     @media(max-width:900px){ .checkout-layout{grid-template-columns:1fr;} .checkout-sidebar{position:static;height:auto;} .checkout-main{padding:32px 20px;} .field-row{grid-template-columns:1fr;} .confirm-steps{grid-template-columns:1fr 1fr;} }
-  </style>
+  
+@media(max-width:768px){
+  .checkout-layout{gap:0;}
+  .checkout-sidebar{margin-top:24px;}
+  .steps-bar{gap:0;overflow-x:auto;padding-bottom:4px;}
+  .step-item{flex-shrink:0;min-width:80px;}
+}
+@media(max-width:480px){
+  .checkout-main{padding:20px 16px;}
+  .checkout-sidebar{padding:20px 16px;}
+  .field-row{grid-template-columns:1fr;}
+  .payment-tabs{flex-wrap:nowrap;overflow-x:auto;}
+  .payment-tab{flex-shrink:0;}
+  .card-row{flex-direction:column;}
+  .confirm-steps{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
 <nav>
@@ -243,7 +259,7 @@
           <div style="font-size:56px;margin-bottom:16px">🅿</div>
           <div style="font-size:16px;color:var(--white);margin-bottom:8px">Pagar con PayPal</div>
           <div style="font-size:13px;color:var(--muted);margin-bottom:24px">Serás redirigido a PayPal para completar el pago de forma segura</div>
-          <div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">hola@tuEmail.com</div>
+          <div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="adc5c2c1ccedd9d8e8c0ccc4c183cec2c0">[email&#160;protected]</a></div>
         </div>
       </div>
 
@@ -282,7 +298,7 @@
         <div class="confirm-icon">🎉</div>
         <div class="confirm-title">¡PEDIDO<br><span>CONFIRMADO</span>!</div>
         <div class="confirm-order-num" id="confirmOrderNum">Nº PEDIDO: NEX-2025-XXXXX</div>
-        <div style="font-size:14px;color:var(--muted);margin-top:12px">Hemos enviado la confirmación a <span id="confirmEmail" style="color:var(--accent)">tu@email.com</span></div>
+        <div style="font-size:14px;color:var(--muted);margin-top:12px">Hemos enviado la confirmación a <span id="confirmEmail" style="color:var(--accent)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3c48497c59515d5550125f5351">[email&#160;protected]</a></span></div>
 
         <div class="confirm-steps">
           <div class="confirm-step"><div class="confirm-step-icon">✅</div><div class="confirm-step-label">Pedido</div><div class="confirm-step-detail">Confirmado</div></div>
@@ -321,7 +337,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="app.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="app.js"></script>
 <script src="nexus-extras.js"></script>
 <script>
 let currentStep = 1;
@@ -490,15 +506,4 @@ if (user && user.loggedIn) {
   document.getElementById('newAddrToggle').onclick = () => {
     showingNew = !showingNew;
     document.getElementById('addressFields').style.display = showingNew ? 'block' : 'none';
-    document.getElementById('newAddrToggle').querySelector('span').textContent = showingNew ? '− CANCELAR' : '+ USAR OTRA DIRECCIÓN';
-    if (!showingNew) document.getElementById('fname').value = '';
-  };
-  // Pre-fill
-  document.getElementById('fname').value = (user.name||'').split(' ')[0] || '';
-  document.getElementById('lname').value = (user.name||'').split(' ').slice(1).join(' ') || '';
-}
-
-renderSidebar();
-</script>
-</body>
-</html>
+    document.getElementById('newAddrToggle').querySelector('span').textContent = showingNew ? '− CAN

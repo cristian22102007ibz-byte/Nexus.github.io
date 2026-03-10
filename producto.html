@@ -133,7 +133,24 @@
     .related-section { padding: 60px 40px; }
 
     @media(max-width:900px){ .product-page{grid-template-columns:1fr;} .gallery{padding-right:0;margin-bottom:40px;} .reviews-header{grid-template-columns:1fr;} .specs-grid{grid-template-columns:1fr;} .breadcrumb{padding:72px 20px 0;} .product-page{padding:24px 20px 60px;} .performance-section,.reviews-section,.specs-section,.related-section{padding:40px 20px;} }
-  </style>
+  
+@media(max-width:768px){
+  .product-page{gap:0;}
+  .gallery-thumbs{gap:6px;}
+  .product-title{font-size:clamp(24px,6vw,36px);}
+  .related-grid{grid-template-columns:repeat(2,1fr);}
+  .benchmark-bar-wrap{flex-direction:column;gap:4px;}
+}
+@media(max-width:480px){
+  .product-page{padding:16px 16px 40px;}
+  .gallery-main{font-size:80px;padding:24px;}
+  .gallery-thumbs span{width:44px;height:44px;font-size:20px;}
+  .product-title{font-size:clamp(22px,7vw,32px);}
+  .specs-table td,.specs-table th{padding:10px 12px;font-size:12px;}
+  .related-grid{grid-template-columns:1fr 1fr;}
+  .review-card{padding:16px;}
+}
+</style>
 </head>
 <body>
 <nav>

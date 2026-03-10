@@ -81,7 +81,24 @@
     .ph-pts.minus { color: #ff5e5e; }
 
     @media(max-width:900px){ .profile-layout{grid-template-columns:1fr;} .profile-sidebar{position:static;height:auto;} .stats-grid{grid-template-columns:1fr 1fr;} .settings-grid{grid-template-columns:1fr;} .profile-main{padding:24px;} }
-  </style>
+  
+@media(max-width:768px){
+  .profile-layout{gap:0;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .orders-table{font-size:12px;}
+  .orders-table th,.orders-table td{padding:10px 12px;}
+}
+@media(max-width:480px){
+  .profile-main{padding:20px 16px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .stat-card{padding:20px 16px;}
+  .stat-value{font-size:32px;}
+  .tab-nav{flex-wrap:nowrap;overflow-x:auto;}
+  .tab-btn{flex-shrink:0;font-size:11px;padding:10px 14px;}
+  .orders-table{display:block;overflow-x:auto;}
+  .settings-grid{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
 <nav>

@@ -60,7 +60,24 @@
     .pack-price { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--accent); letter-spacing: 1px; }
     .pack-price-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
     @media(max-width:900px){ .setup-builder{margin:0 20px;padding:24px;} .gaming-packs{grid-template-columns:1fr;} .gaming-hero{padding:100px 20px 40px;} }
-  </style>
+  
+@media(max-width:900px){
+  .gaming-hero{padding:80px 20px 48px;}
+  .gaming-hero-title{font-size:clamp(48px,12vw,80px);}
+  .builder-section{padding:40px 20px;}
+  .setup-slots{grid-template-columns:repeat(2,1fr);}
+  .gaming-packs{grid-template-columns:1fr;}
+  .pack-card{padding:28px 20px;}
+}
+@media(max-width:480px){
+  .gaming-hero{padding:68px 16px 36px;}
+  .gaming-hero-title{font-size:clamp(40px,14vw,64px);}
+  .setup-slots{grid-template-columns:1fr;}
+  .builder-inner{padding:20px;}
+  .setup-total{flex-direction:column;align-items:flex-start;gap:12px;}
+  .setup-total .btn-primary{width:100%;text-align:center;}
+}
+</style>
 </head>
 <body>
 <nav>
@@ -75,7 +92,7 @@
     <a href="blog.html">Blog</a>
   </div>
   <div class="nav-actions" id="navActions">
-    <a href="carrito.html" class="cart-btn">🛒 Carrito <span class="cart-count" id="cartCount">0</span></a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-text">Carrito</span> <span class="cart-count" id="cartCount">0</span></a>
   </div>
 </nav>
 
@@ -175,6 +192,33 @@
         <div class="slot-price" id="price-peripheral" style="display:none"></div>
         <button class="slot-add">+</button>
       </div>
+      <div class="setup-slot" id="slot-motherboard" onclick="selectComponent('motherboard')">
+        <div>
+          <div class="slot-label">Placa Base</div>
+          <div class="slot-icon">🔲</div>
+          <div class="slot-name slot-empty" id="name-motherboard">Seleccionar Placa Base</div>
+        </div>
+        <div class="slot-price" id="price-motherboard" style="display:none"></div>
+        <button class="slot-add">+</button>
+      </div>
+      <div class="setup-slot" id="slot-case" onclick="selectComponent('case')">
+        <div>
+          <div class="slot-label">Caja PC</div>
+          <div class="slot-icon">🖥</div>
+          <div class="slot-name slot-empty" id="name-case">Seleccionar Caja</div>
+        </div>
+        <div class="slot-price" id="price-case" style="display:none"></div>
+        <button class="slot-add">+</button>
+      </div>
+      <div class="setup-slot" id="slot-psu" onclick="selectComponent('psu')">
+        <div>
+          <div class="slot-label">Fuente de Alimentación</div>
+          <div class="slot-icon">🔌</div>
+          <div class="slot-name slot-empty" id="name-psu">Seleccionar Fuente</div>
+        </div>
+        <div class="slot-price" id="price-psu" style="display:none"></div>
+        <button class="slot-add">+</button>
+      </div>
     </div>
     <div class="setup-total">
       <div>
@@ -208,51 +252,79 @@
     <p class="section-desc">Packs preconfigurados por nuestros expertos para cada nivel de juego.</p>
   </div>
   <div class="gaming-packs">
+
+    <!-- ── STARTER PACK ── -->
     <div class="pack-card">
       <div class="pack-tier">Tier 1 · Entry</div>
       <div class="pack-name">STARTER PACK</div>
       <ul class="pack-items">
-        <li>AMD Ryzen 5 7600X + B650 Mobo</li>
-        <li>RX 7600 8GB</li>
-        <li>32GB DDR5-5200</li>
-        <li>1TB NVMe SSD</li>
-        <li>Monitor 1080p 144Hz</li>
-        <li>Teclado + Ratón Gaming</li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CPU</span>AMD Ryzen 5 9600X <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">249€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PLACA BASE</span>Gigabyte B650E Aorus Pro X <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">219€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">GPU</span>AMD Radeon RX 7600 XT 16GB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">329€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">RAM</span>Kingston Fury Beast DDR5 32GB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">149€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">SSD</span>Samsung 990 Pro NVMe 2TB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">159€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CAJA</span>DeepCool Morpheus CC560 Digital <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">79€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">FUENTE</span>Seasonic S12III 650W Bronze <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">59€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">MONITOR</span>BenQ Mobiuz EX321UX 32" 4K <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">499€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PERIFÉRICOS</span>Razer DeathAdder V3 + BlackWidow V4 <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">298€</span></li>
       </ul>
-      <div class="pack-price">899€</div>
-      <div class="pack-price-sub">1080p / High Settings</div>
-      <button class="btn-ghost cart-add" data-name="Starter Pack Gaming" data-price="899" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
+      <div style="border-top:1px solid var(--border);margin:20px 0 12px;padding-top:16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">1080p / High Settings</span>
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">9 componentes</span>
+      </div>
+      <div class="pack-price">2.040€</div>
+      <div class="pack-price-sub">Ahorra ~180€ vs. precio individual</div>
+      <button class="btn-ghost cart-add" data-name="Starter Pack Gaming" data-price="2040" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
     </div>
+
+    <!-- ── PRO GAMER PACK ── -->
     <div class="pack-card featured">
       <div class="pack-tier">Tier 2 · Pro</div>
       <div class="pack-name">PRO GAMER PACK</div>
       <ul class="pack-items">
-        <li>Intel Core i7-14700K + Z790</li>
-        <li>RTX 4070 Ti Super 16GB</li>
-        <li>32GB DDR5-6000</li>
-        <li>2TB NVMe Gen4 SSD</li>
-        <li>Monitor 1440p 165Hz IPS</li>
-        <li>Kit periféricos pro + auriculares</li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CPU</span>Intel Core i7-14700K <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">349€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PLACA BASE</span>MSI MAG X870E Tomahawk WiFi <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">279€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">GPU</span>NVIDIA RTX 4070 Ti Super 16GB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">799€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">RAM</span>Corsair Dominator Titanium DDR5 32GB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">219€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">SSD</span>WD Black SN850X 4TB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">299€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CAJA</span>Fractal Torrent RGB Black <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">169€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">FUENTE</span>Corsair RM850e Fully Modular 850W <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">109€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">MONITOR</span>ASUS ROG Swift OLED 27" 240Hz <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">799€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PERIFÉRICOS</span>Logitech G Pro X Superlight 2 + G915 TKL + Arctis Nova Pro <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">597€</span></li>
       </ul>
-      <div class="pack-price">1.899€</div>
-      <div class="pack-price-sub">1440p / Ultra Settings</div>
-      <button class="btn-primary cart-add" data-name="Pro Gamer Pack" data-price="1899" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
+      <div style="border-top:1px solid var(--border);margin:20px 0 12px;padding-top:16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">1440p / Ultra Settings</span>
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">9 componentes</span>
+      </div>
+      <div class="pack-price">3.619€</div>
+      <div class="pack-price-sub">Ahorra ~300€ vs. precio individual</div>
+      <button class="btn-primary cart-add" data-name="Pro Gamer Pack" data-price="3619" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
     </div>
+
+    <!-- ── ELITE SETUP ── -->
     <div class="pack-card">
       <div class="pack-tier">Tier 3 · Elite</div>
       <div class="pack-name">ELITE SETUP</div>
       <ul class="pack-items">
-        <li>Intel Core Ultra 9 285K + Z890</li>
-        <li>RTX 5080 16GB</li>
-        <li>64GB DDR5-7200</li>
-        <li>4TB NVMe Gen5 SSD</li>
-        <li>OLED 27" 240Hz 4K</li>
-        <li>Setup completo premium RGB</li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CPU</span>Intel Core Ultra 9 285K <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">589€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PLACA BASE</span>ASUS ROG Maximus Z890 Apex <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">699€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">GPU</span>NVIDIA GeForce RTX 5080 16GB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">1.199€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">RAM</span>G.Skill Trident Z5 RGB 64GB DDR5-7200 <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">349€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">SSD</span>Sabrent Rocket 5 Plus 8TB Gen5 <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">799€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CAJA</span>Lian Li PC-O11 Dynamic EVO XL <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">199€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">FUENTE</span>Corsair HX1500i Platinum ATX 3.1 <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">329€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">MONITOR</span>Samsung Odyssey G9 49" OLED 240Hz <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">1.299€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PERIFÉRICOS</span>Logitech G Pro X Superlight 2 + Corsair K100 Air + Arctis Nova Pro + Stream Deck <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">706€</span></li>
       </ul>
-      <div class="pack-price">3.499€</div>
-      <div class="pack-price-sub">4K / Max Settings</div>
-      <button class="btn-ghost cart-add" data-name="Elite Setup Gaming" data-price="3499" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
+      <div style="border-top:1px solid var(--border);margin:20px 0 12px;padding-top:16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">4K / Max Settings</span>
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">9 componentes</span>
+      </div>
+      <div class="pack-price">6.168€</div>
+      <div class="pack-price-sub">Ahorra ~600€ vs. precio individual</div>
+      <button class="btn-ghost cart-add" data-name="Elite Setup Gaming" data-price="6168" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
     </div>
+
   </div>
 </section>
 
@@ -329,6 +401,33 @@ const componentOptions = {
     { name: 'Elgato Stream Deck MK.2',          price: 149, icon: '🎛️', specs: '15 teclas LCD · USB-C',        badge: 'Stream' },
     { name: 'Rode NT-USB+ Microphone',          price: 189, icon: '🎙️', specs: 'Cardioide · 192kHz/32bit',     badge: 'Stream' },
   ],
+  motherboard: [
+    { name: 'ASUS ROG Maximus Z890 Apex',      price: 699, icon: '🔲', specs: 'LGA1851 · DDR5 · PCIe 5.0 · Wi-Fi 7',   badge: 'Nuevo' },
+    { name: 'MSI MEG Z890 ACE',                price: 549, icon: '🔲', specs: 'LGA1851 · DDR5 · 4×M.2 · 10G LAN',       badge: 'Nuevo' },
+    { name: 'Gigabyte Z890 Aorus Master',       price: 479, icon: '🔲', specs: 'LGA1851 · DDR5 · AI OC · Wi-Fi 7'               },
+    { name: 'ASUS ProArt X870E-Creator WiFi',   price: 449, icon: '🔲', specs: 'AM5 · DDR5 · Thunderbolt 4 · 10G LAN',  badge: '−13%'  },
+    { name: 'MSI MAG X870E Tomahawk WiFi',      price: 279, icon: '🔲', specs: 'AM5 · DDR5 · PCIe 5.0 · 2.5G LAN'              },
+    { name: 'Gigabyte B650E Aorus Pro X',       price: 219, icon: '🔲', specs: 'AM5 · DDR5 · PCIe 5.0 M.2 · Wi-Fi 6E', badge: '−15%'  },
+    { name: 'ASRock B650M Pro RS WiFi',         price: 149, icon: '🔲', specs: 'AM5 · DDR5 · Micro-ATX · Wi-Fi 6'               },
+  ],
+  case: [
+    { name: 'Lian Li PC-O11 Dynamic EVO XL',   price: 199, icon: '🖥', specs: 'Full Tower · E-ATX · Dual Chamber · USB-C', badge: 'Popular' },
+    { name: 'Fractal Torrent RGB Black',        price: 169, icon: '🖥', specs: 'Mid Tower · ATX · 2×180mm Fan · Mesh',      badge: '−15%'    },
+    { name: 'NZXT H9 Flow Black',               price: 179, icon: '🖥', specs: 'Mid Tower · ATX · Dual Chamber · Panorámico', badge: 'Nuevo'  },
+    { name: 'Corsair 7000D Airflow Full Tower', price: 219, icon: '🖥', specs: 'Full Tower · E-ATX · Alta Airflow · USB-C',  badge: '−16%'    },
+    { name: 'be quiet! Silent Base 802 Window', price: 149, icon: '🖥', specs: 'Mid Tower · ATX · Ultra Silenciosa · USB-C'                   },
+    { name: 'Lian Li O11 Dynamic Mini',         price: 99,  icon: '🖥', specs: 'Mini Tower · ITX/mATX · Dual Chamber'                        },
+    { name: 'DeepCool Morpheus CC560 Digital',  price: 79,  icon: '🖥', specs: 'Mid Tower · ATX · Panel LCD · 4 Fans',      badge: 'Oferta'  },
+  ],
+  psu: [
+    { name: 'Corsair HX1500i Platinum',         price: 329, icon: '🔌', specs: '1500W · 80+ Platinum · ATX 3.1 · Full Modular', badge: 'Nuevo' },
+    { name: 'be quiet! Dark Power Pro 13 1300W',price: 299, icon: '🔌', specs: '1300W · 80+ Titanium · ATX 3.1 · Full Modular'               },
+    { name: 'ASUS ROG THOR 1000P2 Gaming',      price: 249, icon: '🔌', specs: '1000W · 80+ Platinum · OLED · Full Modular',  badge: '−17%'  },
+    { name: 'Seasonic Focus GX-850 Gold',       price: 129, icon: '🔌', specs: '850W · 80+ Gold · Full Modular · 10 años',    badge: '−19%'  },
+    { name: 'Corsair RM850e Fully Modular',     price: 109, icon: '🔌', specs: '850W · 80+ Gold · ATX 3.0 · Full Modular'                    },
+    { name: 'be quiet! Pure Power 12 M 750W',   price: 89,  icon: '🔌', specs: '750W · 80+ Gold · Semi-Modular · ATX 3.0'                    },
+    { name: 'Seasonic S12III 650W Bronze',      price: 59,  icon: '🔌', specs: '650W · 80+ Bronze · Semi-Modular'                             },
+  ],
 };
 
 let setup = {};
@@ -336,7 +435,7 @@ let currentSlot = null;
 
 function selectComponent(slot) {
   currentSlot = slot;
-  const titles = { cpu: 'Procesador', gpu: 'Tarjeta Gráfica', ram: 'Memoria RAM', storage: 'Almacenamiento', monitor: 'Monitor', peripheral: 'Periféricos' };
+  const titles = { cpu: 'Procesador', gpu: 'Tarjeta Gráfica', ram: 'Memoria RAM', storage: 'Almacenamiento', monitor: 'Monitor', peripheral: 'Periféricos', motherboard: 'Placa Base', case: 'Caja PC', psu: 'Fuente de Alimentación' };
   document.getElementById('modalTitle').textContent = 'Seleccionar ' + titles[slot];
   const options = componentOptions[slot];
   document.getElementById('modalContent').innerHTML = options.map((o,i) => `

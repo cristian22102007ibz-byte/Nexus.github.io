@@ -48,7 +48,24 @@
     .stock-track { background: var(--border); height: 4px; border-radius: 2px; }
     .stock-fill { background: linear-gradient(90deg, var(--accent), var(--accent2)); height: 100%; border-radius: 2px; transition: width 0.5s; }
     @media(max-width:900px){ .deal-hero{grid-template-columns:1fr;margin:0 20px;} .deal-hero-right{display:none;} .deal-hero-left{padding:40px 24px;} .flash-banner{padding:16px 20px;flex-direction:column;gap:12px;} .deals-tabs{margin:0 20px;overflow-x:auto;} .deals-section{padding:40px 20px;} .deal-card{grid-template-columns:100px 1fr;} .deal-card-action{display:none;} }
-  </style>
+  
+@media(max-width:900px){
+  .flash-bar{padding:14px 20px;flex-direction:column;gap:12px;text-align:center;}
+  .deal-hero{grid-template-columns:1fr;margin:0 20px;}
+  .deal-hero-left{padding:32px 24px;}
+  .deal-hero-right{display:none;}
+  .deals-tabs{margin:0 20px;overflow-x:auto;flex-wrap:nowrap;}
+  .deals-grid{padding:40px 20px;grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:480px){
+  .flash-bar{padding:12px 16px;}
+  .countdown{gap:8px;}
+  .deal-hero{margin:0 16px;}
+  .deal-hero-left{padding:24px 16px;}
+  .deals-grid{padding:24px 16px;grid-template-columns:1fr;}
+  .deals-tabs{margin:0 16px;}
+}
+</style>
 </head>
 <body>
 <nav>
@@ -63,7 +80,7 @@
     <a href="blog.html">Blog</a>
   </div>
   <div class="nav-actions" id="navActions">
-    <a href="carrito.html" class="cart-btn">🛒 Carrito <span class="cart-count" id="cartCount">0</span></a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-text">Carrito</span> <span class="cart-count" id="cartCount">0</span></a>
   </div>
 </nav>
 

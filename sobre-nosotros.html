@@ -70,7 +70,26 @@
     .about-cta::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,180,255,0.06) 0%, transparent 70%); border-radius: 50%; }
 
     @media(max-width:900px){ .stats-wall{grid-template-columns:1fr 1fr;} .values-grid{grid-template-columns:1fr;} .timeline-track::before{left:28px;} .timeline-item{grid-template-columns:56px 1fr;} .timeline-content.right{text-align:left;} .timeline-item .timeline-content:first-child{display:none;} .about-hero{padding:120px 20px 60px;} .timeline,.partners,.about-cta{padding-left:20px;padding-right:20px;} }
-  </style>
+  
+@media(max-width:768px){
+  .stats-wall{grid-template-columns:1fr 1fr;}
+  .team-grid{grid-template-columns:repeat(2,1fr);}
+  .timeline-item{grid-template-columns:56px 1fr;}
+  .timeline-content.right{text-align:left;}
+  .timeline-item .timeline-content:first-child{display:none;}
+}
+@media(max-width:480px){
+  .stats-wall{grid-template-columns:1fr 1fr;}
+  .stat-wall-num{font-size:40px;}
+  .team-grid{grid-template-columns:1fr;}
+  .values-grid{grid-template-columns:1fr;}
+  .about-hero{padding:68px 16px 40px;}
+  .about-hero-title{font-size:clamp(48px,14vw,72px);}
+  .about-cta{padding:60px 16px;}
+  .timeline{padding:48px 16px;}
+  .partners{padding:40px 16px;}
+}
+</style>
 </head>
 <body>
 <nav>

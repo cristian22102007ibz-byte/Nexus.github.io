@@ -170,7 +170,11 @@ function initCookieBanner() {
 function initChatWidget() {
   const style = document.createElement('style');
   style.textContent = `
-    #chatWidget { position: fixed; bottom: 88px; right: 32px; z-index: 9000; }
+    #chatWidget { position: fixed; bottom: 32px; right: 20px; z-index: 9000; }
+    @media (max-width: 480px) {
+      #chatWidget { bottom: 20px; right: 16px; }
+      #chatWindow { width: calc(100vw - 32px); right: -8px; bottom: 68px; max-height: 75vh; }
+    }
     #chatToggle {
       width: 52px; height: 52px; border-radius: 50%;
       background: var(--accent2); border: none; cursor: pointer;
@@ -417,13 +421,13 @@ function initCompare() {
     .compare-count { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent); }
     /* Compare button on cards */
     .compare-add-btn {
-      position: absolute; bottom: 12px; left: 12px;
       background: var(--black); border: 1px solid var(--border);
-      color: var(--muted); width: 28px; height: 28px;
+      color: var(--muted); width: 36px; height: 36px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 13px; border-radius: 4px;
-      transition: all 0.2s; z-index: 3;
+      cursor: pointer; font-size: 14px; border-radius: 4px;
+      transition: all 0.2s;
       font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
     }
     .compare-add-btn:hover, .compare-add-btn.added {
       background: rgba(0,180,255,0.15); border-color: var(--accent); color: var(--accent);
@@ -470,7 +474,8 @@ function initCompare() {
         if (typeof showToast === 'function') showToast('⚠ Máximo 3 productos en el comparador');
         return;
       }
-      window._compareList.push({ name, price });
+      const icon = btn.dataset.icon || btn.closest('.product-card')?.querySelector('.product-img')?.textContent?.trim() || '📦';
+      window._compareList.push({ name, price: parseFloat(price), icon });
       btn.classList.add('added');
       btn.textContent = '✓';
       btn.title = 'En comparador';
@@ -531,7 +536,7 @@ function initBackToTop() {
   const style = document.createElement('style');
   style.textContent = `
     #backToTop {
-      position: fixed; bottom: 88px; left: 32px; z-index: 8000;
+      position: fixed; bottom: 32px; left: 32px; z-index: 8000;
       width: 44px; height: 44px; border-radius: 4px;
       background: var(--card); border: 1px solid var(--border);
       color: var(--muted); font-size: 18px; cursor: pointer;
@@ -593,66 +598,204 @@ function initScrollReveal() {
 }
 
 /* ─────────────────────────────────────────
-   7. MOBILE MENU
+   7. MOBILE MENU — Accordion Dropdown Nav
+   (CSS lives in style.css)
    ───────────────────────────────────────── */
 function initMobileMenu() {
-  const style = document.createElement('style');
-  style.textContent = `
-    #mobileMenuBtn {
-      display: none; background: none; border: 1px solid var(--border);
-      color: var(--text); width: 40px; height: 40px;
-      cursor: pointer; font-size: 18px; border-radius: 4px;
-      align-items: center; justify-content: center; flex-shrink: 0;
-      transition: all 0.2s;
-    }
-    #mobileMenuBtn:hover { border-color: var(--accent); color: var(--accent); }
-    #mobileMenu {
-      display: none; position: fixed; inset: 0; z-index: 99;
-      background: rgba(2,4,8,0.97); backdrop-filter: blur(20px);
-      flex-direction: column; padding: 80px 40px 40px;
-      animation: fadeIn 0.2s ease;
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    #mobileMenu.open { display: flex; }
-    .mobile-close { position: absolute; top: 20px; right: 20px; background: none; border: 1px solid var(--border); color: var(--text); width: 44px; height: 44px; cursor: pointer; font-size: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
-    #mobileMenu a { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 3px; color: var(--white); padding: 8px 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
-    #mobileMenu a:hover { color: var(--accent); }
-    #mobileMenu a:last-of-type { border-bottom: none; }
-    .mobile-footer { margin-top: auto; font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-    @media (max-width: 900px) { #mobileMenuBtn { display: flex; } }
-  `;
-  document.head.appendChild(style);
-
+  // ── Create elements ──
   const btn = document.createElement('button');
   btn.id = 'mobileMenuBtn';
-  btn.innerHTML = '☰';
+  btn.setAttribute('aria-label', 'Abrir menú');
+  btn.setAttribute('aria-expanded', 'false');
+  btn.textContent = '☰';
   btn.onclick = openMobileMenu;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'mobOverlay';
+  overlay.onclick = closeMobileMenu;
 
   const menu = document.createElement('div');
   menu.id = 'mobileMenu';
-  menu.innerHTML = `
-    <button class="mobile-close" onclick="closeMobileMenu()">✕</button>
-    <a href="index.html">Inicio</a>
-    <a href="productos.html">Productos</a>
-    <a href="gaming.html">Gaming</a>
-    <a href="ofertas.html">Ofertas</a>
-    <a href="soporte.html">Soporte</a>
-    <a href="carrito.html">Carrito 🛒</a>
-    <a href="login.html">Iniciar sesión</a>
-    <a href="registro.html">Crear cuenta →</a>
-    <div class="mobile-footer">© 2025 NEXUS TECH · hola@nexustech.es</div>
-  `;
+  menu.setAttribute('role', 'dialog');
+  menu.setAttribute('aria-modal', 'true');
 
   const nav = document.querySelector('nav');
   if (nav) nav.appendChild(btn);
+  document.body.appendChild(overlay);
   document.body.appendChild(menu);
 
-  window.openMobileMenu  = () => { menu.classList.add('open'); document.body.style.overflow = 'hidden'; };
-  window.closeMobileMenu = () => { menu.classList.remove('open'); document.body.style.overflow = ''; };
-  // Close on outside click
-  menu.addEventListener('click', e => { if (e.target === menu) closeMobileMenu(); });
-}
+  // ── Build menu HTML ──
+  function buildMenu() {
+    const user      = JSON.parse(localStorage.getItem('nexusUser') || 'null');
+    const cartCount = JSON.parse(localStorage.getItem('nexusCart')  || '[]').length;
 
+    menu.innerHTML = `
+      <div class="mob-header">
+        <span class="mob-logo">NEXUS</span>
+        <button class="mob-close" onclick="closeMobileMenu()">✕</button>
+      </div>
+
+      ${user ? `
+      <div class="mob-user-bar">
+        <div class="mob-user-avatar">👤</div>
+        <div>
+          <div class="mob-user-name">${user.name || user.email}</div>
+          <div class="mob-user-pts">⭐ PLATA · ${(user.points || 500).toLocaleString('es-ES')} pts</div>
+        </div>
+      </div>` : ''}
+
+      <div class="mob-search">
+        <input class="mob-search-input" id="mobSearch" placeholder="Buscar productos..."
+          onkeydown="if(event.key==='Enter'){ window.location.href='productos.html?search='+encodeURIComponent(this.value); }">
+        <button class="mob-search-btn" onclick="window.location.href='productos.html?search='+encodeURIComponent(document.getElementById('mobSearch')?.value||'')">🔍</button>
+      </div>
+
+      <div class="mob-section-label">Navegación</div>
+
+      <a href="index.html" class="mob-link">
+        <span class="mob-icon">🏠</span><span class="mob-label">Inicio</span><span class="mob-arrow">›</span>
+      </a>
+      <a href="ofertas.html" class="mob-link">
+        <span class="mob-icon">🏷</span><span class="mob-label">Ofertas del día</span><span class="mob-badge red">HOT</span>
+      </a>
+      <a href="gaming.html" class="mob-link">
+        <span class="mob-icon">🎮</span><span class="mob-label">Zona Gaming</span><span class="mob-arrow">›</span>
+      </a>
+      <a href="carrito.html" class="mob-link">
+        <span class="mob-icon">🛒</span>
+        <span class="mob-label">Carrito</span>
+        ${cartCount > 0 ? `<span class="mob-badge">${cartCount}</span>` : '<span class="mob-arrow">›</span>'}
+      </a>
+
+      <div class="mob-section-label">Catálogo</div>
+
+      <div class="mob-accordion">
+        <button class="mob-accordion-trigger" onclick="mobToggle(this)">
+          <span class="mob-icon">🖥️</span>
+          <span class="mob-label">Todos los productos</span>
+          <span class="mob-accordion-chevron">›</span>
+        </button>
+        <div class="mob-accordion-body">
+          <a href="productos.html" class="mob-sub-link"><span class="mob-sub-icon">🔍</span><span class="mob-sub-label">Ver todo el catálogo</span></a>
+          <a href="productos.html?cat=cpu" class="mob-sub-link"><span class="mob-sub-icon">⚡</span><span class="mob-sub-label">Procesadores</span><span class="mob-sub-count">124</span></a>
+          <a href="productos.html?cat=gpu" class="mob-sub-link"><span class="mob-sub-icon">🎮</span><span class="mob-sub-label">Tarjetas Gráficas</span><span class="mob-sub-count">89</span></a>
+          <a href="productos.html?cat=motherboard" class="mob-sub-link"><span class="mob-sub-icon">🔲</span><span class="mob-sub-label">Placas Base</span><span class="mob-sub-count">7</span></a>
+          <a href="productos.html?cat=ram" class="mob-sub-link"><span class="mob-sub-icon">🧠</span><span class="mob-sub-label">Memoria RAM</span><span class="mob-sub-count">210</span></a>
+          <a href="productos.html?cat=storage" class="mob-sub-link"><span class="mob-sub-icon">💾</span><span class="mob-sub-label">Almacenamiento</span><span class="mob-sub-count">156</span></a>
+          <a href="productos.html?cat=case" class="mob-sub-link"><span class="mob-sub-icon">🖥</span><span class="mob-sub-label">Cajas PC</span><span class="mob-sub-count">7</span></a>
+          <a href="productos.html?cat=psu" class="mob-sub-link"><span class="mob-sub-icon">🔌</span><span class="mob-sub-label">Fuentes de Alimentación</span><span class="mob-sub-count">7</span></a>
+          <a href="productos.html?cat=monitor" class="mob-sub-link"><span class="mob-sub-icon">🖥️</span><span class="mob-sub-label">Monitores</span><span class="mob-sub-count">78</span></a>
+          <a href="productos.html?cat=peripheral" class="mob-sub-link"><span class="mob-sub-icon">🖱️</span><span class="mob-sub-label">Periféricos</span><span class="mob-sub-count">340</span></a>
+        </div>
+      </div>
+
+      <div class="mob-accordion">
+        <button class="mob-accordion-trigger" onclick="mobToggle(this)">
+          <span class="mob-icon">🏷</span>
+          <span class="mob-label">Marcas</span>
+          <span class="mob-accordion-chevron">›</span>
+        </button>
+        <div class="mob-accordion-body">
+          <a href="productos.html?brand=NVIDIA"   class="mob-sub-link"><span class="mob-sub-icon">🟢</span><span class="mob-sub-label">NVIDIA</span></a>
+          <a href="productos.html?brand=AMD"      class="mob-sub-link"><span class="mob-sub-icon">🔴</span><span class="mob-sub-label">AMD</span></a>
+          <a href="productos.html?brand=Intel"    class="mob-sub-link"><span class="mob-sub-icon">🔵</span><span class="mob-sub-label">Intel</span></a>
+          <a href="productos.html?brand=ASUS"     class="mob-sub-link"><span class="mob-sub-icon">⚫</span><span class="mob-sub-label">ASUS ROG</span></a>
+          <a href="productos.html?brand=Corsair"  class="mob-sub-link"><span class="mob-sub-icon">🟡</span><span class="mob-sub-label">Corsair</span></a>
+          <a href="productos.html?brand=MSI"      class="mob-sub-link"><span class="mob-sub-icon">🔴</span><span class="mob-sub-label">MSI</span></a>
+          <a href="productos.html?brand=Lian+Li"  class="mob-sub-link"><span class="mob-sub-icon">🔶</span><span class="mob-sub-label">Lian Li</span></a>
+          <a href="productos.html?brand=be+quiet" class="mob-sub-link"><span class="mob-sub-icon">⚪</span><span class="mob-sub-label">be quiet!</span></a>
+          <a href="productos.html?brand=Seasonic" class="mob-sub-link"><span class="mob-sub-icon">🟠</span><span class="mob-sub-label">Seasonic</span></a>
+        </div>
+      </div>
+
+      <div class="mob-section-label">Información</div>
+
+      <div class="mob-accordion">
+        <button class="mob-accordion-trigger" onclick="mobToggle(this)">
+          <span class="mob-icon">ℹ️</span>
+          <span class="mob-label">NEXUS</span>
+          <span class="mob-accordion-chevron">›</span>
+        </button>
+        <div class="mob-accordion-body">
+          <a href="blog.html"           class="mob-sub-link"><span class="mob-sub-icon">📰</span><span class="mob-sub-label">Blog & Reviews</span></a>
+          <a href="financiacion.html"   class="mob-sub-link"><span class="mob-sub-icon">💳</span><span class="mob-sub-label">Financiación 0%</span></a>
+          <a href="programa-puntos.html" class="mob-sub-link"><span class="mob-sub-icon">⭐</span><span class="mob-sub-label">Puntos NEXUS+</span></a>
+          <a href="sobre-nosotros.html" class="mob-sub-link"><span class="mob-sub-icon">🏢</span><span class="mob-sub-label">Sobre nosotros</span></a>
+          <a href="afiliados.html"      class="mob-sub-link"><span class="mob-sub-icon">🤝</span><span class="mob-sub-label">Programa afiliados</span></a>
+          <a href="soporte.html"        class="mob-sub-link"><span class="mob-sub-icon">💬</span><span class="mob-sub-label">Soporte & Contacto</span></a>
+        </div>
+      </div>
+
+      <div class="mob-section-label">Mi cuenta</div>
+
+      ${user ? `
+        <a href="perfil.html" class="mob-link">
+          <span class="mob-icon">👤</span><span class="mob-label">Mi perfil</span><span class="mob-arrow">›</span>
+        </a>
+        <a href="programa-puntos.html" class="mob-link">
+          <span class="mob-icon">⭐</span>
+          <span class="mob-label">Mis puntos</span>
+          <span class="mob-badge gold">${(user.points || 500)} pts</span>
+        </a>
+        <div class="mob-link" style="cursor:pointer" onclick="logoutUser();closeMobileMenu()">
+          <span class="mob-icon">🚪</span><span class="mob-label" style="color:#ff5e5e">Cerrar sesión</span>
+        </div>
+      ` : `
+        <a href="login.html"    class="mob-link"><span class="mob-icon">🔑</span><span class="mob-label">Iniciar sesión</span><span class="mob-arrow">›</span></a>
+        <a href="registro.html" class="mob-link"><span class="mob-icon">✨</span><span class="mob-label">Crear cuenta — 500 pts gratis</span><span class="mob-arrow">›</span></a>
+      `}
+
+      <div style="height: ${user ? '16px' : '72px'}; flex-shrink:0;"></div>
+
+      ${!user ? `
+      <div class="mob-auth">
+        <a href="login.html"    class="mob-auth-login">Iniciar sesión</a>
+        <a href="registro.html" class="mob-auth-register">Crear cuenta →</a>
+      </div>` : ''}
+    `;
+  }
+
+  // ── Accordion toggle — works on any trigger ──
+  window.mobToggle = function(trigger) {
+    const body = trigger.nextElementSibling;
+    if (!body) return;
+    const isOpen = body.classList.contains('open');
+    // Close all others
+    document.querySelectorAll('.mob-accordion-body.open').forEach(b => {
+      b.classList.remove('open');
+      b.previousElementSibling?.classList.remove('expanded');
+    });
+    // Open this one if it was closed
+    if (!isOpen) {
+      body.classList.add('open');
+      trigger.classList.add('expanded');
+    }
+  };
+
+  // ── Open ──
+  window.openMobileMenu = function() {
+    buildMenu();
+    overlay.classList.add('open');
+    menu.classList.add('open');
+    btn.classList.add('open');
+    btn.textContent = '✕';
+    btn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('mobSearch')?.focus(), 300);
+  };
+
+  // ── Close ──
+  window.closeMobileMenu = function() {
+    overlay.classList.remove('open');
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+    btn.textContent = '☰';
+    btn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  };
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileMenu(); });
+}
 /* ─────────────────────────────────────────
    8. STAR RATING ON CARDS (cosmetic only)
    ───────────────────────────────────────── */
@@ -689,6 +832,235 @@ function initStockAlerts() {
 /* ─────────────────────────────────────────
    10. EXIT INTENT POPUP
    ───────────────────────────────────────── */
+
+/* ─────────────────────────────────────────
+   WELCOME POPUP — shown once per session
+   ───────────────────────────────────────── */
+function initWelcomePopup() {
+  if (sessionStorage.getItem('nexusWelcomeSeen')) return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    #welcomeOverlay {
+      position: fixed; inset: 0; z-index: 99998;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    #welcomeOverlay.show { opacity: 1; pointer-events: all; }
+
+    #welcomeModal {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      width: 90%; max-width: 560px;
+      position: relative; overflow: hidden;
+      animation: wPop 0.4s cubic-bezier(0.175,0.885,0.32,1.275) both;
+      border-radius: 4px;
+    }
+    @keyframes wPop {
+      from { transform: scale(0.85) translateY(24px); opacity: 0; }
+      to   { transform: none; opacity: 1; }
+    }
+
+    /* Decorative top banner */
+    .w-banner {
+      background: linear-gradient(135deg, rgba(0,200,255,0.12), rgba(139,92,246,0.14));
+      border-bottom: 1px solid var(--border);
+      padding: 36px 48px 28px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .w-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        45deg, transparent, transparent 20px,
+        rgba(0,200,255,0.03) 20px, rgba(0,200,255,0.03) 21px
+      );
+    }
+    .w-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 44px; letter-spacing: 6px;
+      color: var(--accent);
+      position: relative; z-index: 1;
+      text-shadow: 0 0 40px rgba(0,200,255,0.4);
+    }
+    .w-tagline {
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted); font-family: 'JetBrains Mono', monospace;
+      margin-top: 8px; position: relative; z-index: 1;
+    }
+    .w-badge {
+      display: inline-block;
+      background: var(--accent2); color: #fff;
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 4px 12px; border-radius: 20px;
+      margin-top: 16px; position: relative; z-index: 1;
+    }
+
+    /* Body */
+    .w-body { padding: 36px 48px 40px; position: relative; }
+    .w-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px; letter-spacing: 2px;
+      color: var(--white); line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .w-title span { color: var(--accent); }
+    .w-sub {
+      font-size: 14px; color: var(--muted);
+      line-height: 1.65; margin-bottom: 28px;
+    }
+
+    /* Perks row */
+    .w-perks {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 28px;
+    }
+    .w-perk {
+      background: rgba(0,200,255,0.04);
+      border: 1px solid rgba(0,200,255,0.12);
+      border-radius: 4px; padding: 12px 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .w-perk-icon { font-size: 20px; flex-shrink: 0; }
+    .w-perk-text { font-size: 12px; color: var(--text); line-height: 1.35; }
+    .w-perk-text strong { display: block; font-size: 13px; color: var(--white); }
+
+    /* Promo code */
+    .w-code-row {
+      background: rgba(0,180,255,0.06);
+      border: 1px dashed rgba(0,200,255,0.35);
+      border-radius: 4px; padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; gap: 12px;
+    }
+    .w-code-left { display: flex; flex-direction: column; gap: 3px; }
+    .w-code-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+    .w-code-val { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 4px; color: var(--accent); }
+    .w-copy-btn {
+      background: var(--accent); color: var(--black);
+      border: none; padding: 9px 18px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      font-family: 'DM Sans', sans-serif; cursor: pointer;
+      border-radius: 4px; transition: opacity 0.2s; flex-shrink: 0;
+    }
+    .w-copy-btn:hover { opacity: 0.85; }
+
+    /* CTAs */
+    .w-actions { display: flex; gap: 10px; }
+    .w-cta-main {
+      flex: 1; background: var(--accent); color: var(--black);
+      border: none; padding: 15px;
+      font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      font-family: 'DM Sans', sans-serif; cursor: pointer;
+      border-radius: 4px; transition: opacity 0.2s;
+    }
+    .w-cta-main:hover { opacity: 0.85; }
+    .w-cta-skip {
+      background: none; border: none; color: var(--muted);
+      font-size: 12px; cursor: pointer; letter-spacing: 1px;
+      font-family: 'DM Sans', sans-serif; padding: 15px 16px;
+      transition: color 0.2s;
+    }
+    .w-cta-skip:hover { color: var(--white); }
+
+    /* Close X */
+    .w-close {
+      position: absolute; top: 14px; right: 14px;
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); width: 30px; height: 30px;
+      cursor: pointer; border-radius: 4px; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; z-index: 2;
+    }
+    .w-close:hover { border-color: #ff5e5e; color: #ff5e5e; }
+
+    @media(max-width:480px){
+      .w-banner { padding: 28px 24px 20px; }
+      .w-logo { font-size: 36px; }
+      .w-body { padding: 24px 20px 28px; }
+      .w-title { font-size: 26px; }
+      .w-perks { grid-template-columns: 1fr; gap: 8px; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'welcomeOverlay';
+  overlay.innerHTML = `
+    <div id="welcomeModal">
+      <button class="w-close" onclick="closeWelcome()">✕</button>
+
+      <div class="w-banner">
+        <div class="w-logo">NEXUS</div>
+        <div class="w-tagline">Tu tienda de hardware de confianza</div>
+        <div class="w-badge">✦ Bienvenido — Oferta exclusiva dentro</div>
+      </div>
+
+      <div class="w-body">
+        <div class="w-title">TODO LO QUE<br>NECESITAS PARA TU <span>SETUP</span></div>
+        <div class="w-sub">Procesadores, GPUs, placas base, cajas, fuentes y periféricos de las mejores marcas. Envío gratis a partir de 99€.</div>
+
+        <div class="w-perks">
+          <div class="w-perk">
+            <span class="w-perk-icon">🚀</span>
+            <div class="w-perk-text"><strong>Envío en 24h</strong>Stock disponible inmediato</div>
+          </div>
+          <div class="w-perk">
+            <span class="w-perk-icon">🛡️</span>
+            <div class="w-perk-text"><strong>Garantía oficial</strong>2 años en todos los productos</div>
+          </div>
+          <div class="w-perk">
+            <span class="w-perk-icon">💳</span>
+            <div class="w-perk-text"><strong>Financiación 0%</strong>Hasta 12 meses sin intereses</div>
+          </div>
+          <div class="w-perk">
+            <span class="w-perk-icon">⭐</span>
+            <div class="w-perk-text"><strong>500 puntos gratis</strong>Al crear tu cuenta hoy</div>
+          </div>
+        </div>
+
+        <div class="w-code-row">
+          <div class="w-code-left">
+            <span class="w-code-label">Descuento bienvenida</span>
+            <span class="w-code-val">NEXUS10</span>
+          </div>
+          <button class="w-copy-btn" id="wCopyBtn" onclick="copyWelcomeCode()">−10% · Copiar</button>
+        </div>
+
+        <div class="w-actions">
+          <button class="w-cta-main" onclick="closeWelcome(); window.location.href='productos.html'">🛒 Ver el catálogo</button>
+          <button class="w-cta-skip" onclick="closeWelcome()">Entrar sin descuento</button>
+        </div>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  window.closeWelcome = function () {
+    overlay.classList.remove('show');
+    setTimeout(() => overlay.remove(), 400);
+    sessionStorage.setItem('nexusWelcomeSeen', '1');
+  };
+
+  window.copyWelcomeCode = function () {
+    navigator.clipboard?.writeText('NEXUS10').catch(() => {});
+    const btn = document.getElementById('wCopyBtn');
+    btn.textContent = '✓ Copiado';
+    btn.style.background = '#00c87a';
+    setTimeout(() => { btn.textContent = '−10% · Copiar'; btn.style.background = ''; }, 2000);
+  };
+
+  // Show after short delay
+  setTimeout(() => overlay.classList.add('show'), 800);
+}
+
 function initExitIntent() {
   if (localStorage.getItem('nexusExitShown')) return;
   const style = document.createElement('style');
@@ -1079,59 +1451,14 @@ function initFaviconBadge() {
   updateFavicon(cart.length);
 }
 
-/* ─────────────────────────────────────────
-   16. THEME TOGGLE (dark intensity)
-   ───────────────────────────────────────── */
-function initThemeToggle() {
-  const saved = localStorage.getItem('nexusTheme') || 'dark';
-  applyTheme(saved);
-
-  const btn = document.createElement('button');
-  btn.id = 'themeToggle';
-  btn.title = 'Cambiar tema';
-  btn.textContent = saved === 'darker' ? '☀' : '🌙';
-  btn.style.cssText = `
-    position:fixed;bottom:148px;left:32px;z-index:8000;
-    width:44px;height:44px;border-radius:4px;
-    background:var(--card);border:1px solid var(--border);
-    color:var(--muted);font-size:18px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    transition:all 0.3s;`;
-  btn.onmouseover = () => { btn.style.borderColor='var(--accent)'; btn.style.color='var(--accent)'; };
-  btn.onmouseout  = () => { btn.style.borderColor='var(--border)'; btn.style.color='var(--muted)'; };
-  btn.onclick = () => {
-    const current = localStorage.getItem('nexusTheme')||'dark';
-    const next = current === 'dark' ? 'darker' : 'dark';
-    applyTheme(next);
-    localStorage.setItem('nexusTheme', next);
-    btn.textContent = next === 'darker' ? '☀' : '🌙';
-    if(typeof showToast==='function') showToast(next==='darker'?'🌑 Modo oscuro intenso':'🌙 Modo oscuro estándar');
-  };
-  document.body.appendChild(btn);
-
-  function applyTheme(t) {
-    const root = document.documentElement;
-    if (t === 'darker') {
-      root.style.setProperty('--black','#000000');
-      root.style.setProperty('--dark','#030608');
-      root.style.setProperty('--card','#060c12');
-      root.style.setProperty('--border','#0a1f33');
-    } else {
-      root.style.setProperty('--black','#020408');
-      root.style.setProperty('--dark','#070d14');
-      root.style.setProperty('--card','#0c1520');
-      root.style.setProperty('--border','#0e2a45');
-    }
-  }
-}
 
 // Bootstrap new features
 document.addEventListener('DOMContentLoaded', function () {
+  initWelcomePopup();
   initExitIntent();
   initShippingBar();
   initRecentlyViewed();
   initNotificationCenter();
   initMegaMenu();
   initFaviconBadge();
-  initThemeToggle();
 });
