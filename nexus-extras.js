@@ -598,203 +598,185 @@ function initScrollReveal() {
 }
 
 /* ─────────────────────────────────────────
-   7. MOBILE MENU — Accordion Dropdown Nav
-   (CSS lives in style.css)
+   7. MOBILE MENU — Simple dropdown nav
    ───────────────────────────────────────── */
 function initMobileMenu() {
-  // ── Create elements ──
+
+  /* ── Styles ── */
+  const style = document.createElement('style');
+  style.textContent = `
+    /* Hamburger */
+    #mobileMenuBtn {
+      display: none;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 40px; height: 40px;
+      cursor: pointer;
+      font-size: 20px;
+      border-radius: 4px;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color .2s, color .2s, background .2s;
+      padding: 0;
+      z-index: 10001;
+      position: relative;
+    }
+    #mobileMenuBtn.open {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0,200,255,.08);
+    }
+
+    /* Dropdown panel */
+    #mobDropdown {
+      display: none;
+      position: fixed;
+      top: 56px; left: 0; right: 0;
+      background: var(--dark);
+      border-bottom: 2px solid var(--accent);
+      z-index: 9999;
+      box-shadow: 0 16px 40px rgba(0,0,0,.6);
+      transform: translateY(-8px);
+      opacity: 0;
+      transition: transform .22s ease, opacity .22s ease;
+    }
+    #mobDropdown.open {
+      display: block;
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Links */
+    .mob-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 20px;
+      font-size: 15px;
+      color: var(--text);
+      border-bottom: 1px solid rgba(42,64,96,.5);
+      text-decoration: none;
+      transition: background .15s, color .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mob-nav-item:last-child { border-bottom: none; }
+    .mob-nav-item:active,
+    .mob-nav-item:hover { background: var(--card); color: var(--accent); }
+    .mob-nav-item.active { color: var(--accent); }
+    .mob-nav-icon { font-size: 17px; width: 24px; text-align: center; flex-shrink: 0; }
+
+    /* Auth row at bottom */
+    .mob-nav-auth {
+      display: flex;
+      gap: 10px;
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--black);
+    }
+    .mob-nav-auth a {
+      flex: 1; text-align: center;
+      padding: 11px; font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+    .mob-nav-login    { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+    .mob-nav-register { background: var(--accent); color: var(--black); font-weight: 600; }
+    .mob-nav-auth a:hover { opacity: .85; }
+
+    @media(max-width: 900px) { #mobileMenuBtn { display: flex !important; } }
+  `;
+  document.head.appendChild(style);
+
+  /* ── Hamburger button ── */
   const btn = document.createElement('button');
   btn.id = 'mobileMenuBtn';
-  btn.setAttribute('aria-label', 'Abrir menú');
+  btn.setAttribute('aria-label', 'Menú');
   btn.setAttribute('aria-expanded', 'false');
   btn.textContent = '☰';
-  btn.onclick = openMobileMenu;
+  btn.onclick = toggleMobileMenu;
 
-  const overlay = document.createElement('div');
-  overlay.id = 'mobOverlay';
-  overlay.onclick = closeMobileMenu;
+  /* ── Dropdown panel ── */
+  const dropdown = document.createElement('div');
+  dropdown.id = 'mobDropdown';
 
-  const menu = document.createElement('div');
-  menu.id = 'mobileMenu';
-  menu.setAttribute('role', 'dialog');
-  menu.setAttribute('aria-modal', 'true');
+  function buildDropdown() {
+    const user = JSON.parse(localStorage.getItem('nexusUser') || 'null');
+    const page = location.pathname.split('/').pop() || 'index.html';
 
-  const nav = document.querySelector('nav');
-  if (nav) nav.appendChild(btn);
-  document.body.appendChild(overlay);
-  document.body.appendChild(menu);
+    const links = [
+      { href: 'index.html',    icon: '🏠', label: 'Inicio' },
+      { href: 'productos.html',icon: '🖥️', label: 'Productos' },
+      { href: 'gaming.html',   icon: '🎮', label: 'Gaming' },
+      { href: 'ofertas.html',  icon: '🏷️', label: 'Ofertas' },
+      { href: 'soporte.html',  icon: '💬', label: 'Soporte' },
+      { href: 'comparar.html', icon: '⚖️', label: 'Comparar' },
+      { href: 'blog.html',     icon: '📰', label: 'Blog' },
+    ];
 
-  // ── Build menu HTML ──
-  function buildMenu() {
-    const user      = JSON.parse(localStorage.getItem('nexusUser') || 'null');
-    const cartCount = JSON.parse(localStorage.getItem('nexusCart')  || '[]').length;
+    const linksHTML = links.map(l => `
+      <a href="${l.href}" class="mob-nav-item${page === l.href ? ' active' : ''}">
+        <span class="mob-nav-icon">${l.icon}</span>${l.label}
+      </a>`).join('');
 
-    menu.innerHTML = `
-      <div class="mob-header">
-        <span class="mob-logo">NEXUS</span>
-        <button class="mob-close" onclick="closeMobileMenu()">✕</button>
-      </div>
+    const authHTML = user
+      ? `<div class="mob-nav-auth">
+           <a href="perfil.html" class="mob-nav-login">👤 ${user.name || 'Mi perfil'}</a>
+           <a href="#" class="mob-nav-register" onclick="logoutUser();closeMobileMenu()">Salir</a>
+         </div>`
+      : `<div class="mob-nav-auth">
+           <a href="login.html"    class="mob-nav-login">Entrar</a>
+           <a href="registro.html" class="mob-nav-register">Registro →</a>
+         </div>`;
 
-      ${user ? `
-      <div class="mob-user-bar">
-        <div class="mob-user-avatar">👤</div>
-        <div>
-          <div class="mob-user-name">${user.name || user.email}</div>
-          <div class="mob-user-pts">⭐ PLATA · ${(user.points || 500).toLocaleString('es-ES')} pts</div>
-        </div>
-      </div>` : ''}
-
-      <div class="mob-search">
-        <input class="mob-search-input" id="mobSearch" placeholder="Buscar productos..."
-          onkeydown="if(event.key==='Enter'){ window.location.href='productos.html?search='+encodeURIComponent(this.value); }">
-        <button class="mob-search-btn" onclick="window.location.href='productos.html?search='+encodeURIComponent(document.getElementById('mobSearch')?.value||'')">🔍</button>
-      </div>
-
-      <div class="mob-section-label">Navegación</div>
-
-      <a href="index.html" class="mob-link">
-        <span class="mob-icon">🏠</span><span class="mob-label">Inicio</span><span class="mob-arrow">›</span>
-      </a>
-      <a href="ofertas.html" class="mob-link">
-        <span class="mob-icon">🏷</span><span class="mob-label">Ofertas del día</span><span class="mob-badge red">HOT</span>
-      </a>
-      <a href="gaming.html" class="mob-link">
-        <span class="mob-icon">🎮</span><span class="mob-label">Zona Gaming</span><span class="mob-arrow">›</span>
-      </a>
-      <a href="carrito.html" class="mob-link">
-        <span class="mob-icon">🛒</span>
-        <span class="mob-label">Carrito</span>
-        ${cartCount > 0 ? `<span class="mob-badge">${cartCount}</span>` : '<span class="mob-arrow">›</span>'}
-      </a>
-
-      <div class="mob-section-label">Catálogo</div>
-
-      <div class="mob-accordion">
-        <button class="mob-accordion-trigger" onclick="mobToggle(this)">
-          <span class="mob-icon">🖥️</span>
-          <span class="mob-label">Todos los productos</span>
-          <span class="mob-accordion-chevron">›</span>
-        </button>
-        <div class="mob-accordion-body">
-          <a href="productos.html" class="mob-sub-link"><span class="mob-sub-icon">🔍</span><span class="mob-sub-label">Ver todo el catálogo</span></a>
-          <a href="productos.html?cat=cpu" class="mob-sub-link"><span class="mob-sub-icon">⚡</span><span class="mob-sub-label">Procesadores</span><span class="mob-sub-count">124</span></a>
-          <a href="productos.html?cat=gpu" class="mob-sub-link"><span class="mob-sub-icon">🎮</span><span class="mob-sub-label">Tarjetas Gráficas</span><span class="mob-sub-count">89</span></a>
-          <a href="productos.html?cat=motherboard" class="mob-sub-link"><span class="mob-sub-icon">🔲</span><span class="mob-sub-label">Placas Base</span><span class="mob-sub-count">7</span></a>
-          <a href="productos.html?cat=ram" class="mob-sub-link"><span class="mob-sub-icon">🧠</span><span class="mob-sub-label">Memoria RAM</span><span class="mob-sub-count">210</span></a>
-          <a href="productos.html?cat=storage" class="mob-sub-link"><span class="mob-sub-icon">💾</span><span class="mob-sub-label">Almacenamiento</span><span class="mob-sub-count">156</span></a>
-          <a href="productos.html?cat=case" class="mob-sub-link"><span class="mob-sub-icon">🖥</span><span class="mob-sub-label">Cajas PC</span><span class="mob-sub-count">7</span></a>
-          <a href="productos.html?cat=psu" class="mob-sub-link"><span class="mob-sub-icon">🔌</span><span class="mob-sub-label">Fuentes de Alimentación</span><span class="mob-sub-count">7</span></a>
-          <a href="productos.html?cat=monitor" class="mob-sub-link"><span class="mob-sub-icon">🖥️</span><span class="mob-sub-label">Monitores</span><span class="mob-sub-count">78</span></a>
-          <a href="productos.html?cat=peripheral" class="mob-sub-link"><span class="mob-sub-icon">🖱️</span><span class="mob-sub-label">Periféricos</span><span class="mob-sub-count">340</span></a>
-        </div>
-      </div>
-
-      <div class="mob-accordion">
-        <button class="mob-accordion-trigger" onclick="mobToggle(this)">
-          <span class="mob-icon">🏷</span>
-          <span class="mob-label">Marcas</span>
-          <span class="mob-accordion-chevron">›</span>
-        </button>
-        <div class="mob-accordion-body">
-          <a href="productos.html?brand=NVIDIA"   class="mob-sub-link"><span class="mob-sub-icon">🟢</span><span class="mob-sub-label">NVIDIA</span></a>
-          <a href="productos.html?brand=AMD"      class="mob-sub-link"><span class="mob-sub-icon">🔴</span><span class="mob-sub-label">AMD</span></a>
-          <a href="productos.html?brand=Intel"    class="mob-sub-link"><span class="mob-sub-icon">🔵</span><span class="mob-sub-label">Intel</span></a>
-          <a href="productos.html?brand=ASUS"     class="mob-sub-link"><span class="mob-sub-icon">⚫</span><span class="mob-sub-label">ASUS ROG</span></a>
-          <a href="productos.html?brand=Corsair"  class="mob-sub-link"><span class="mob-sub-icon">🟡</span><span class="mob-sub-label">Corsair</span></a>
-          <a href="productos.html?brand=MSI"      class="mob-sub-link"><span class="mob-sub-icon">🔴</span><span class="mob-sub-label">MSI</span></a>
-          <a href="productos.html?brand=Lian+Li"  class="mob-sub-link"><span class="mob-sub-icon">🔶</span><span class="mob-sub-label">Lian Li</span></a>
-          <a href="productos.html?brand=be+quiet" class="mob-sub-link"><span class="mob-sub-icon">⚪</span><span class="mob-sub-label">be quiet!</span></a>
-          <a href="productos.html?brand=Seasonic" class="mob-sub-link"><span class="mob-sub-icon">🟠</span><span class="mob-sub-label">Seasonic</span></a>
-        </div>
-      </div>
-
-      <div class="mob-section-label">Información</div>
-
-      <div class="mob-accordion">
-        <button class="mob-accordion-trigger" onclick="mobToggle(this)">
-          <span class="mob-icon">ℹ️</span>
-          <span class="mob-label">NEXUS</span>
-          <span class="mob-accordion-chevron">›</span>
-        </button>
-        <div class="mob-accordion-body">
-          <a href="blog.html"           class="mob-sub-link"><span class="mob-sub-icon">📰</span><span class="mob-sub-label">Blog & Reviews</span></a>
-          <a href="financiacion.html"   class="mob-sub-link"><span class="mob-sub-icon">💳</span><span class="mob-sub-label">Financiación 0%</span></a>
-          <a href="programa-puntos.html" class="mob-sub-link"><span class="mob-sub-icon">⭐</span><span class="mob-sub-label">Puntos NEXUS+</span></a>
-          <a href="sobre-nosotros.html" class="mob-sub-link"><span class="mob-sub-icon">🏢</span><span class="mob-sub-label">Sobre nosotros</span></a>
-          <a href="afiliados.html"      class="mob-sub-link"><span class="mob-sub-icon">🤝</span><span class="mob-sub-label">Programa afiliados</span></a>
-          <a href="soporte.html"        class="mob-sub-link"><span class="mob-sub-icon">💬</span><span class="mob-sub-label">Soporte & Contacto</span></a>
-        </div>
-      </div>
-
-      <div class="mob-section-label">Mi cuenta</div>
-
-      ${user ? `
-        <a href="perfil.html" class="mob-link">
-          <span class="mob-icon">👤</span><span class="mob-label">Mi perfil</span><span class="mob-arrow">›</span>
-        </a>
-        <a href="programa-puntos.html" class="mob-link">
-          <span class="mob-icon">⭐</span>
-          <span class="mob-label">Mis puntos</span>
-          <span class="mob-badge gold">${(user.points || 500)} pts</span>
-        </a>
-        <div class="mob-link" style="cursor:pointer" onclick="logoutUser();closeMobileMenu()">
-          <span class="mob-icon">🚪</span><span class="mob-label" style="color:#ff5e5e">Cerrar sesión</span>
-        </div>
-      ` : `
-        <a href="login.html"    class="mob-link"><span class="mob-icon">🔑</span><span class="mob-label">Iniciar sesión</span><span class="mob-arrow">›</span></a>
-        <a href="registro.html" class="mob-link"><span class="mob-icon">✨</span><span class="mob-label">Crear cuenta — 500 pts gratis</span><span class="mob-arrow">›</span></a>
-      `}
-
-      <div style="height: ${user ? '16px' : '72px'}; flex-shrink:0;"></div>
-
-      ${!user ? `
-      <div class="mob-auth">
-        <a href="login.html"    class="mob-auth-login">Iniciar sesión</a>
-        <a href="registro.html" class="mob-auth-register">Crear cuenta →</a>
-      </div>` : ''}
-    `;
+    dropdown.innerHTML = linksHTML + authHTML;
   }
 
-  // ── Accordion toggle — works on any trigger ──
-  window.mobToggle = function(trigger) {
-    const body = trigger.nextElementSibling;
-    if (!body) return;
-    const isOpen = body.classList.contains('open');
-    // Close all others
-    document.querySelectorAll('.mob-accordion-body.open').forEach(b => {
-      b.classList.remove('open');
-      b.previousElementSibling?.classList.remove('expanded');
-    });
-    // Open this one if it was closed
-    if (!isOpen) {
-      body.classList.add('open');
-      trigger.classList.add('expanded');
-    }
+  /* ── Inject into nav ── */
+  const nav = document.querySelector('nav');
+  if (nav) nav.appendChild(btn);
+  document.body.appendChild(dropdown);
+
+  /* ── Toggle ── */
+  window.toggleMobileMenu = function () {
+    const isOpen = dropdown.classList.contains('open');
+    isOpen ? closeMobileMenu() : openMobileMenu();
   };
 
-  // ── Open ──
-  window.openMobileMenu = function() {
-    buildMenu();
-    overlay.classList.add('open');
-    menu.classList.add('open');
+  window.openMobileMenu = function () {
+    buildDropdown();
+    dropdown.style.display = 'block';
+    requestAnimationFrame(() => dropdown.classList.add('open'));
     btn.classList.add('open');
     btn.textContent = '✕';
     btn.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => document.getElementById('mobSearch')?.focus(), 300);
   };
 
-  // ── Close ──
-  window.closeMobileMenu = function() {
-    overlay.classList.remove('open');
-    menu.classList.remove('open');
+  window.closeMobileMenu = function () {
+    dropdown.classList.remove('open');
     btn.classList.remove('open');
     btn.textContent = '☰';
     btn.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
+    setTimeout(() => { if (!dropdown.classList.contains('open')) dropdown.style.display = 'none'; }, 220);
   };
 
+  /* ── Close on outside click ── */
+  document.addEventListener('click', e => {
+    if (!dropdown.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+      closeMobileMenu();
+    }
+  });
+
+  /* ── Close on ESC ── */
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileMenu(); });
+
+  /* ── Close on nav link tap ── */
+  dropdown.addEventListener('click', e => {
+    if (e.target.closest('.mob-nav-item')) closeMobileMenu();
+  });
 }
 /* ─────────────────────────────────────────
    8. STAR RATING ON CARDS (cosmetic only)
@@ -972,21 +954,48 @@ function initWelcomePopup() {
 
     /* Close X */
     .w-close {
-      position: absolute; top: 14px; right: 14px;
-      background: none; border: 1px solid var(--border);
-      color: var(--muted); width: 30px; height: 30px;
-      cursor: pointer; border-radius: 4px; font-size: 14px;
+      position: fixed; top: 14px; right: 14px;
+      background: var(--dark); border: 1px solid var(--border);
+      color: var(--muted); width: 36px; height: 36px;
+      cursor: pointer; border-radius: 4px; font-size: 16px;
       display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s; z-index: 2;
+      transition: all 0.2s; z-index: 100000;
     }
     .w-close:hover { border-color: #ff5e5e; color: #ff5e5e; }
 
-    @media(max-width:480px){
-      .w-banner { padding: 28px 24px 20px; }
-      .w-logo { font-size: 36px; }
-      .w-body { padding: 24px 20px 28px; }
-      .w-title { font-size: 26px; }
-      .w-perks { grid-template-columns: 1fr; gap: 8px; }
+    #welcomeModal {
+      max-height: 90vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media(max-width:600px){
+      #welcomeOverlay { align-items: flex-end; }
+      #welcomeModal {
+        width: 100%; max-width: 100%;
+        border-radius: 12px 12px 0 0;
+        max-height: 88vh;
+        border-left: none; border-right: none; border-bottom: none;
+        animation: wSlideUp 0.35s cubic-bezier(0.4,0,0.2,1) both;
+      }
+      @keyframes wSlideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to   { transform: none; opacity: 1; }
+      }
+      .w-banner { padding: 24px 20px 16px; }
+      .w-logo { font-size: 32px; }
+      .w-tagline { display: none; }
+      .w-badge { font-size: 9px; margin-top: 10px; }
+      .w-body { padding: 20px 20px 24px; }
+      .w-title { font-size: 24px; }
+      .w-sub { font-size: 13px; margin-bottom: 16px; }
+      .w-perks { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+      .w-perk { padding: 10px 12px; }
+      .w-perk-icon { font-size: 16px; }
+      .w-perk-text { font-size: 11px; }
+      .w-perk-text strong { font-size: 12px; }
+      .w-code-row { padding: 12px 14px; margin-bottom: 16px; }
+      .w-code-val { font-size: 22px; }
     }
   `;
   document.head.appendChild(style);
