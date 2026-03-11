@@ -34,7 +34,6 @@
     <a href="productos.html">Productos</a>
     <a href="gaming.html">Gaming</a>
     <a href="ofertas.html">Ofertas</a>
-    <a href="financiacion.html">Financiación</a>
     <a href="soporte.html">Soporte</a>
     <a href="comparar.html">⚖ Comparar</a>
     <a href="blog.html">Blog</a>
@@ -117,7 +116,7 @@
   </div>
   <div class="products-grid" id="productsGrid">
 
-    <div class="product-card" data-cat="cpu">
+    <div class="product-card" data-cat="cpu" onclick="if(!event.target.closest('.add-btn')){var n=this.querySelector('.product-name').textContent;window.location.href='producto-'+nexusSlug(n)+'.html';}" style="cursor:pointer">
       <div class="product-badge">−15%</div>
       <div class="product-img">⚡</div>
       <div class="product-info">
@@ -134,7 +133,7 @@
       </div>
     </div>
 
-    <div class="product-card" data-cat="gpu">
+    <div class="product-card" data-cat="gpu" onclick="if(!event.target.closest('.add-btn')){var n=this.querySelector('.product-name').textContent;window.location.href='producto-'+nexusSlug(n)+'.html';}" style="cursor:pointer">
       <div class="product-badge new">Nuevo</div>
       <div class="product-img">🎮</div>
       <div class="product-info">
@@ -151,7 +150,7 @@
       </div>
     </div>
 
-    <div class="product-card" data-cat="ram">
+    <div class="product-card" data-cat="ram" onclick="if(!event.target.closest('.add-btn')){var n=this.querySelector('.product-name').textContent;window.location.href='producto-'+nexusSlug(n)+'.html';}" style="cursor:pointer">
       <div class="product-img">🧠</div>
       <div class="product-info">
         <div class="product-brand">Corsair</div>
@@ -167,7 +166,7 @@
       </div>
     </div>
 
-    <div class="product-card" data-cat="storage">
+    <div class="product-card" data-cat="storage" onclick="if(!event.target.closest('.add-btn')){var n=this.querySelector('.product-name').textContent;window.location.href='producto-'+nexusSlug(n)+'.html';}" style="cursor:pointer">
       <div class="product-badge">−20%</div>
       <div class="product-img">💾</div>
       <div class="product-info">
@@ -184,7 +183,7 @@
       </div>
     </div>
 
-    <div class="product-card" data-cat="cpu">
+    <div class="product-card" data-cat="cpu" onclick="if(!event.target.closest('.add-btn')){var n=this.querySelector('.product-name').textContent;window.location.href='producto-'+nexusSlug(n)+'.html';}" style="cursor:pointer">
       <div class="product-img">⚡</div>
       <div class="product-info">
         <div class="product-brand">AMD</div>
@@ -200,7 +199,7 @@
       </div>
     </div>
 
-    <div class="product-card" data-cat="gpu">
+    <div class="product-card" data-cat="gpu" onclick="if(!event.target.closest('.add-btn')){var n=this.querySelector('.product-name').textContent;window.location.href='producto-'+nexusSlug(n)+'.html';}" style="cursor:pointer">
       <div class="product-img">🎮</div>
       <div class="product-info">
         <div class="product-brand">AMD</div>
@@ -310,11 +309,11 @@
   <div>
     <div class="footer-col-title">Legal</div>
     <div class="footer-links">
-      <a href="sobre-nosotros.html">Sobre nosotros</a>
-      <a href="afiliados.html">Afiliados</a>
-      <a href="soporte.html">Soporte</a>
-      <a href="cookies.html">Política de cookies</a>
-      <a href="legal.html">Aviso legal</a>
+      <a href="#">Sobre nosotros</a>
+      <a href="#">Condiciones de uso</a>
+      <a href="#">Política de privacidad</a>
+      <a href="#">Política de cookies</a>
+      <a href="#">Aviso legal</a>
     </div>
   </div>
 </footer>
@@ -349,6 +348,10 @@
 <div class="toast" id="toast"></div>
 
 <script src="app.js"></script>
+<script>
+const NEXUS_SLUGS={"Core Ultra 9 285K":"core-ultra-9-285k","Ryzen 9 9950X":"ryzen-9-9950x","Core i9-14900KS":"core-i9-14900ks","Ryzen 7 9700X":"ryzen-7-9700x","Core Ultra 7 265K":"core-ultra-7-265k","Ryzen 5 9600X":"ryzen-5-9600x","Core i7-14700K":"core-i7-14700k","Ryzen Threadripper 7970X":"threadripper-7970x","GeForce RTX 5090 32GB":"rtx-5090","GeForce RTX 5080 16GB":"rtx-5080","GeForce RTX 4090 24GB":"rtx-4090","RTX 4070 Ti Super 16GB":"rtx-4070-ti-super","RTX 4060 Ti 16GB":"rtx-4060-ti","Radeon RX 9070 XT 16GB":"rx-9070-xt","Radeon RX 7900 XTX 24GB":"rx-7900-xtx","Radeon RX 7600 XT 16GB":"rx-7600-xt","Dominator Titanium DDR5 32GB":"dominator-titanium-ddr5","Trident Z5 RGB 64GB":"trident-z5-64gb","Fury Beast DDR5 32GB":"fury-beast-ddr5","Ripjaws S5 96GB":"ripjaws-s5-96gb","Vengeance DDR5 16GB":"vengeance-ddr5","T-Force Delta RGB 32GB":"t-force-delta-32gb","Fury Renegade DDR5 128GB":"fury-renegade-128gb","990 Pro NVMe SSD 2TB":"samsung-990-pro-2tb","Black SN850X 4TB":"wd-sn850x-4tb","T705 2TB PCIe 5.0":"crucial-t705-2tb","FireCuda 530 4TB":"firecuda-530-4tb","870 EVO SATA SSD 4TB":"870-evo-4tb","Red Pro NAS HDD 20TB":"red-pro-nas-20tb","Rocket 5 Plus 8TB":"rocket-5-plus-8tb","ROG Swift OLED 27\" 240Hz":"rog-swift-oled","UltraGear 4K 144Hz 32\"":"ultragear-4k-32","Odyssey G9 49\" OLED":"odyssey-g9","Predator X34X 34\" 175Hz":"predator-x34x","Mobiuz EX321UX 32\" 4K":"mobiuz-ex321ux","MPG 321URX QD-OLED 4K":"mpg-qd-oled","G Pro X Superlight 2":"g-pro-x-superlight-2","K100 Air Wireless":"k100-air","DeathAdder V3 HyperSpeed":"deathadder-v3","Arctis Nova Pro Wireless":"arctis-nova-pro","BlackWidow V4 Pro 75%":"blackwidow-v4-pro","G915 TKL Lightspeed":"g915-tkl","Cloud Alpha Wireless":"cloud-alpha-wireless","Scimitar Elite Wireless":"scimitar-elite","Stream Deck MK.2":"stream-deck","NT-USB+ Microphone":"nt-usb-plus","MX Master 3S":"mx-master-3s","Basilisk V3 Pro 35K":"basilisk-v3-pro","ROG Maximus Z890 Apex":"rog-maximus-z890","MEG Z890 ACE":"meg-z890-ace","Z890 Aorus Master":"z890-aorus-master","ProArt X870E-Creator WiFi":"proart-x870e","MAG X870E Tomahawk WiFi":"mag-x870e-tomahawk","B650E Aorus Pro X":"b650e-aorus-pro","B650M Pro RS WiFi":"b650m-pro-rs","PC-O11 Dynamic EVO XL":"pc-o11-evo-xl","Torrent RGB Black":"torrent-rgb","H9 Flow Black":"h9-flow","7000D Airflow Full Tower":"corsair-7000d","Silent Base 802 Window":"silent-base-802","O11 Dynamic Mini":"o11-dynamic-mini","Morpheus CC560 Digital":"morpheus-cc560","HX1500i Platinum":"hx1500i-platinum","Dark Power Pro 13 1300W":"dark-power-pro-1300w","ROG THOR 1000P2 Gaming":"rog-thor-1000w","Focus GX-850 Gold":"focus-gx-850","RM850e Fully Modular":"rm850e-modular","Pure Power 12 M 750W":"pure-power-750w","S12III 650W Bronze":"s12iii-650w"};
+function nexusSlug(n){return NEXUS_SLUGS[n]||n.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
+</script>
 <script src="nexus-extras.js"></script>
 <script>
 const searchData = [

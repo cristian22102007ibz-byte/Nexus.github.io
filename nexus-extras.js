@@ -1471,3 +1471,722 @@ document.addEventListener('DOMContentLoaded', function () {
   initMegaMenu();
   initFaviconBadge();
 });
+
+/* ============================================================
+   NEXUS EXTRAS v2 — Nuevas funcionalidades
+   ============================================================ */
+
+// ─────────────────────────────────────────────────────────────
+// 17. LISTA DE DESEOS (Wishlist)
+// ─────────────────────────────────────────────────────────────
+function initWishlist() {
+  let wishlist = JSON.parse(localStorage.getItem('nexusWishlist') || '[]');
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .wishlist-btn {
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); width: 32px; height: 32px;
+      border-radius: 4px; cursor: pointer; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .wishlist-btn:hover { border-color: #ff6b9d; color: #ff6b9d; }
+    .wishlist-btn.active { border-color: #ff6b9d; color: #ff6b9d; background: rgba(255,107,157,0.1); }
+    .wishlist-btn.active::after { content: ''; }
+    #wishlistFloating {
+      position: fixed; bottom: 100px; right: 24px; z-index: 9999;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 50%; width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      transition: transform 0.2s;
+    }
+    #wishlistFloating:hover { transform: scale(1.1); }
+    #wishlistBadge {
+      position: absolute; top: -4px; right: -4px;
+      background: #ff6b9d; color: white; border-radius: 50%;
+      width: 18px; height: 18px; font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      display: none;
+    }
+    #wishlistPanel {
+      position: fixed; right: 0; top: 0; bottom: 0; width: 380px; max-width: 95vw;
+      background: var(--dark); border-left: 1px solid var(--border);
+      z-index: 19999; transform: translateX(100%); transition: transform 0.35s cubic-bezier(.22,1,.36,1);
+      display: flex; flex-direction: column;
+    }
+    #wishlistPanel.open { transform: translateX(0); }
+    #wishlistOverlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 19998;
+      display: none; backdrop-filter: blur(2px);
+    }
+    .wishlist-header {
+      padding: 24px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .wishlist-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: var(--white); }
+    .wishlist-close { background: none; border: 1px solid var(--border); color: var(--muted); width: 36px; height: 36px; border-radius: 4px; cursor: pointer; font-size: 18px; }
+    .wishlist-items { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .wishlist-item {
+      background: var(--card); border: 1px solid var(--border); border-radius: 4px;
+      padding: 14px; display: flex; gap: 12px; align-items: center;
+    }
+    .wishlist-item-icon { font-size: 28px; flex-shrink: 0; }
+    .wishlist-item-info { flex: 1; min-width: 0; }
+    .wishlist-item-name { font-size: 13px; color: var(--white); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .wishlist-item-price { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--accent); margin-top: 2px; }
+    .wishlist-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .wishlist-item-cart { background: var(--accent); color: var(--black); border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 700; }
+    .wishlist-item-remove { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 8px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .wishlist-empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .wishlist-empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .wishlist-footer { padding: 16px; border-top: 1px solid var(--border); }
+  `;
+  document.head.appendChild(style);
+
+  // Floating button
+  const floatBtn = document.createElement('div');
+  floatBtn.id = 'wishlistFloating';
+  floatBtn.innerHTML = '❤️<span id="wishlistBadge">0</span>';
+  document.body.appendChild(floatBtn);
+
+  // Overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'wishlistOverlay';
+  document.body.appendChild(overlay);
+
+  // Panel
+  const panel = document.createElement('div');
+  panel.id = 'wishlistPanel';
+  panel.innerHTML = `
+    <div class="wishlist-header">
+      <div class="wishlist-title">❤ DESEADOS</div>
+      <button class="wishlist-close" id="wishlistClose">×</button>
+    </div>
+    <div class="wishlist-items" id="wishlistItems"></div>
+    <div class="wishlist-footer">
+      <button onclick="addAllWishlistToCart()" style="width:100%;background:var(--accent);color:var(--black);border:none;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;border-radius:4px">AÑADIR TODO AL CARRITO</button>
+    </div>
+  `;
+  document.body.appendChild(panel);
+
+  function updateBadge() {
+    const badge = document.getElementById('wishlistBadge');
+    if (!badge) return;
+    badge.textContent = wishlist.length;
+    badge.style.display = wishlist.length > 0 ? 'flex' : 'none';
+  }
+
+  function renderPanel() {
+    const container = document.getElementById('wishlistItems');
+    if (!container) return;
+    if (!wishlist.length) {
+      container.innerHTML = `<div class="wishlist-empty"><div class="wishlist-empty-icon">💔</div><p>Tu lista de deseos está vacía.</p><p style="font-size:12px;margin-top:8px">Pulsa ❤ en cualquier producto para guardarlo.</p></div>`;
+      return;
+    }
+    container.innerHTML = wishlist.map((item, i) => `
+      <div class="wishlist-item">
+        <div class="wishlist-item-icon">${item.icon || '📦'}</div>
+        <div class="wishlist-item-info">
+          <div class="wishlist-item-name">${item.name}</div>
+          <div class="wishlist-item-price">${item.price}€</div>
+        </div>
+        <div class="wishlist-item-actions">
+          <button class="wishlist-item-cart" onclick="wishlistToCart(${i})">+ Carrito</button>
+          <button class="wishlist-item-remove" onclick="removeFromWishlist(${i})">×</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openPanel() {
+    renderPanel();
+    panel.classList.add('open');
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+  function closePanel() {
+    panel.classList.remove('open');
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  floatBtn.addEventListener('click', openPanel);
+  document.getElementById('wishlistClose').addEventListener('click', closePanel);
+  overlay.addEventListener('click', closePanel);
+
+  // Global functions
+  window.toggleWishlist = function(name, price, icon, btn) {
+    wishlist = JSON.parse(localStorage.getItem('nexusWishlist') || '[]');
+    const idx = wishlist.findIndex(w => w.name === name);
+    if (idx > -1) {
+      wishlist.splice(idx, 1);
+      if (btn) btn.classList.remove('active');
+      if (typeof showToast === 'function') showToast('❌ Eliminado de deseados');
+    } else {
+      wishlist.push({ name, price, icon: icon || '📦' });
+      if (btn) btn.classList.add('active');
+      if (typeof showToast === 'function') showToast('❤️ Añadido a deseados');
+    }
+    localStorage.setItem('nexusWishlist', JSON.stringify(wishlist));
+    updateBadge();
+    // Sync all wishlist buttons on page
+    document.querySelectorAll('.wishlist-btn').forEach(b => {
+      const n = b.dataset.name;
+      const inList = wishlist.some(w => w.name === n);
+      b.classList.toggle('active', inList);
+    });
+  };
+  window.removeFromWishlist = function(i) {
+    wishlist.splice(i, 1);
+    localStorage.setItem('nexusWishlist', JSON.stringify(wishlist));
+    updateBadge();
+    renderPanel();
+  };
+  window.wishlistToCart = function(i) {
+    if (typeof addToCart === 'function') addToCart(wishlist[i].name, wishlist[i].price);
+    if (typeof showToast === 'function') showToast('🛒 ' + wishlist[i].name + ' añadido al carrito');
+  };
+  window.addAllWishlistToCart = function() {
+    wishlist.forEach(item => { if (typeof addToCart === 'function') addToCart(item.name, item.price); });
+    if (typeof showToast === 'function') showToast('🛒 ' + wishlist.length + ' productos añadidos al carrito');
+  };
+  window.isInWishlist = function(name) { return wishlist.some(w => w.name === name); };
+
+  // Mark existing buttons on load
+  document.querySelectorAll('.wishlist-btn').forEach(b => {
+    if (wishlist.some(w => w.name === b.dataset.name)) b.classList.add('active');
+  });
+
+  updateBadge();
+}
+
+// ─────────────────────────────────────────────────────────────
+// 18. RESEÑAS DE USUARIOS
+// ─────────────────────────────────────────────────────────────
+function initReviews() {
+  // Only run on product pages
+  const reviewSection = document.getElementById('reviewSection');
+  if (!reviewSection) return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .reviews-container { max-width: 800px; }
+    .reviews-summary {
+      display: flex; gap: 32px; align-items: center;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 4px; padding: 24px; margin-bottom: 24px;
+    }
+    .reviews-big-score { text-align: center; }
+    .reviews-big-num { font-family: 'Bebas Neue', sans-serif; font-size: 64px; color: var(--accent); line-height: 1; }
+    .reviews-big-stars { font-size: 20px; color: #f59e0b; }
+    .reviews-big-count { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .reviews-bars { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .reviews-bar-row { display: flex; align-items: center; gap: 10px; }
+    .reviews-bar-label { font-size: 12px; color: var(--muted); width: 16px; text-align: right; }
+    .reviews-bar-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .reviews-bar-fill { height: 100%; background: #f59e0b; border-radius: 3px; transition: width 0.6s ease; }
+    .reviews-bar-count { font-size: 11px; color: var(--muted); width: 20px; }
+    .review-form {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 4px; padding: 24px; margin-bottom: 24px;
+    }
+    .review-form-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: var(--white); margin-bottom: 16px; }
+    .star-picker { display: flex; gap: 6px; margin-bottom: 16px; cursor: pointer; }
+    .star-picker span { font-size: 28px; color: var(--border); transition: color 0.15s; }
+    .star-picker span.lit { color: #f59e0b; }
+    .review-input {
+      width: 100%; background: var(--dark); border: 1px solid var(--border);
+      color: var(--text); padding: 10px 14px; border-radius: 4px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; resize: vertical;
+      outline: none; margin-bottom: 12px; transition: border-color 0.2s;
+    }
+    .review-input:focus { border-color: var(--accent); }
+    .review-name-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .review-submit {
+      background: var(--accent); color: var(--black); border: none;
+      padding: 10px 24px; font-family: 'Bebas Neue', sans-serif;
+      font-size: 15px; letter-spacing: 1px; cursor: pointer; border-radius: 4px;
+    }
+    .review-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 4px; padding: 20px; margin-bottom: 12px;
+    }
+    .review-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .review-card-author { font-size: 14px; color: var(--white); font-weight: 500; }
+    .review-card-date { font-size: 11px; color: var(--muted); }
+    .review-card-stars { color: #f59e0b; font-size: 14px; margin-bottom: 8px; }
+    .review-card-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+    .review-helpful { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: var(--muted); }
+    .review-helpful button { background: none; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; transition: all 0.2s; }
+    .review-helpful button:hover { border-color: var(--accent); color: var(--accent); }
+    .reviews-sort { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .reviews-sort button { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 14px; border-radius: 20px; cursor: pointer; font-size: 11px; letter-spacing: 1px; transition: all 0.2s; }
+    .reviews-sort button.active, .reviews-sort button:hover { border-color: var(--accent); color: var(--accent); }
+    .verified-badge { display: inline-block; background: rgba(0,200,255,0.1); color: var(--accent); font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 6px; font-family: 'JetBrains Mono', monospace; }
+  `;
+  document.head.appendChild(style);
+
+  const productName = document.querySelector('h1, .product-title, [data-product-name]')?.textContent?.trim() || 'producto';
+  const storageKey = 'nexusReviews_' + productName.replace(/\s+/g, '_').toLowerCase().slice(0, 40);
+
+  // Seed reviews if none exist
+  const seedReviews = [
+    { author: 'Carlos M.', rating: 5, text: 'Increíble rendimiento. Lo tengo montado con una RTX 5080 y la diferencia respecto a mi setup anterior es brutal. Sin dudarlo la mejor compra del año.', date: '2025-11-14', helpful: 23, verified: true },
+    { author: 'Ana G.', rating: 4, text: 'Muy buen producto, llegó bien embalado y en el plazo indicado. La instalación fue sencilla siguiendo la guía. Le quito una estrella porque el precio es algo elevado pero la calidad lo justifica.', date: '2025-10-29', helpful: 11, verified: true },
+    { author: 'Javier R.', rating: 5, text: 'Top. Lo uso para edición de vídeo 4K y renderizado 3D. Temperaturas excelentes con un buen sistema de refrigeración. 100% recomendado.', date: '2025-10-08', helpful: 18, verified: false },
+    { author: 'María L.', rating: 3, text: 'Correcto pero no espectacular. Para gaming puro el precio es algo alto comparado con alternativas del mercado. Para workstation sí tiene sentido.', date: '2025-09-21', helpful: 5, verified: true },
+    { author: 'Pablo S.', rating: 5, text: 'Bestia absoluta. Nada más añadir. Si tienes dudas entre esto y la versión inferior, ve a por esta sin pensarlo dos veces.', date: '2025-09-03', helpful: 34, verified: true },
+  ];
+
+  let reviews = JSON.parse(localStorage.getItem(storageKey) || 'null');
+  if (!reviews) {
+    reviews = seedReviews;
+    localStorage.setItem(storageKey, JSON.stringify(reviews));
+  }
+
+  let selectedRating = 0;
+  let sortMode = 'recent';
+
+  function avgRating() {
+    if (!reviews.length) return 0;
+    return (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+  }
+  function barData() {
+    const counts = [0,0,0,0,0];
+    reviews.forEach(r => counts[r.rating - 1]++);
+    return counts.reverse(); // 5 first
+  }
+
+  function render() {
+    const avg = avgRating();
+    const bars = barData();
+    const sorted = [...reviews].sort((a, b) => {
+      if (sortMode === 'helpful') return b.helpful - a.helpful;
+      if (sortMode === 'highest') return b.rating - a.rating;
+      if (sortMode === 'lowest') return a.rating - b.rating;
+      return new Date(b.date) - new Date(a.date);
+    });
+
+    reviewSection.innerHTML = `
+      <div class="section-tag" style="margin-bottom:8px">// Opiniones</div>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--white);margin-bottom:24px">RESEÑAS <span style="color:var(--accent)">(${reviews.length})</span></h2>
+      <div class="reviews-container">
+        <div class="reviews-summary">
+          <div class="reviews-big-score">
+            <div class="reviews-big-num">${avg}</div>
+            <div class="reviews-big-stars">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5-Math.round(avg))}</div>
+            <div class="reviews-big-count">${reviews.length} valoraciones</div>
+          </div>
+          <div class="reviews-bars">
+            ${bars.map((count, i) => `
+              <div class="reviews-bar-row">
+                <div class="reviews-bar-label">${5-i}★</div>
+                <div class="reviews-bar-track"><div class="reviews-bar-fill" style="width:${reviews.length ? Math.round(count/reviews.length*100) : 0}%"></div></div>
+                <div class="reviews-bar-count">${count}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="review-form">
+          <div class="review-form-title">✍ ESCRIBE TU RESEÑA</div>
+          <div class="star-picker" id="starPicker">
+            ${[1,2,3,4,5].map(n => `<span data-val="${n}">★</span>`).join('')}
+          </div>
+          <div class="review-name-row">
+            <input class="review-input" id="reviewName" placeholder="Tu nombre" style="margin:0;height:40px;resize:none" />
+          </div>
+          <textarea class="review-input" id="reviewText" rows="3" placeholder="Cuéntanos tu experiencia con este producto..."></textarea>
+          <button class="review-submit" onclick="submitReview()">PUBLICAR RESEÑA</button>
+        </div>
+
+        <div class="reviews-sort">
+          <button class="${sortMode==='recent'?'active':''}" onclick="setReviewSort('recent')">MÁS RECIENTES</button>
+          <button class="${sortMode==='helpful'?'active':''}" onclick="setReviewSort('helpful')">MÁS ÚTILES</button>
+          <button class="${sortMode==='highest'?'active':''}" onclick="setReviewSort('highest')">MAYOR PUNTUACIÓN</button>
+          <button class="${sortMode==='lowest'?'active':''}" onclick="setReviewSort('lowest')">MENOR PUNTUACIÓN</button>
+        </div>
+
+        ${sorted.map((r, i) => `
+          <div class="review-card">
+            <div class="review-card-header">
+              <div>
+                <span class="review-card-author">${r.author}</span>
+                ${r.verified ? '<span class="verified-badge">✓ Compra verificada</span>' : ''}
+              </div>
+              <div class="review-card-date">${new Date(r.date).toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}</div>
+            </div>
+            <div class="review-card-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+            <div class="review-card-text">${r.text}</div>
+            <div class="review-helpful">
+              ¿Útil?
+              <button onclick="markHelpful(${i})">👍 Sí (${r.helpful})</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // Star picker interaction
+    const picker = document.getElementById('starPicker');
+    if (picker) {
+      picker.querySelectorAll('span').forEach(star => {
+        star.addEventListener('mouseenter', () => {
+          const val = +star.dataset.val;
+          picker.querySelectorAll('span').forEach(s => s.classList.toggle('lit', +s.dataset.val <= val));
+        });
+        star.addEventListener('click', () => {
+          selectedRating = +star.dataset.val;
+          picker.querySelectorAll('span').forEach(s => s.classList.toggle('lit', +s.dataset.val <= selectedRating));
+        });
+      });
+      picker.addEventListener('mouseleave', () => {
+        picker.querySelectorAll('span').forEach(s => s.classList.toggle('lit', +s.dataset.val <= selectedRating));
+      });
+    }
+  }
+
+  window.submitReview = function() {
+    const name = document.getElementById('reviewName')?.value?.trim();
+    const text = document.getElementById('reviewText')?.value?.trim();
+    if (!name) { if (typeof showToast === 'function') showToast('⚠ Escribe tu nombre'); return; }
+    if (!selectedRating) { if (typeof showToast === 'function') showToast('⚠ Selecciona una puntuación'); return; }
+    if (!text || text.length < 10) { if (typeof showToast === 'function') showToast('⚠ Escribe al menos 10 caracteres'); return; }
+    reviews.unshift({ author: name, rating: selectedRating, text, date: new Date().toISOString().split('T')[0], helpful: 0, verified: false });
+    localStorage.setItem(storageKey, JSON.stringify(reviews));
+    selectedRating = 0;
+    sortMode = 'recent';
+    render();
+    if (typeof showToast === 'function') showToast('✅ Reseña publicada. ¡Gracias!');
+  };
+
+  window.markHelpful = function(i) {
+    reviews[i].helpful++;
+    localStorage.setItem(storageKey, JSON.stringify(reviews));
+    render();
+  };
+
+  window.setReviewSort = function(mode) {
+    sortMode = mode;
+    render();
+  };
+
+  render();
+}
+
+// ─────────────────────────────────────────────────────────────
+// 19. HISTORIAL DE PRECIOS (sparkline)
+// ─────────────────────────────────────────────────────────────
+function initPriceHistory() {
+  const container = document.getElementById('priceHistoryChart');
+  if (!container) return;
+
+  const currentPrice = parseFloat(container.dataset.price) || 100;
+  const productName = container.dataset.name || '';
+
+  // Generate 90 days of fake-but-realistic price history
+  function generateHistory(basePrice) {
+    const days = 90;
+    const history = [];
+    let price = basePrice * (1 + (Math.random() * 0.3));
+    for (let i = days; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      // Random walk with drift towards current price
+      const change = (Math.random() - 0.48) * basePrice * 0.03;
+      price = Math.max(basePrice * 0.8, Math.min(basePrice * 1.5, price + change));
+      if (i === 0) price = basePrice;
+      history.push({ date: d.toISOString().split('T')[0], price: Math.round(price * 100) / 100 });
+    }
+    return history;
+  }
+
+  const key = 'nexusPriceHistory_' + productName.replace(/\s+/g,'_').slice(0,30);
+  let history = JSON.parse(localStorage.getItem(key) || 'null');
+  if (!history) {
+    history = generateHistory(currentPrice);
+    localStorage.setItem(key, JSON.stringify(history));
+  }
+
+  const prices = history.map(h => h.price);
+  const minP = Math.min(...prices);
+  const maxP = Math.max(...prices);
+  const range = maxP - minP || 1;
+
+  const W = 600, H = 120, PAD = 8;
+  const points = prices.map((p, i) => {
+    const x = PAD + (i / (prices.length - 1)) * (W - PAD * 2);
+    const y = PAD + (1 - (p - minP) / range) * (H - PAD * 2);
+    return `${x},${y}`;
+  });
+
+  const avgP = (prices.reduce((s,p) => s+p, 0) / prices.length).toFixed(2);
+  const minDate = history[prices.indexOf(minP)]?.date;
+  const maxDate = history[prices.indexOf(maxP)]?.date;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .price-chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 20px; }
+    .price-chart-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; color: var(--white); margin-bottom: 4px; }
+    .price-chart-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+    .price-chart-stats { display: flex; gap: 24px; margin-top: 14px; flex-wrap: wrap; }
+    .price-chart-stat { text-align: center; }
+    .price-chart-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; }
+    .price-chart-stat-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+    .price-chart-stat.low .price-chart-stat-val { color: #4ade80; }
+    .price-chart-stat.high .price-chart-stat-val { color: #f87171; }
+    .price-chart-stat.avg .price-chart-stat-val { color: var(--accent); }
+    .price-chart-stat.now .price-chart-stat-val { color: var(--white); }
+    .chart-tooltip {
+      position: absolute; background: var(--dark); border: 1px solid var(--accent);
+      padding: 6px 10px; border-radius: 4px; font-size: 12px; color: var(--white);
+      pointer-events: none; display: none; z-index: 10; white-space: nowrap;
+    }
+  `;
+  document.head.appendChild(style);
+
+  const svgWrap = document.createElement('div');
+  svgWrap.style.position = 'relative';
+  svgWrap.innerHTML = `
+    <div class="price-chart-wrap">
+      <div class="price-chart-title">📈 HISTORIAL DE PRECIOS — 90 DÍAS</div>
+      <div class="price-chart-sub">Precio más bajo: <strong style="color:#4ade80">${minP.toFixed(2)}€</strong> · Precio más alto: <strong style="color:#f87171">${maxP.toFixed(2)}€</strong></div>
+      <div style="position:relative;overflow:hidden">
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" id="priceChartSVG">
+          <defs>
+            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <polygon points="${points.join(' ')} ${W-PAD},${H-PAD} ${PAD},${H-PAD}" fill="url(#chartGrad)"/>
+          <polyline points="${points.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+          <circle cx="${points[points.length-1].split(',')[0]}" cy="${points[points.length-1].split(',')[1]}" r="4" fill="var(--accent)" stroke="var(--dark)" stroke-width="2"/>
+        </svg>
+        <div class="chart-tooltip" id="chartTooltip"></div>
+      </div>
+      <div class="price-chart-stats">
+        <div class="price-chart-stat low"><div class="price-chart-stat-val">${minP.toFixed(2)}€</div><div class="price-chart-stat-label">MÍNIMO</div></div>
+        <div class="price-chart-stat high"><div class="price-chart-stat-val">${maxP.toFixed(2)}€</div><div class="price-chart-stat-label">MÁXIMO</div></div>
+        <div class="price-chart-stat avg"><div class="price-chart-stat-val">${avgP}€</div><div class="price-chart-stat-label">MEDIA 90D</div></div>
+        <div class="price-chart-stat now"><div class="price-chart-stat-val">${currentPrice.toFixed(2)}€</div><div class="price-chart-stat-label">HOY</div></div>
+      </div>
+    </div>
+  `;
+  container.appendChild(svgWrap);
+
+  // Hover tooltip
+  const svg = document.getElementById('priceChartSVG');
+  const tooltip = document.getElementById('chartTooltip');
+  if (svg && tooltip) {
+    svg.addEventListener('mousemove', function(e) {
+      const rect = svg.getBoundingClientRect();
+      const xRel = (e.clientX - rect.left) / rect.width;
+      const idx = Math.round(xRel * (history.length - 1));
+      const item = history[Math.max(0, Math.min(history.length-1, idx))];
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX - rect.left + 10) + 'px';
+      tooltip.style.top = '10px';
+      tooltip.textContent = `${item.date}: ${item.price.toFixed(2)}€`;
+    });
+    svg.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// 20. COMPARTIR PRODUCTO
+// ─────────────────────────────────────────────────────────────
+function initShareProduct() {
+  const container = document.getElementById('shareProduct');
+  if (!container) return;
+
+  const name = container.dataset.name || document.title;
+  const price = container.dataset.price || '';
+  const url = encodeURIComponent(window.location.href);
+  const text = encodeURIComponent(`🖥 ${name} — ${price}€ en NEXUS Tech`);
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .share-buttons { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .share-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 4px; cursor: pointer;
+      font-size: 12px; font-weight: 500; border: 1px solid var(--border);
+      transition: all 0.2s; text-decoration: none; color: var(--text);
+      background: var(--card);
+    }
+    .share-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .share-btn.whatsapp:hover { border-color: #25d366; color: #25d366; }
+    .share-btn.twitter:hover { border-color: #1da1f2; color: #1da1f2; }
+    .share-btn.copy:hover { border-color: var(--accent); color: var(--accent); }
+    .share-label { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; margin-bottom: 10px; }
+  `;
+  document.head.appendChild(style);
+
+  container.innerHTML = `
+    <div class="share-label">// COMPARTIR</div>
+    <div class="share-buttons">
+      <a class="share-btn whatsapp" href="https://wa.me/?text=${text}%20${url}" target="_blank" rel="noopener">
+        <span>💬</span> WhatsApp
+      </a>
+      <a class="share-btn twitter" href="https://twitter.com/intent/tweet?text=${text}&url=${url}" target="_blank" rel="noopener">
+        <span>𝕏</span> Twitter/X
+      </a>
+      <button class="share-btn copy" onclick="copyProductLink(this)">
+        <span>🔗</span> Copiar enlace
+      </button>
+    </div>
+  `;
+
+  window.copyProductLink = function(btn) {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      btn.innerHTML = '<span>✓</span> Copiado';
+      setTimeout(() => { btn.innerHTML = '<span>🔗</span> Copiar enlace'; }, 2000);
+    });
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// 21. MODO CLARO / OSCURO
+// ─────────────────────────────────────────────────────────────
+function initDarkModeToggle() {
+  const style = document.createElement('style');
+  style.textContent = `
+    body.light-mode {
+      --black: #f0f4f8; --dark: #e2e8f0; --card: #ffffff;
+      --border: #cbd5e1; --muted: #64748b; --text: #1e293b; --white: #0f172a;
+    }
+    body.light-mode nav { background: rgba(240,244,248,0.97); }
+    body.light-mode .product-card { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    #darkToggle {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      width: 36px; height: 36px; border-radius: 4px; cursor: pointer;
+      font-size: 16px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    #darkToggle:hover { border-color: var(--accent); color: var(--accent); }
+    body { transition: background 0.3s, color 0.3s; }
+  `;
+  document.head.appendChild(style);
+
+  const btn = document.createElement('button');
+  btn.id = 'darkToggle';
+  btn.title = 'Cambiar tema';
+  const isDark = localStorage.getItem('nexusTheme') !== 'light';
+  btn.textContent = isDark ? '☀️' : '🌙';
+  if (!isDark) document.body.classList.add('light-mode');
+
+  // Insert into nav actions
+  const navActions = document.getElementById('navActions');
+  if (navActions) navActions.insertBefore(btn, navActions.firstChild);
+
+  btn.addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light-mode');
+    btn.textContent = isLight ? '🌙' : '☀️';
+    localStorage.setItem('nexusTheme', isLight ? 'light' : 'dark');
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// 22. BREADCRUMBS
+// ─────────────────────────────────────────────────────────────
+function initBreadcrumbs() {
+  const container = document.getElementById('breadcrumbs');
+  if (!container) return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .breadcrumb-nav {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      padding: 12px 0; font-size: 12px; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;
+    }
+    .breadcrumb-nav a { color: var(--muted); transition: color 0.2s; }
+    .breadcrumb-nav a:hover { color: var(--accent); }
+    .breadcrumb-sep { color: var(--border); }
+    .breadcrumb-current { color: var(--text); }
+  `;
+  document.head.appendChild(style);
+
+  // Auto-build from data attributes
+  const crumbs = JSON.parse(container.dataset.crumbs || '[]');
+  if (!crumbs.length) return;
+
+  container.innerHTML = `<nav class="breadcrumb-nav" aria-label="breadcrumb">
+    ${crumbs.map((c, i) => i < crumbs.length - 1
+      ? `<a href="${c.url}">${c.label}</a><span class="breadcrumb-sep">/</span>`
+      : `<span class="breadcrumb-current">${c.label}</span>`
+    ).join('')}
+  </nav>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// 23. ALERTA STOCK POR EMAIL
+// ─────────────────────────────────────────────────────────────
+function initStockEmailAlert() {
+  const container = document.getElementById('stockEmailAlert');
+  if (!container) return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .stock-alert-form {
+      background: var(--card); border: 1px solid var(--border);
+      border-left: 3px solid #f59e0b;
+      border-radius: 4px; padding: 16px 20px;
+    }
+    .stock-alert-title { font-size: 13px; color: #f59e0b; font-weight: 500; margin-bottom: 10px; }
+    .stock-alert-row { display: flex; gap: 8px; }
+    .stock-alert-input {
+      flex: 1; background: var(--dark); border: 1px solid var(--border);
+      color: var(--text); padding: 8px 12px; border-radius: 4px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .stock-alert-input:focus { border-color: #f59e0b; }
+    .stock-alert-btn {
+      background: #f59e0b; color: var(--black); border: none;
+      padding: 8px 16px; border-radius: 4px; cursor: pointer;
+      font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    .stock-alert-btn:hover { background: #d97706; }
+  `;
+  document.head.appendChild(style);
+
+  const productName = container.dataset.name || 'este producto';
+
+  container.innerHTML = `
+    <div class="stock-alert-form">
+      <div class="stock-alert-title">🔔 AVÍSAME CUANDO HAYA STOCK</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Te notificamos cuando <strong style="color:var(--text)">${productName}</strong> vuelva a estar disponible.</div>
+      <div class="stock-alert-row">
+        <input class="stock-alert-input" id="stockAlertEmail" type="email" placeholder="tu@email.com" />
+        <button class="stock-alert-btn" onclick="subscribeStockAlert()">AVISAR</button>
+      </div>
+    </div>
+  `;
+
+  window.subscribeStockAlert = function() {
+    const email = document.getElementById('stockAlertEmail')?.value?.trim();
+    if (!email || !email.includes('@')) { if (typeof showToast === 'function') showToast('⚠ Introduce un email válido'); return; }
+    const alerts = JSON.parse(localStorage.getItem('nexusStockAlerts') || '[]');
+    alerts.push({ product: productName, email, date: new Date().toISOString() });
+    localStorage.setItem('nexusStockAlerts', JSON.stringify(alerts));
+    container.innerHTML = `<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.4);border-radius:4px;padding:16px 20px;font-size:13px;color:#f59e0b">✅ Registrado. Te avisaremos en <strong>${email}</strong> cuando haya stock.</div>`;
+    if (typeof showToast === 'function') showToast('🔔 Alerta de stock activada');
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Bootstrap v2
+// ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+  initWishlist();
+  initReviews();
+  initPriceHistory();
+  initShareProduct();
+  initDarkModeToggle();
+  initBreadcrumbs();
+  initStockEmailAlert();
+});

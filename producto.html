@@ -378,122 +378,282 @@
 
 <div class="toast" id="toast"></div>
 <script src="app.js"></script>
+<script src="products-db.js"></script>
 <script src="nexus-extras.js"></script>
 <script>
-const reviews = [
-  { author:'Alejandro M.', rating:5, date:'02/03/2025', title:'Una bestia absoluta. Vale cada euro.', text:'Venía de una RTX 3080 y el salto es BRUTAL. Cyberpunk 2077 con ray tracing completo y DLSS 4 va a 180+ FPS en 4K. La temperatura se mantiene por debajo de 70°C con la ventilación de mi torre. Lleva 3 semanas funcionando sin un solo problema. 100% recomendada.', verified:true, helpful:42, tags:['Gaming','4K','Ray Tracing'] },
-  { author:'Laura G.', rating:5, date:'18/02/2025', title:'Para trabajar con IA generativa, imprescindible', text:'La uso principalmente para Stable Diffusion y entrenamiento de modelos pequeños. Los 16GB de GDDR7 hacen maravillas. La diferencia respecto a mi antigua 4070 Ti es enorme en tareas de inferencia. NEXUS envió rapidísimo, en 2 días en mi puerta.', verified:true, helpful:31, tags:['IA','Creativo','Trabajo'] },
-  { author:'Carlos P.', rating:4, date:'10/02/2025', title:'Muy buena, pero el consumo es lo que es', text:'Rendimiento excepcional, sin duda la mejor GPU que he tenido. Le quito una estrella porque con 360W de TDP tengo que vigilar la alimentación. Tuve que cambiar mi PSU de 750W por una de 1000W. Si tienes eso resuelto, es perfecta. El DLSS 4 es magia pura.', verified:true, helpful:28, tags:['Gaming','Consumo'] },
-  { author:'Natalia R.', rating:5, date:'05/02/2025', title:'Servicio de NEXUS impecable', text:'Tercer pedido en NEXUS y siempre igual de bien. La tarjeta llegó perfectamente embalada, en su caja original con todos los accesorios. La GPU en sí es simplemente de otro nivel. Mi configuración con i9-14900K y esta RTX 5080 es una máquina sin rival.', verified:true, helpful:19, tags:['Servicio','Calidad','Embalaje'] },
-];
 
-function renderReviews() {
-  document.getElementById('reviewsContainer').innerHTML = reviews.slice(0,3).map(r => `
+/* ── Load product from URL ── */
+const urlId = decodeURIComponent(new URLSearchParams(location.search).get('id') || '');
+const p = nexusFind(urlId);
+
+/* ── Fallback generic data if product not in detailed DB ── */
+const prod = p || {
+  name: urlId || 'Producto', brand: '—', price: 0, icon: '📦', cat: '—', rating: 4,
+  gallery: ['📦','💻','🖥️','⚡','🔧'],
+  desc: 'Ficha técnica detallada disponible próximamente.',
+  highlights: [],
+  specs: {},
+  benchmarks: [],
+  reviews: []
+};
+
+/* ── Render page ── */
+document.title = prod.name + ' — NEXUS';
+
+// Breadcrumb
+document.querySelector('.breadcrumb').innerHTML =
+  `<a href="index.html">Inicio</a><span>/</span>
+   <a href="productos.html">Productos</a><span>/</span>
+   <a href="productos.html">${prod.cat}</a><span>/</span>
+   <span style="color:var(--text)">${prod.name}</span>`;
+
+// Gallery
+document.getElementById('mainEmoji').textContent = prod.icon;
+const thumbsEl = document.querySelector('.gallery-thumbs');
+thumbsEl.innerHTML = (prod.gallery || [prod.icon,'💻','🖥️','⚡','🔧']).map((e,i) =>
+  `<div class="gallery-thumb${i===0?' active':''}" onclick="setEmoji('${e}',this)">${e}</div>`
+).join('');
+
+// Badge
+const badgeWrap = document.querySelector('.gallery-badge-wrap');
+badgeWrap.innerHTML = '';
+if(prod.oldPrice){
+  const pct = Math.round((1 - prod.price/prod.oldPrice)*100);
+  badgeWrap.innerHTML = `<span class="product-badge" style="position:static">−${pct}%</span>`;
+}
+
+// Brand + SKU
+document.querySelector('.product-meta-brand').textContent = prod.brand;
+document.querySelector('.product-meta-sku').textContent =
+  'SKU: NX-' + prod.name.toUpperCase().replace(/\s+/g,'-').substring(0,14);
+
+// Title
+document.querySelector('.product-page-title').textContent = prod.name.toUpperCase();
+
+// Description block — inject after title if not present
+let descEl = document.getElementById('prodDesc');
+if(!descEl && prod.desc){
+  descEl = document.createElement('p');
+  descEl.id = 'prodDesc';
+  descEl.style.cssText = 'font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px;';
+  document.querySelector('.product-page-title').insertAdjacentElement('afterend', descEl);
+}
+if(descEl) descEl.textContent = prod.desc || '';
+
+// Highlights
+let hlEl = document.getElementById('prodHighlights');
+if(!hlEl && prod.highlights && prod.highlights.length){
+  hlEl = document.createElement('ul');
+  hlEl.id = 'prodHighlights';
+  hlEl.style.cssText = 'margin:0 0 20px;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;';
+  descEl ? descEl.insertAdjacentElement('afterend', hlEl) : document.querySelector('.product-page-title').insertAdjacentElement('afterend', hlEl);
+}
+if(hlEl) hlEl.innerHTML = (prod.highlights||[]).map(h =>
+  `<li style="font-size:13px;color:var(--text);display:flex;gap:8px;align-items:flex-start">
+     <span style="color:var(--accent);flex-shrink:0;font-family:'JetBrains Mono',monospace">✦</span>${h}
+   </li>`).join('');
+
+// Rating
+const ratingCount = prod.reviews ? prod.reviews.length * 37 + 12 : 48;
+document.querySelector('.rating-stars').textContent = '★'.repeat(prod.rating) + '☆'.repeat(5-prod.rating);
+document.querySelector('.rating-count').textContent = prod.rating + '.0 / 5';
+document.querySelector('a[href="#reviews"]').textContent = ratingCount + ' valoraciones';
+
+// Price
+document.querySelector('.price-main').textContent = (prod.price||0).toLocaleString('es-ES') + '€';
+const priceOldEl = document.querySelector('.price-old');
+const priceSaveEl = document.querySelector('.price-save');
+if(prod.oldPrice){
+  priceOldEl.textContent = prod.oldPrice.toLocaleString('es-ES') + '€';
+  priceSaveEl.textContent = 'AHORRAS ' + (prod.oldPrice - prod.price).toLocaleString('es-ES') + '€';
+  priceOldEl.style.display = '';
+  priceSaveEl.style.display = '';
+} else {
+  priceOldEl.style.display = 'none';
+  priceSaveEl.style.display = 'none';
+}
+document.querySelector('.price-iva').textContent =
+  'IVA incluido · Financiación desde ' + Math.round((prod.price||0)/12).toLocaleString('es-ES') + '€/mes sin intereses';
+
+// Stock (randomise per product but consistent using price as seed)
+const stockSeed = (prod.price || 100) % 7;
+const stockVariants = [
+  {dot:'',text:'En stock',units:'— Disponible inmediatamente'},
+  {dot:'',text:'En stock',units:'— Más de 20 unidades'},
+  {dot:'low',text:'Stock bajo',units:'— Quedan solo 5 unidades'},
+  {dot:'',text:'En stock',units:'— Disponible para envío en 24h'},
+  {dot:'low',text:'Stock bajo',units:'— Últimas 8 unidades'},
+  {dot:'',text:'En stock',units:'— Disponible'},
+  {dot:'',text:'En stock',units:'— Entrega inmediata'},
+];
+const sv = stockVariants[stockSeed];
+document.querySelector('.stock-dot').className = 'stock-dot' + (sv.dot ? ' '+sv.dot : '');
+document.querySelector('.stock-text').textContent = sv.text;
+document.querySelector('.stock-units').textContent = sv.units;
+
+// CTA buttons
+document.querySelectorAll('.cart-add').forEach(b => { b.dataset.name = prod.name; b.dataset.price = prod.price; });
+document.querySelectorAll('.compare-add-btn, .btn-compare').forEach(b => { b.dataset.name = prod.name; b.dataset.price = prod.price; });
+
+// Variants — same category products
+const allProds = typeof allProducts !== 'undefined' ? allProducts : [];
+const catMap = { cpu:'cpu', gpu:'gpu', ram:'ram', storage:'storage', monitor:'monitor', peripheral:'peripheral', motherboard:'motherboard', case:'case', psu:'psu' };
+const myCat = catMap[prod.cat?.toLowerCase()] || prod.cat;
+const samecat = NEXUS_DB.filter(x => x.cat === prod.cat && x.name !== prod.name).slice(0, 3);
+const variantEl = document.querySelector('.variant-options');
+variantEl.innerHTML = `<div class="variant-btn active" style="font-size:12px">${prod.name}</div>` +
+  samecat.map(x => `<div class="variant-btn" style="font-size:12px" onclick="window.location.href='producto.html?id='+encodeURIComponent('${x.name.replace(/'/g,"\'").replace(/"/g,'&quot;')}')">
+    ${x.name} — ${x.price.toLocaleString('es-ES')}€</div>`).join('');
+
+// Guarantee line
+const guarantee = prod.specs && prod.specs['Garantía'] ? prod.specs['Garantía'] : '2 años';
+const warrantyItems = document.querySelectorAll('.delivery-item');
+if(warrantyItems[2]) warrantyItems[2].querySelector('.delivery-title').textContent =
+  `Garantía oficial ${prod.brand} ${guarantee}`;
+
+// Specs table
+const specsGrid = document.querySelector('.specs-grid');
+if(prod.specs && Object.keys(prod.specs).length > 0){
+  specsGrid.innerHTML = Object.entries(prod.specs).map(([k,v],i) => `
+    <div class="spec-row">
+      <div class="spec-key">${k}</div>
+      <div class="spec-val${i%4===0||i%4===2?' highlight':''}">${v}</div>
+    </div>`).join('');
+} else {
+  specsGrid.innerHTML = '<div class="spec-row"><div class="spec-key">Info</div><div class="spec-val">Especificaciones detalladas próximamente</div></div>';
+}
+
+// Performance bars
+const perfBarsEl = document.getElementById('perfBars');
+if(prod.benchmarks && prod.benchmarks.length > 0){
+  perfBarsEl.innerHTML = prod.benchmarks.map(b => `
+    <div class="perf-bar-item" data-val="${b.val}">
+      <div class="perf-bar-header">
+        <span class="perf-bar-label">${b.label}</span>
+        <span class="perf-bar-value">${b.unit}</span>
+      </div>
+      <div class="perf-bar-track"><div class="perf-bar-fill"></div></div>
+    </div>`).join('');
+} else {
+  document.querySelector('.performance-section').style.display = 'none';
+}
+
+// Reviews
+const reviewsData = (prod.reviews && prod.reviews.length > 0) ? prod.reviews : [
+  {author:'Usuario verificado',rating:prod.rating,date:'01/03/2025',title:'Muy buen producto',text:'Calidad excelente y envío muy rápido de NEXUS. Totalmente recomendado.',verified:true,helpful:12}
+];
+const reviewsCount = reviewsData.length * 37 + 12;
+document.querySelector('.reviews-big-num').textContent = prod.rating + '.0';
+document.querySelector('.reviews-big-stars').textContent = '★'.repeat(prod.rating) + '☆'.repeat(5-prod.rating);
+document.querySelector('.reviews-big-count').textContent = reviewsCount + ' valoraciones';
+
+function renderReviews(){
+  document.getElementById('reviewsContainer').innerHTML = reviewsData.map(r => `
     <div class="review-card">
       <div class="review-header">
         <div>
-          <div class="review-author">${r.author} ${r.verified?'<span style="font-size:10px;color:var(--accent);font-family:\'JetBrains Mono\',monospace;letter-spacing:1px">✓ COMPRA VERIFICADA</span>':''}</div>
+          <div class="review-author">${r.author} ${r.verified ? '<span style="font-size:10px;color:var(--accent);font-family:'JetBrains Mono',monospace;letter-spacing:1px">✓ VERIFICADA</span>' : ''}</div>
           <div class="review-date">${r.date}</div>
         </div>
         <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
       </div>
       <div class="review-title">${r.title}</div>
       <div class="review-text">${r.text}</div>
-      <div class="review-tags">${r.tags.map(t=>`<span class="review-tag">${t}</span>`).join('')}</div>
       <div class="review-helpful">
         <span>¿Te ha resultado útil?</span>
-        <button onclick="this.textContent='👍 ' + (parseInt(this.textContent.replace(/\D/g,''))+1);this.disabled=true">👍 ${r.helpful}</button>
+        <button onclick="this.textContent='👍 '+(parseInt(this.textContent.replace(/\D/g,''))+1);this.disabled=true">👍 ${r.helpful||0}</button>
         <button onclick="this.disabled=true">👎</button>
       </div>
-    </div>
-  `).join('');
-}
-
-function loadMoreReviews() {
-  const extra = reviews.slice(3).map(r => `<div class="review-card"><div class="review-header"><div><div class="review-author">${r.author}</div><div class="review-date">${r.date}</div></div><div class="review-stars">${'★'.repeat(r.rating)}</div></div><div class="review-title">${r.title}</div><div class="review-text">${r.text}</div></div>`).join('');
-  document.getElementById('reviewsContainer').insertAdjacentHTML('beforeend', extra);
-  document.querySelector('.reviews-section button').style.display = 'none';
-}
-
-let selectedStars = 0;
-function setStar(n) {
-  selectedStars = n;
-  document.querySelectorAll('.star-pick').forEach((s,i) => { s.classList.toggle('active', i < n); s.style.filter = i < n ? 'none' : 'grayscale(1)'; });
-}
-
-function submitReview() {
-  const name = document.getElementById('reviewName').value.trim();
-  const title = document.getElementById('reviewTitle').value.trim();
-  const text = document.getElementById('reviewText').value.trim();
-  if (!selectedStars) { showToast('⚠ Selecciona una puntuación'); return; }
-  if (!name || !text) { showToast('⚠ Rellena nombre y opinión'); return; }
-  const newReview = `<div class="review-card" style="border-left:2px solid var(--accent)"><div class="review-header"><div><div class="review-author">${name} <span style="font-size:10px;color:var(--accent);font-family:'JetBrains Mono',monospace">✓ NUEVA</span></div><div class="review-date">Ahora</div></div><div class="review-stars">${'★'.repeat(selectedStars)}</div></div><div class="review-title">${title||'Sin título'}</div><div class="review-text">${text}</div></div>`;
-  document.getElementById('reviewsContainer').insertAdjacentHTML('afterbegin', newReview);
-  document.getElementById('reviewName').value=''; document.getElementById('reviewTitle').value=''; document.getElementById('reviewText').value='';
-  setStar(0);
-  showToast('✓ Valoración publicada. ¡Gracias!');
+    </div>`).join('');
 }
 
 // Related products
-const related = [
-  { name:'NVIDIA GeForce RTX 5090 32GB', brand:'NVIDIA', price:1999, icon:'🎮', badge:'Nuevo' },
-  { name:'Intel Core Ultra 9 285K', brand:'Intel', price:589, icon:'⚡', badge:'−15%' },
-  { name:'Corsair Dominator Titanium DDR5 32GB', brand:'Corsair', price:219, icon:'🧠', badge:null },
-  { name:'Samsung 990 Pro NVMe SSD 2TB', brand:'Samsung', price:159, icon:'💾', badge:'−20%' },
-];
-document.getElementById('relatedGrid').innerHTML = related.map(p => `
-  <div class="product-card">
-    ${p.badge?`<div class="product-badge">${p.badge}</div>`:''}
-    <div class="product-img">${p.icon}</div>
+const related = NEXUS_DB.filter(x => x.cat === prod.cat && x.name !== prod.name).slice(0, 4);
+if(related.length < 4){
+  NEXUS_DB.filter(x => x.name !== prod.name && !related.includes(x)).forEach(x => { if(related.length < 4) related.push(x); });
+}
+document.getElementById('relatedGrid').innerHTML = related.map(r => `
+  <div class="product-card" onclick="window.location.href='producto.html?id='+encodeURIComponent('${r.name.replace(/'/g,"\'").replace(/"/g,'&quot;')}');" style="cursor:pointer">
+    ${r.oldPrice ? `<div class="product-badge">−${Math.round((1-r.price/r.oldPrice)*100)}%</div>` : ''}
+    <div class="product-img">${r.icon}</div>
     <div class="product-info">
-      <div class="product-brand">${p.brand}</div>
-      <div class="product-name">${p.name}</div>
+      <div class="product-brand">${r.brand}</div>
+      <div class="product-name">${r.name}</div>
       <div class="product-footer">
-        <span class="product-price">${p.price}€</span>
-        <button class="add-btn cart-add" data-name="${p.name}" data-price="${p.price}">+</button>
+        <div class="product-footer-prices">
+          <span class="product-price">${r.price.toLocaleString('es-ES')}€</span>
+          ${r.oldPrice ? `<span class="product-price-old">${r.oldPrice.toLocaleString('es-ES')}€</span>` : ''}
+        </div>
+        <div class="product-footer-btns">
+          <button class="add-btn cart-add" data-name="${r.name}" data-price="${r.price}" onclick="event.stopPropagation()">+</button>
+        </div>
       </div>
     </div>
   </div>`).join('');
 
-function setEmoji(emoji, thumb) {
+/* ── Utilities ── */
+function setEmoji(emoji, thumb){
   document.getElementById('mainEmoji').textContent = emoji;
   document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
   thumb.classList.add('active');
 }
-
-function toggleWishlist() {
+function toggleWishlist(){
   const btn = document.getElementById('wishlistBtn');
   const isActive = btn.classList.toggle('active');
   btn.textContent = isActive ? '❤️' : '🤍';
-  showToast(isActive ? '❤️ Añadido a tu lista de deseos' : '✓ Eliminado de la lista de deseos');
+  showToast(isActive ? '❤️ Añadido a la lista de deseos' : '✓ Eliminado de la lista de deseos');
 }
-
-function shareProduct(platform) {
+function shareProduct(platform){
   const url = encodeURIComponent(window.location.href);
-  const text = encodeURIComponent('¡Mira esta RTX 5080 16GB en NEXUS!');
-  if (platform === 'twitter') window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`);
-  else if (platform === 'whatsapp') window.open(`https://wa.me/?text=${text}%20${url}`);
+  const text = encodeURIComponent('¡Mira ' + prod.name + ' en NEXUS!');
+  if(platform === 'twitter') window.open('https://twitter.com/intent/tweet?text='+text+'&url='+url);
+  else if(platform === 'whatsapp') window.open('https://wa.me/?text='+text+'%20'+url);
 }
-function copyLink() { navigator.clipboard.writeText(window.location.href).then(() => showToast('🔗 Enlace copiado')); }
+function copyLink(){ navigator.clipboard.writeText(window.location.href).then(() => showToast('🔗 Enlace copiado')); }
+
+let selectedStars = 0;
+function setStar(n){
+  selectedStars = n;
+  document.querySelectorAll('.star-pick').forEach((s,i) => { s.classList.toggle('active', i < n); s.style.filter = i < n ? 'none' : 'grayscale(1)'; });
+}
+function submitReview(){
+  const name = document.getElementById('reviewName').value.trim();
+  const title = document.getElementById('reviewTitle').value.trim();
+  const text = document.getElementById('reviewText').value.trim();
+  if(!selectedStars){ showToast('⚠ Selecciona una puntuación'); return; }
+  if(!name || !text){ showToast('⚠ Rellena nombre y opinión'); return; }
+  document.getElementById('reviewsContainer').insertAdjacentHTML('afterbegin',
+    `<div class="review-card" style="border-left:2px solid var(--accent)">
+      <div class="review-header"><div><div class="review-author">${name} <span style="font-size:10px;color:var(--accent);font-family:'JetBrains Mono',monospace">✓ NUEVA</span></div><div class="review-date">Ahora</div></div>
+      <div class="review-stars">${'★'.repeat(selectedStars)}</div></div>
+      <div class="review-title">${title||'Sin título'}</div><div class="review-text">${text}</div>
+    </div>`);
+  document.getElementById('reviewName').value = '';
+  document.getElementById('reviewTitle').value = '';
+  document.getElementById('reviewText').value = '';
+  setStar(0);
+  showToast('✓ Valoración publicada. ¡Gracias!');
+}
+function loadMoreReviews(){}
 
 // Delivery date
 const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 2);
 document.getElementById('deliveryDate').textContent = tomorrow.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
 
-// Animate performance bars on scroll
+// Animate perf bars on scroll
 const perfObs = new IntersectionObserver(entries => {
   entries.forEach(e => {
-    if (e.isIntersecting) {
+    if(e.isIntersecting){
       document.querySelectorAll('.perf-bar-item').forEach(bar => {
         const fill = bar.querySelector('.perf-bar-fill');
-        fill.style.width = bar.dataset.val + '%';
+        if(fill) fill.style.width = bar.dataset.val + '%';
       });
       perfObs.disconnect();
     }
   });
-}, { threshold: 0.3 });
+}, {threshold: 0.2});
 const perfSection = document.querySelector('.performance-section');
-if (perfSection) perfObs.observe(perfSection);
+if(perfSection) perfObs.observe(perfSection);
 
 renderReviews();
 </script>

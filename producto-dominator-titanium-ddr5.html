@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dominator Titanium DDR5 32GB — NEXUS Tech Store</title>
+<meta name="description" content="DDR5-6400 CL32 con disipador de aluminio y RGB iCUE. La RAM de gama alta de Corsair para plataformas Z890 y X870E que exigen lo mejor en velocidad y f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* PAGE LAYOUT */
+.product-page { max-width:1200px; margin:0 auto; padding:32px 24px 80px; }
+.breadcrumb { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin-bottom:28px; font-family:'JetBrains Mono',monospace; }
+.breadcrumb a { color:var(--muted); text-decoration:none; transition:color .2s; }
+.breadcrumb a:hover { color:var(--accent); }
+.breadcrumb span { color:var(--text); }
+
+/* TOP SECTION */
+.product-top { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; margin-bottom:64px; }
+@media(max-width:768px){ .product-top { grid-template-columns:1fr; gap:32px; } }
+
+/* GALLERY */
+.product-gallery { position:relative; }
+.gallery-main { background:var(--card); border:1px solid var(--border); border-radius:16px; aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:120px; position:relative; overflow:hidden; }
+.gallery-main::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 50%, rgba(0,200,255,.08) 0%, transparent 70%); pointer-events:none; }
+.gallery-main .badge-float { position:absolute; top:20px; left:20px; }
+.product-badge { display:inline-block; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; background:rgba(0,200,255,.15); color:var(--accent); border:1px solid rgba(0,200,255,.3); text-transform:uppercase; letter-spacing:.5px; }
+.product-badge.badge-new { background:rgba(139,92,246,.15); color:var(--accent2); border-color:rgba(139,92,246,.3); }
+
+/* INFO PANEL */
+.product-info-panel { display:flex; flex-direction:column; gap:20px; }
+.product-cat-tag { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:2px; }
+.product-title { font-family:'Orbitron',sans-serif; font-size:clamp(22px,3vw,32px); font-weight:900; color:var(--white); line-height:1.15; }
+.product-brand-tag { font-size:13px; color:var(--muted); }
+.product-stars { display:flex; gap:4px; align-items:center; }
+.star { color:var(--border); font-size:18px; }
+.star.filled { color:#f59e0b; }
+.product-desc { font-size:15px; color:var(--muted); line-height:1.7; }
+
+/* PRICE */
+.price-block { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px 24px; }
+.price-current { font-family:'Orbitron',sans-serif; font-size:36px; font-weight:900; color:var(--accent); }
+.price-old { font-size:18px; color:var(--muted); text-decoration:line-through; margin-left:12px; }
+.price-save { display:inline-block; margin-left:12px; font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace; background:rgba(239,68,68,.15); color:#ef4444; border:1px solid rgba(239,68,68,.3); padding:3px 8px; border-radius:6px; }
+
+/* STOCK */
+.stock-ok { font-size:13px; color:#22c55e; font-family:'JetBrains Mono',monospace; }
+.stock-alert { font-size:13px; color:#f59e0b; font-family:'JetBrains Mono',monospace; }
+
+/* BUTTONS */
+.btn-group { display:flex; gap:12px; flex-wrap:wrap; }
+.btn-primary { flex:1; min-width:140px; background:var(--accent); color:var(--black); border:none; border-radius:10px; padding:14px 24px; font-family:'Orbitron',sans-serif; font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; letter-spacing:.5px; }
+.btn-primary:hover { background:#33d1ff; transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,200,255,.3); }
+.btn-secondary { flex:1; min-width:140px; background:transparent; color:var(--text); border:1px solid var(--border); border-radius:10px; padding:14px 24px; font-family:'Orbitron',sans-serif; font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; letter-spacing:.5px; }
+.btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+
+/* PERKS */
+.perks-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.perk { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+.perk-icon { font-size:16px; }
+
+/* TABS */
+.tabs-section { margin-bottom:64px; }
+.tabs-nav { display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:32px; overflow-x:auto; }
+.tab-btn { background:none; border:none; padding:12px 20px; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; white-space:nowrap; }
+.tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* SPECS TABLE */
+.specs-table { width:100%; border-collapse:collapse; }
+.specs-table tr { border-bottom:1px solid var(--border); }
+.specs-table tr:last-child { border-bottom:none; }
+.spec-key { padding:12px 16px 12px 0; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); width:40%; vertical-align:top; }
+.spec-val { padding:12px 0; font-size:14px; color:var(--text); font-weight:500; }
+
+/* BENCHMARKS */
+.bench-item { display:grid; grid-template-columns:200px 1fr 60px; gap:16px; align-items:center; margin-bottom:16px; }
+@media(max-width:600px){ .bench-item { grid-template-columns:1fr; gap:6px; } }
+.bench-label { font-size:13px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+.bench-bar-wrap { background:var(--dark); border-radius:4px; height:8px; overflow:hidden; }
+.bench-bar { height:100%; width:var(--pct); background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:4px; animation:barGrow .8s ease-out forwards; transform-origin:left; }
+@keyframes barGrow { from{ width:0 } to{ width:var(--pct) } }
+.bench-val { font-family:'Orbitron',sans-serif; font-size:14px; font-weight:700; color:var(--accent); text-align:right; }
+
+/* RELATED */
+.related-section { margin-bottom:48px; }
+.section-title-line { display:flex; align-items:center; gap:16px; margin-bottom:28px; }
+.section-title-line h2 { font-family:'Orbitron',sans-serif; font-size:18px; font-weight:700; color:var(--white); }
+.section-title-line::after { content:''; flex:1; height:1px; background:var(--border); }
+.related-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+.related-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; gap:16px; align-items:center; text-decoration:none; transition:all .2s; }
+.related-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+.related-icon { font-size:36px; width:56px; height:56px; background:var(--dark); border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.related-brand { font-size:11px; color:var(--accent); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:1px; }
+.related-name { font-size:13px; color:var(--text); font-weight:600; margin:4px 0; line-height:1.3; }
+.related-prices { display:flex; align-items:center; gap:8px; }
+.rel-price { font-family:'Orbitron',sans-serif; font-size:15px; font-weight:700; color:var(--accent); }
+.rel-old { font-size:12px; color:var(--muted); text-decoration:line-through; }
+
+/* TOAST */
+.toast-msg { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--accent); color:var(--black); padding:12px 24px; border-radius:10px; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; opacity:0; transition:all .3s; z-index:9999; white-space:nowrap; }
+.toast-msg.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html" class="active">Productos</a>
+    <a href="gaming.html">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="soporte.html">Soporte</a>
+    <a href="comparar.html">⚖ Comparar</a>
+    <a href="blog.html">Blog</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="product-page">
+
+  <!-- BREADCRUMB -->
+  <nav class="breadcrumb">
+    <a href="index.html">Inicio</a> ›
+    <a href="productos.html">Productos</a> ›
+    <a href="productos.html?cat=ram">Memoria RAM</a> ›
+    <span>Dominator Titanium DDR5 32GB</span>
+  </nav>
+
+  <!-- TOP GRID -->
+  <div class="product-top">
+    <!-- GALLERY -->
+    <div class="product-gallery">
+      <div class="gallery-main">
+        
+        🧠
+      </div>
+    </div>
+
+    <!-- INFO PANEL -->
+    <div class="product-info-panel">
+      <div class="product-cat-tag">// Memoria RAM · Corsair</div>
+      <h1 class="product-title">Dominator Titanium DDR5 32GB</h1>
+      <div class="product-stars"><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star">★</span><span style="font-size:12px;color:var(--muted);margin-left:8px;font-family:'JetBrains Mono',monospace">4.0 / 5</span></div>
+      <p class="product-desc">DDR5-6400 CL32 con disipador de aluminio y RGB iCUE. La RAM de gama alta de Corsair para plataformas Z890 y X870E que exigen lo mejor en velocidad y fiabilidad.</p>
+
+      <div class="price-block">
+        <div><span class="price-current">219€</span></div>
+        <div style="margin-top:10px"><div class="stock-ok">✓ En stock — 18 unidades disponibles</div></div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-primary" onclick="addToCartPage('Dominator Titanium DDR5 32GB',219,this)">🛒 Añadir al carrito</button>
+        <button class="btn-secondary" onclick="window.location.href='comparar.html'">⚖ Comparar</button>
+      </div>
+
+      <div class="perks-grid">
+        <div class="perk"><span class="perk-icon">🚀</span> Envío gratis +99€</div>
+        <div class="perk"><span class="perk-icon">↩</span> 30 días devolución</div>
+        <div class="perk"><span class="perk-icon">🔒</span> Pago 100% seguro</div>
+        <div class="perk"><span class="perk-icon">🏆</span> Garantía oficial</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-section">
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab('specs',this)">Especificaciones</button>
+      <button class="tab-btn" onclick="switchTab('bench',this)">Rendimiento</button>
+      <button class="tab-btn" onclick="switchTab('envio',this)">Envío y garantía</button>
+    </div>
+
+    <div id="tab-specs" class="tab-content active">
+      <table class="specs-table"><tr><td class="spec-key">Capacidad</td><td class="spec-val">32 GB (2×16 GB)</td></tr><tr><td class="spec-key">Tipo</td><td class="spec-val">DDR5</td></tr><tr><td class="spec-key">Velocidad</td><td class="spec-val">6400 MHz</td></tr><tr><td class="spec-key">Latencia</td><td class="spec-val">CL32-39-39-76</td></tr><tr><td class="spec-key">Voltaje</td><td class="spec-val">1.40 V</td></tr><tr><td class="spec-key">XMP/EXPO</td><td class="spec-val">XMP 3.0</td></tr><tr><td class="spec-key">Disipador</td><td class="spec-val">Aluminio RGB iCUE</td></tr><tr><td class="spec-key">Color</td><td class="spec-val">Negro</td></tr><tr><td class="spec-key">Garantía</td><td class="spec-val">Lifetime</td></tr></table>
+    </div>
+
+    <div id="tab-bench" class="tab-content">
+      <div style="margin-bottom:20px;font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace">
+        Puntuaciones relativas al mejor de su clase (100 = mejor en el mercado)
+      </div>
+      
+        <div class="bench-item">
+          <div class="bench-label">Lectura AIDA64</div>
+          <div class="bench-bar-wrap"><div class="bench-bar" style="--pct:74%"></div></div>
+          <div class="bench-val">74</div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Escritura AIDA64</div>
+          <div class="bench-bar-wrap"><div class="bench-bar" style="--pct:70%"></div></div>
+          <div class="bench-val">70</div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Copia AIDA64</div>
+          <div class="bench-bar-wrap"><div class="bench-bar" style="--pct:72%"></div></div>
+          <div class="bench-val">72</div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">Latencia (bajo=mejor)</div>
+          <div class="bench-bar-wrap"><div class="bench-bar" style="--pct:58%"></div></div>
+          <div class="bench-val">58</div>
+        </div>
+        <div class="bench-item">
+          <div class="bench-label">MaxxMEM Read</div>
+          <div class="bench-bar-wrap"><div class="bench-bar" style="--pct:75%"></div></div>
+          <div class="bench-val">75</div>
+        </div>
+    </div>
+
+    <div id="tab-envio" class="tab-content">
+      <div style="display:grid;gap:20px">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px">
+          <h3 style="font-family:'Orbitron',sans-serif;font-size:15px;color:var(--accent);margin-bottom:12px">🚚 Envío</h3>
+          <p style="font-size:14px;color:var(--muted);line-height:1.7">Envío gratuito en pedidos superiores a 99€. Entrega en 24–48h hábiles para stock disponible. Seguimiento en tiempo real desde confirmación del pedido.</p>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px">
+          <h3 style="font-family:'Orbitron',sans-serif;font-size:15px;color:var(--accent);margin-bottom:12px">🛡 Garantía oficial</h3>
+          <p style="font-size:14px;color:var(--muted);line-height:1.7">Garantía oficial del fabricante. En caso de avería, gestionamos el proceso de garantía con el fabricante sin coste adicional. Servicio técnico en España.</p>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px">
+          <h3 style="font-family:'Orbitron',sans-serif;font-size:15px;color:var(--accent);margin-bottom:12px">↩ Devoluciones</h3>
+          <p style="font-size:14px;color:var(--muted);line-height:1.7">30 días para devolver cualquier producto sin preguntas. El artículo debe estar sin usar y con el embalaje original. Reembolso en 3–5 días hábiles.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATED -->
+  <section class="related-section">
+    <div class="section-title-line"><h2>TAMBIÉN TE PUEDE INTERESAR</h2></div>
+    <div class="related-grid">
+      
+      <a href="producto-trident-z5-64gb.html" class="related-card">
+        <div class="related-icon">🧠</div>
+        <div class="related-info">
+          <div class="related-brand">G.Skill</div>
+          <div class="related-name">Trident Z5 RGB 64GB</div>
+          <div class="related-prices"><span class="rel-price">349€</span></div>
+        </div>
+      </a>
+      <a href="producto-fury-beast-ddr5.html" class="related-card">
+        <div class="related-icon">🧠</div>
+        <div class="related-info">
+          <div class="related-brand">Kingston</div>
+          <div class="related-name">Fury Beast DDR5 32GB</div>
+          <div class="related-prices"><span class="rel-price">149€</span><span class="rel-old">179€</span></div>
+        </div>
+      </a>
+      <a href="producto-fury-renegade-128gb.html" class="related-card">
+        <div class="related-icon">🧠</div>
+        <div class="related-info">
+          <div class="related-brand">Kingston</div>
+          <div class="related-name">Fury Renegade DDR5 128GB</div>
+          <div class="related-prices"><span class="rel-price">699€</span></div>
+        </div>
+      </a>
+      <a href="producto-rog-maximus-z890.html" class="related-card">
+        <div class="related-icon">🔲</div>
+        <div class="related-info">
+          <div class="related-brand">ASUS</div>
+          <div class="related-name">ROG Maximus Z890 Apex</div>
+          <div class="related-prices"><span class="rel-price">699€</span></div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast-msg" id="toastMsg">✓ Añadido al carrito</div>
+
+<script src="app.js"></script>
+<script src="nexus-extras.js"></script>
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function addToCartPage(name, price, btn) {
+  addToCart(name, price);
+  const orig = btn.innerHTML;
+  btn.innerHTML = '✓ Añadido';
+  btn.style.background = '#22c55e';
+  setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 1500);
+  const t = document.getElementById('toastMsg');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.addEventListener('DOMContentLoaded', () => { updateCartCount(); renderNavAuth(); });
+</script>
+</body>
+</html>
