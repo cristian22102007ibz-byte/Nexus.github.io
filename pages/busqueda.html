@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+  <link rel="manifest" href="../assets/data/manifest.json">
+  <meta name="theme-color" content="#00c8ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buscar — NEXUS Tech</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+.search-page { max-width:1200px; margin:0 auto; padding:100px 40px 80px; }
+.search-hero { margin-bottom:48px; }
+.big-search-wrap { display:flex; gap:0; margin-top:24px; border:1px solid var(--border); border-radius:4px; overflow:hidden; transition:border-color 0.2s; }
+.big-search-wrap:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,200,255,0.1); }
+#bigSearch { flex:1; background:var(--card); border:none; color:var(--text); padding:16px 24px; font-family:"DM Sans",sans-serif; font-size:18px; outline:none; }
+#bigSearch::placeholder { color:var(--muted); }
+#bigSearchBtn { background:var(--accent); color:var(--black); border:none; padding:0 28px; font-family:"Bebas Neue",sans-serif; font-size:18px; letter-spacing:2px; cursor:pointer; transition:background 0.2s; }
+#bigSearchBtn:hover { background:#00aadd; }
+.search-chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }
+.search-chip { background:var(--card); border:1px solid var(--border); color:var(--muted); padding:5px 14px; border-radius:20px; cursor:pointer; font-size:12px; font-family:"JetBrains Mono",monospace; transition:all 0.2s; }
+.search-chip:hover { border-color:var(--accent); color:var(--accent); }
+.search-stats { font-size:13px; color:var(--muted); font-family:"JetBrains Mono",monospace; margin-bottom:24px; }
+.search-stats span { color:var(--accent); }
+.search-results { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); }
+.search-result-card { background:var(--card); padding:20px; cursor:pointer; transition:background 0.2s; display:flex; gap:16px; align-items:flex-start; }
+.search-result-card:hover { background:#1a2d40; }
+.result-icon { font-size:32px; flex-shrink:0; }
+.result-info { flex:1; min-width:0; }
+.result-cat { font-size:10px; color:var(--accent); font-family:"JetBrains Mono",monospace; letter-spacing:1px; margin-bottom:4px; }
+.result-name { font-size:14px; color:var(--white); font-weight:400; line-height:1.4; margin-bottom:4px; }
+.result-specs { font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:8px; }
+.result-price { font-family:"Bebas Neue",sans-serif; font-size:20px; color:var(--accent); }
+.result-price-old { font-size:12px; color:var(--muted); text-decoration:line-through; margin-left:6px; }
+.no-results { text-align:center; padding:80px 20px; color:var(--muted); grid-column:1/-1; }
+.no-results-icon { font-size:64px; margin-bottom:16px; }
+.search-categories { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:48px; }
+.cat-search-btn { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:16px; text-align:center; cursor:pointer; transition:all 0.2s; }
+.cat-search-btn:hover { border-color:var(--accent); }
+.cat-search-btn .icon { font-size:28px; margin-bottom:8px; }
+.cat-search-btn .label { font-size:12px; color:var(--muted); font-family:"JetBrains Mono",monospace; }
+@media(max-width:900px){.search-page{padding:80px 20px 40px;} .search-results{grid-template-columns:1fr 1fr;} .search-categories{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.search-results{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="gaming.html">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="guias.html">Guías</a>
+    <a href="outlet.html">Outlet</a>
+    <a href="soporte.html">Soporte</a>
+    <a href="comparar.html">⚖ Comparar</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="busqueda.html" style="color:var(--muted);font-size:18px;display:flex;align-items:center;padding:0 4px" title="Buscar">🔍</a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="search-page">
+  <div class="search-hero">
+    <div class="section-tag">// Búsqueda</div>
+    <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,72px);letter-spacing:2px;color:var(--white);margin-bottom:24px">BUSCA TU <span style="color:var(--accent)">COMPONENTE</span></h1>
+    <div class="big-search-wrap">
+      <input id="bigSearch" type="text" placeholder="RTX 5090, Ryzen 9, DDR5..." autocomplete="off" oninput="doSearch(this.value)" onkeydown="if(event.key==='Enter')doSearch(this.value)">
+      <button id="bigSearchBtn" onclick="doSearch(document.getElementById('bigSearch').value)">BUSCAR</button>
+    </div>
+    <div class="search-chips" id="searchChips">
+      <span class="search-chip" onclick="quickSearch('RTX 5090')">RTX 5090</span>
+      <span class="search-chip" onclick="quickSearch('Ryzen 9950X')">Ryzen 9950X</span>
+      <span class="search-chip" onclick="quickSearch('DDR5')">DDR5</span>
+      <span class="search-chip" onclick="quickSearch('OLED')">Monitores OLED</span>
+      <span class="search-chip" onclick="quickSearch('wireless')">Periféricos Wireless</span>
+      <span class="search-chip" onclick="quickSearch('PCIe 5.0')">PCIe 5.0</span>
+      <span class="search-chip" onclick="quickSearch('AM5')">Plataforma AM5</span>
+    </div>
+  </div>
+
+  <div id="searchStats" style="display:none" class="search-stats">Mostrando <span id="resultCount">0</span> resultados para "<span id="queryDisplay"></span>"</div>
+
+  <div id="defaultView">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:24px;font-family:'JetBrains Mono',monospace;letter-spacing:1px">// EXPLORAR POR CATEGORÍA</p>
+    <div class="search-categories">
+      <div class="cat-search-btn" onclick="quickSearch('cpu')"><div class="icon">⚡</div><div class="label">PROCESADORES</div></div>
+      <div class="cat-search-btn" onclick="quickSearch('GPU')"><div class="icon">🎮</div><div class="label">TARJETAS GRÁFICAS</div></div>
+      <div class="cat-search-btn" onclick="quickSearch('DDR5')"><div class="icon">🧠</div><div class="label">MEMORIA RAM</div></div>
+      <div class="cat-search-btn" onclick="quickSearch('NVMe')"><div class="icon">💾</div><div class="label">ALMACENAMIENTO</div></div>
+      <div class="cat-search-btn" onclick="quickSearch('monitor')"><div class="icon">🖥️</div><div class="label">MONITORES</div></div>
+      <div class="cat-search-btn" onclick="quickSearch('ratón')"><div class="icon">🖱️</div><div class="label">RATONES</div></div>
+      <div class="cat-search-btn" onclick="quickSearch('teclado')"><div class="icon">⌨️</div><div class="label">TECLADOS</div></div>
+      <div class="cat-search-btn" onclick="quickSearch('caja')"><div class="icon">🖥</div><div class="label">CAJAS PC</div></div>
+    </div>
+  </div>
+
+  <div id="searchResults" style="display:none">
+    <div class="search-results" id="resultsGrid"></div>
+  </div>
+</div>
+
+<div class="footer-bottom" style="border-top:1px solid var(--border)">
+  <span class="footer-copy">© 2026 NEXUS TECH</span>
+  <div style="display:flex;gap:24px">
+    <a href="index.html" style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">← Inicio</a>
+    <a href="productos.html" style="font-size:12px;color:var(--accent);font-family:'JetBrains Mono',monospace">Catálogo →</a>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nexus-extras.js"></script>
+<script>
+const SEARCH_DB = [
+  {name:"Core Ultra 9 285K",brand:"Intel",cat:"CPU",price:589,oldPrice:699,icon:"⚡",specs:"24C · 5.7GHz · LGA1851",slug:"core-ultra-9-285k"},
+  {name:"Ryzen 9 9950X",brand:"AMD",cat:"CPU",price:649,icon:"⚡",specs:"16C · 5.7GHz · AM5",slug:"ryzen-9-9950x"},
+  {name:"Core i9-14900KS",brand:"Intel",cat:"CPU",price:499,oldPrice:599,icon:"⚡",specs:"24C · 6.2GHz · LGA1700",slug:"core-i9-14900ks"},
+  {name:"Ryzen 7 9700X",brand:"AMD",cat:"CPU",price:329,icon:"⚡",specs:"8C · 5.5GHz · AM5",slug:"ryzen-7-9700x"},
+  {name:"Core Ultra 7 265K",brand:"Intel",cat:"CPU",price:389,icon:"⚡",specs:"20C · 5.5GHz · LGA1851",slug:"core-ultra-7-265k"},
+  {name:"Ryzen 5 9600X",brand:"AMD",cat:"CPU",price:249,icon:"⚡",specs:"6C · 5.4GHz · AM5",slug:"ryzen-5-9600x"},
+  {name:"Core i7-14700K",brand:"Intel",cat:"CPU",price:349,icon:"⚡",specs:"20C · 5.6GHz · LGA1700",slug:"core-i7-14700k"},
+  {name:"Ryzen Threadripper 7970X",brand:"AMD",cat:"CPU",price:2499,icon:"⚡",specs:"32C · 5.3GHz · sTR5",slug:"threadripper-7970x"},
+  {name:"GeForce RTX 5090 32GB",brand:"NVIDIA",cat:"GPU",price:1999,icon:"🎮",specs:"32GB GDDR7 · DLSS4 · 575W",slug:"rtx-5090"},
+  {name:"GeForce RTX 5080 16GB",brand:"NVIDIA",cat:"GPU",price:1199,oldPrice:1399,icon:"🎮",specs:"16GB GDDR7 · DLSS4 · 360W",slug:"rtx-5080"},
+  {name:"GeForce RTX 4090 24GB",brand:"NVIDIA",cat:"GPU",price:1549,icon:"🎮",specs:"24GB GDDR6X · DLSS3 · 450W",slug:"rtx-4090"},
+  {name:"RTX 4070 Ti Super 16GB",brand:"NVIDIA",cat:"GPU",price:799,icon:"🎮",specs:"16GB GDDR6X · DLSS3.5",slug:"rtx-4070-ti-super"},
+  {name:"RTX 4060 Ti 16GB",brand:"NVIDIA",cat:"GPU",price:449,icon:"🎮",specs:"16GB GDDR6 · DLSS3 · 165W",slug:"rtx-4060-ti"},
+  {name:"Radeon RX 9070 XT 16GB",brand:"AMD",cat:"GPU",price:699,icon:"🎮",specs:"16GB GDDR6 · FSR4 · 304W",slug:"rx-9070-xt"},
+  {name:"Radeon RX 7900 XTX 24GB",brand:"AMD",cat:"GPU",price:799,icon:"🎮",specs:"24GB GDDR6 · FSR3 · 355W",slug:"rx-7900-xtx"},
+  {name:"Radeon RX 7600 XT 16GB",brand:"AMD",cat:"GPU",price:329,icon:"🎮",specs:"16GB GDDR6 · FSR3 · 165W",slug:"rx-7600-xt"},
+  {name:"Dominator Titanium DDR5 32GB",brand:"Corsair",cat:"RAM",price:219,icon:"🧠",specs:"DDR5-6400 · CL32",slug:"dominator-titanium-ddr5-32gb"},
+  {name:"Trident Z5 RGB 64GB",brand:"G.Skill",cat:"RAM",price:349,icon:"🧠",specs:"DDR5-7200 · CL36",slug:"trident-z5-64gb"},
+  {name:"Fury Beast DDR5 32GB",brand:"Kingston",cat:"RAM",price:149,oldPrice:179,icon:"🧠",specs:"DDR5-6000 · CL36",slug:"fury-beast-ddr5"},
+  {name:"Ripjaws S5 96GB",brand:"G.Skill",cat:"RAM",price:489,icon:"🧠",specs:"DDR5-6800 · CL34",slug:"ripjaws-s5-96gb"},
+  {name:"Vengeance DDR5 16GB",brand:"Corsair",cat:"RAM",price:79,icon:"🧠",specs:"DDR5-5200 · CL40",slug:"vengeance-ddr5"},
+  {name:"T-Force Delta RGB 32GB",brand:"TeamGroup",cat:"RAM",price:189,icon:"🧠",specs:"DDR5-7600 · CL36",slug:"t-force-delta-32gb"},
+  {name:"Fury Renegade DDR5 128GB",brand:"Kingston",cat:"RAM",price:699,icon:"🧠",specs:"DDR5-6400 · CL32",slug:"fury-renegade-128gb"},
+  {name:"990 Pro NVMe SSD 2TB",brand:"Samsung",cat:"SSD",price:159,oldPrice:199,icon:"💾",specs:"7450MB/s · PCIe4 · M.2",slug:"samsung-990-pro-2tb"},
+  {name:"Black SN850X 4TB",brand:"WD",cat:"SSD",price:299,icon:"💾",specs:"7300MB/s · PCIe4 · M.2",slug:"wd-sn850x-4tb"},
+  {name:"T705 2TB PCIe 5.0",brand:"Crucial",cat:"SSD",price:249,icon:"💾",specs:"14500MB/s · Gen5 · M.2",slug:"crucial-t705-2tb"},
+  {name:"Rocket 5 Plus 8TB",brand:"Sabrent",cat:"SSD",price:799,icon:"💾",specs:"14000MB/s · Gen5 · M.2",slug:"rocket-5-plus-8tb"},
+  {name:"FireCuda 530 4TB",brand:"Seagate",cat:"SSD",price:319,oldPrice:399,icon:"💾",specs:"7300MB/s · PCIe4 · M.2",slug:"firecuda-530-4tb"},
+  {name:"870 EVO SATA SSD 4TB",brand:"Samsung",cat:"SSD",price:249,icon:"💾",specs:"560MB/s · SATA · 2.5 pulgadas",slug:"870-evo-4tb"},
+  {name:"ROG Swift OLED 27 240Hz",brand:"ASUS",cat:"Monitor",price:799,icon:"🖥️",specs:"1440p · OLED · 240Hz",slug:"rog-swift-oled"},
+  {name:"UltraGear 4K 32 144Hz",brand:"LG",cat:"Monitor",price:649,oldPrice:799,icon:"🖥️",specs:"4K · IPS · 144Hz",slug:"ultragear-4k-32"},
+  {name:"Odyssey G9 49 OLED",brand:"Samsung",cat:"Monitor",price:1299,icon:"🖥️",specs:"5120x1440 · OLED · 240Hz",slug:"odyssey-g9"},
+  {name:"MPG 321URX QD-OLED 4K",brand:"MSI",cat:"Monitor",price:899,icon:"🖥️",specs:"4K · QD-OLED · 240Hz",slug:"mpg-qd-oled"},
+  {name:"Predator X34X 175Hz",brand:"Acer",cat:"Monitor",price:549,oldPrice:649,icon:"🖥️",specs:"3440x1440 · IPS · 175Hz",slug:"predator-x34x"},
+  {name:"Mobiuz EX321UX 32 4K",brand:"BenQ",cat:"Monitor",price:499,icon:"🖥️",specs:"4K · IPS · 144Hz",slug:"mobiuz-ex321ux"},
+  {name:"G Pro X Superlight 2",brand:"Logitech",cat:"Ratón",price:159,icon:"🖱️",specs:"60g · HERO25K · Wireless",slug:"g-pro-x-superlight-2"},
+  {name:"DeathAdder V3 HyperSpeed",brand:"Razer",cat:"Ratón",price:99,oldPrice:129,icon:"🖱️",specs:"59g · Focus Pro 30K",slug:"deathadder-v3"},
+  {name:"MX Master 3S",brand:"Logitech",cat:"Ratón",price:99,icon:"🖱️",specs:"8K DPI · Electromagn.",slug:"mx-master-3s"},
+  {name:"Basilisk V3 Pro 35K",brand:"Razer",cat:"Ratón",price:139,icon:"🖱️",specs:"35K DPI · 11 botones",slug:"basilisk-v3-pro"},
+  {name:"Scimitar Elite Wireless",brand:"Corsair",cat:"Ratón",price:119,icon:"🖱️",specs:"17 botones · 26K DPI",slug:"scimitar-elite"},
+  {name:"K100 Air Wireless",brand:"Corsair",cat:"Teclado",price:229,icon:"⌨️",specs:"MX Ultra Low · BT5.0",slug:"k100-air"},
+  {name:"BlackWidow V4 Pro 75%",brand:"Razer",cat:"Teclado",price:199,icon:"⌨️",specs:"Yellow Switch · RGB",slug:"blackwidow-v4-pro"},
+  {name:"G915 TKL Lightspeed",brand:"Logitech",cat:"Teclado",price:189,oldPrice:219,icon:"⌨️",specs:"GL Tactile · Wireless",slug:"g915-tkl"},
+  {name:"Arctis Nova Pro Wireless",brand:"SteelSeries",cat:"Auriculares",price:249,oldPrice:329,icon:"🎧",specs:"Hi-Res · ANC · 40h",slug:"arctis-nova-pro"},
+  {name:"Cloud Alpha Wireless",brand:"HyperX",cat:"Auriculares",price:149,icon:"🎧",specs:"50mm · 300h bat.",slug:"cloud-alpha-wireless"},
+  {name:"Stream Deck MK.2",brand:"Elgato",cat:"Streaming",price:149,icon:"🎛️",specs:"15 teclas LCD · USB-C",slug:"stream-deck"},
+  {name:"NT-USB+ Microphone",brand:"Rode",cat:"Micrófono",price:189,icon:"🎙️",specs:"Cardioide · 192kHz",slug:"nt-usb-plus"},
+  {name:"ROG Maximus Z890 Apex",brand:"ASUS",cat:"Placa Base",price:699,icon:"🔲",specs:"LGA1851 · DDR5 · Wi-Fi7",slug:"rog-maximus-z890"},
+  {name:"MEG Z890 ACE",brand:"MSI",cat:"Placa Base",price:549,icon:"🔲",specs:"LGA1851 · DDR5 · 10G LAN",slug:"meg-z890-ace"},
+  {name:"Z890 Aorus Master",brand:"Gigabyte",cat:"Placa Base",price:479,icon:"🔲",specs:"LGA1851 · DDR5 · Wi-Fi7",slug:"z890-aorus-master"},
+  {name:"ProArt X870E-Creator WiFi",brand:"ASUS",cat:"Placa Base",price:449,oldPrice:519,icon:"🔲",specs:"AM5 · DDR5 · TB4",slug:"proart-x870e"},
+  {name:"MAG X870E Tomahawk WiFi",brand:"MSI",cat:"Placa Base",price:279,icon:"🔲",specs:"AM5 · DDR5 · PCIe5",slug:"mag-x870e-tomahawk"},
+  {name:"B650E Aorus Pro X",brand:"Gigabyte",cat:"Placa Base",price:219,oldPrice:259,icon:"🔲",specs:"AM5 · DDR5 · Wi-Fi6E",slug:"b650e-aorus-pro"},
+  {name:"B650M Pro RS WiFi",brand:"ASRock",cat:"Placa Base",price:149,icon:"🔲",specs:"AM5 · DDR5 · mATX",slug:"b650m-pro-rs"},
+  {name:"PC-O11 Dynamic EVO XL",brand:"Lian Li",cat:"Caja",price:199,icon:"🖥",specs:"Full Tower · E-ATX",slug:"pc-o11-evo-xl"},
+  {name:"Torrent RGB Black",brand:"Fractal",cat:"Caja",price:169,oldPrice:199,icon:"🖥",specs:"Mid Tower · 2x180mm",slug:"torrent-rgb"},
+  {name:"H9 Flow Black",brand:"NZXT",cat:"Caja",price:179,icon:"🖥",specs:"Mid Tower · Dual Chamber",slug:"h9-flow"},
+  {name:"7000D Airflow Full Tower",brand:"Corsair",cat:"Caja",price:219,oldPrice:259,icon:"🖥",specs:"Full Tower · E-ATX",slug:"corsair-7000d"},
+  {name:"Silent Base 802 Window",brand:"be quiet!",cat:"Caja",price:149,icon:"🖥",specs:"Mid Tower · Silenciosa",slug:"silent-base-802"},
+  {name:"O11 Dynamic Mini",brand:"Lian Li",cat:"Caja",price:99,icon:"🖥",specs:"Mini Tower · ITX/mATX",slug:"o11-dynamic-mini"},
+  {name:"Morpheus CC560 Digital",brand:"DeepCool",cat:"Caja",price:79,icon:"🖥",specs:"Mid Tower · Panel LCD",slug:"morpheus-cc560"},
+  {name:"HX1500i Platinum",brand:"Corsair",cat:"Fuente",price:329,icon:"🔌",specs:"1500W · 80+ Platinum",slug:"hx1500i-platinum"},
+  {name:"Dark Power Pro 13 1300W",brand:"be quiet!",cat:"Fuente",price:299,icon:"🔌",specs:"1300W · 80+ Titanium",slug:"dark-power-pro-1300w"},
+  {name:"ROG THOR 1000P2",brand:"ASUS",cat:"Fuente",price:249,oldPrice:299,icon:"🔌",specs:"1000W · 80+ Platinum · OLED",slug:"rog-thor-1000w"},
+  {name:"Focus GX-850 Gold",brand:"Seasonic",cat:"Fuente",price:129,oldPrice:159,icon:"🔌",specs:"850W · 80+ Gold",slug:"focus-gx-850"},
+  {name:"RM850e Fully Modular",brand:"Corsair",cat:"Fuente",price:109,icon:"🔌",specs:"850W · 80+ Gold",slug:"rm850e-modular"},
+  {name:"Pure Power 12 M 750W",brand:"be quiet!",cat:"Fuente",price:89,icon:"🔌",specs:"750W · 80+ Gold",slug:"pure-power-750w"},
+  {name:"S12III 650W Bronze",brand:"Seasonic",cat:"Fuente",price:59,icon:"🔌",specs:"650W · 80+ Bronze",slug:"s12iii-650w"},
+];
+
+let debounceTimer;
+function quickSearch(q) {
+  document.getElementById("bigSearch").value = q;
+  doSearch(q);
+}
+function doSearch(q) {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => runSearch(q), 150);
+}
+function runSearch(q) {
+  q = q.trim().toLowerCase();
+  document.getElementById("defaultView").style.display = q ? "none" : "block";
+  document.getElementById("searchResults").style.display = q ? "block" : "none";
+  document.getElementById("searchStats").style.display = q ? "block" : "none";
+  if (!q) return;
+
+  const results = SEARCH_DB.filter(p => {
+    const hay = (p.name + " " + p.brand + " " + p.cat + " " + p.specs).toLowerCase();
+    return q.split(" ").every(word => hay.includes(word));
+  });
+
+  document.getElementById("queryDisplay").textContent = q;
+  document.getElementById("resultCount").textContent = results.length;
+
+  const grid = document.getElementById("resultsGrid");
+  if (!results.length) {
+    grid.innerHTML = `<div class="no-results"><div class="no-results-icon">🔍</div><p style="font-size:16px;color:var(--text);margin-bottom:8px">Sin resultados para "${q}"</p><p style="font-size:13px">Prueba con otras palabras o <a href="productos.html" style="color:var(--accent)">explora el catálogo completo</a></p></div>`;
+    return;
+  }
+
+  grid.innerHTML = results.map(p => `
+    <div class="search-result-card" onclick="window.location.href='../products/producto-' +'${""}'+p.slug+'.html'">
+      <div class="result-icon">${p.icon}</div>
+      <div class="result-info">
+        <div class="result-cat">${p.brand} · ${p.cat}</div>
+        <div class="result-name">${p.name}</div>
+        <div class="result-specs">${p.specs}</div>
+        <div><span class="result-price">${p.price}€</span>${p.oldPrice ? `<span class="result-price-old">${p.oldPrice}€</span>` : ""}</div>
+      </div>
+    </div>
+  `).join("");
+
+  // Fix onclick after render
+  grid.querySelectorAll(".search-result-card").forEach((card, i) => {
+    card.onclick = () => { window.location.href = "../products/producto-" + results[i].slug + ".html"; };
+    // Also wire add to cart button if present
+  });
+}
+
+// Check URL params on load
+window.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get("q");
+  if (q) {
+    document.getElementById("bigSearch").value = q;
+    runSearch(q);
+  }
+});
+</script>
+<script src="../assets/js/nexus-ai-chat.js"></script>
+<script src="../assets/js/nexus-pwa.js"></script>
+</body>
+</html>

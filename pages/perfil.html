@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="../assets/data/manifest.json">
+  <meta name="theme-color" content="#00c8ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil — NEXUS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    .profile-layout { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 64px); margin-top: 64px; }
+    .profile-sidebar { background: var(--dark); border-right: 1px solid var(--border); padding: 40px 0; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; }
+    .profile-avatar-wrap { text-align: center; padding: 0 32px 32px; border-bottom: 1px solid var(--border); }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px; box-shadow: 0 0 24px rgba(0,180,255,0.3); }
+    .profile-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--white); }
+    .profile-email { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+    .profile-points { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; background: rgba(0,180,255,0.08); border: 1px solid rgba(0,180,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+    .profile-nav { padding: 24px 0; }
+    .profile-nav-item { display: flex; align-items: center; gap: 12px; padding: 13px 32px; font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.2s; border-left: 2px solid transparent; }
+    .profile-nav-item:hover { color: var(--white); background: rgba(0,180,255,0.04); }
+    .profile-nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,180,255,0.06); }
+    .profile-nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .profile-nav-sep { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 16px 32px 8px; font-family: 'JetBrains Mono', monospace; opacity: 0.6; }
+    .profile-main { padding: 48px; overflow-y: auto; }
+    .profile-section { display: none; animation: fadeUp 0.3s ease; }
+    .profile-section.active { display: block; }
+    .profile-section-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--white); margin-bottom: 8px; }
+    .profile-section-sub { font-size: 14px; color: var(--muted); margin-bottom: 36px; }
+    /* Stats cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 40px; }
+    .stat-card { background: var(--dark); padding: 28px 24px; }
+    .stat-card-num { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--accent); letter-spacing: 1px; }
+    .stat-card-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+    /* Orders table */
+    .orders-table { width: 100%; border-collapse: collapse; }
+    .orders-table th { text-align: left; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .orders-table td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text); }
+    .orders-table tr:hover td { background: rgba(0,180,255,0.03); }
+    .order-status { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+    .order-status.entregado { background: rgba(0,255,148,0.1); color: #00ff94; border: 1px solid rgba(0,255,148,0.2); }
+    .order-status.transito  { background: rgba(0,180,255,0.1); color: var(--accent); border: 1px solid rgba(0,180,255,0.2); }
+    .order-status.procesando { background: rgba(255,179,71,0.1); color: #ffb347; border: 1px solid rgba(255,179,71,0.2); }
+    /* Wishlist */
+    .wishlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .wishlist-item { background: var(--dark); padding: 24px; position: relative; transition: background 0.2s; }
+    .wishlist-item:hover { background: var(--card); }
+    .wishlist-icon { font-size: 48px; margin-bottom: 12px; }
+    .wishlist-name { font-size: 14px; color: var(--white); margin-bottom: 6px; }
+    .wishlist-price { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent); }
+    .wishlist-remove { position: absolute; top: 12px; right: 12px; background: none; border: 1px solid var(--border); color: var(--muted); width: 28px; height: 28px; cursor: pointer; border-radius: 4px; font-size: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .wishlist-remove:hover { background: rgba(255,94,94,0.15); border-color: #ff5e5e; color: #ff5e5e; }
+    /* Order tracking */
+    .order-track-card { background: var(--dark); border: 1px solid var(--border); border-radius: 4px; padding: 24px; margin-bottom: 16px; }
+    .order-track-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; gap:16px; flex-wrap:wrap; }
+    .order-track-num { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); }
+    .order-track-prod { font-size:14px; color:var(--white); margin-top:4px; }
+    .order-track-total { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--accent); }
+    .order-steps { display:flex; align-items:flex-start; gap:0; margin-bottom:16px; }
+    .order-step { flex:1; text-align:center; position:relative; }
+    .order-step::before { content:''; position:absolute; top:16px; left:50%; width:100%; height:2px; background:var(--border); z-index:0; }
+    .order-step:last-child::before { display:none; }
+    .order-step-dot { width:32px; height:32px; border-radius:50%; border:2px solid var(--border); background:var(--dark); display:flex; align-items:center; justify-content:center; font-size:14px; margin:0 auto 8px; position:relative; z-index:1; transition:all 0.3s; }
+    .order-step.done .order-step-dot { background:var(--accent); border-color:var(--accent); box-shadow:0 0 12px rgba(0,200,255,0.4); }
+    .order-step.current .order-step-dot { background:var(--accent2); border-color:var(--accent2); box-shadow:0 0 12px rgba(139,92,246,0.4); animation:pulseDot 1.5s ease-in-out infinite; }
+    .order-step::before { background: var(--border); }
+    .order-step.done::before { background: var(--accent); }
+    .order-step-label { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:4px; }
+    .order-step.done .order-step-label, .order-step.current .order-step-label { color:var(--text); }
+    .order-step-date { font-size:9px; color:var(--muted); margin-top:2px; }
+    @keyframes pulseDot { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
+    /* Achievements */
+    .achievements-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+    .achievement-card { background:var(--dark); border:1px solid var(--border); border-radius:4px; padding:20px; text-align:center; position:relative; transition:all 0.2s; }
+    .achievement-card.unlocked { border-color:rgba(251,191,36,0.4); background:rgba(251,191,36,0.04); }
+    .achievement-card.unlocked:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(251,191,36,0.15); }
+    .achievement-icon { font-size:36px; margin-bottom:10px; filter:grayscale(1) opacity(0.3); }
+    .achievement-card.unlocked .achievement-icon { filter:none; }
+    .achievement-name { font-size:13px; color:var(--muted); font-weight:500; margin-bottom:4px; }
+    .achievement-card.unlocked .achievement-name { color:var(--white); }
+    .achievement-desc { font-size:11px; color:var(--muted); line-height:1.5; }
+    .achievement-badge { position:absolute; top:8px; right:8px; background:rgba(251,191,36,0.15); border:1px solid rgba(251,191,36,0.4); color:#fbbf24; font-size:9px; padding:2px 6px; border-radius:2px; font-family:'JetBrains Mono',monospace; display:none; }
+    .achievement-card.unlocked .achievement-badge { display:block; }
+    /* Stats mini chart */
+    .spending-chart { display:flex; align-items:flex-end; gap:6px; height:80px; margin-top:20px; }
+    .chart-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .chart-bar { width:100%; background:rgba(0,200,255,0.2); border-radius:2px 2px 0 0; transition:height 0.6s ease; position:relative; }
+    .chart-bar:hover { background:rgba(0,200,255,0.5); }
+    .chart-bar-val { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+    .chart-bar-month { font-size:9px; color:var(--muted); }
+    /* Form fields */
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .field-group { margin-bottom: 0; }
+    .field-label { display: block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; }
+    .field-input { width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--white); padding: 12px 16px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; border-radius: 4px; transition: border-color 0.2s; }
+    .field-input:focus { border-color: var(--accent); }
+    .field-input::placeholder { color: var(--muted); }
+    .settings-sep { grid-column: 1/-1; border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .toggle-info .toggle-title { font-size: 14px; color: var(--white); }
+    .toggle-info .toggle-desc { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 24px; cursor: pointer; transition: 0.3s; }
+    .toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: var(--muted); border-radius: 50%; transition: 0.3s; }
+    .toggle-switch input:checked + .toggle-slider { background: rgba(0,180,255,0.3); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); background: var(--accent); box-shadow: 0 0 8px rgba(0,180,255,0.5); }
+    /* Points history */
+    .points-bar { background: var(--card); border: 1px solid var(--border); padding: 28px; margin-bottom: 32px; }
+    .points-total { font-family: 'Bebas Neue', sans-serif; font-size: 56px; color: var(--accent); letter-spacing: 2px; line-height: 1; }
+    .points-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .points-track { margin-top: 20px; background: var(--border); height: 6px; border-radius: 3px; }
+    .points-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); box-shadow: 0 0 10px rgba(0,180,255,0.4); transition: width 1s ease; }
+    .points-levels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 6px; }
+    .points-history { list-style: none; }
+    .points-history li { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .ph-desc { color: var(--text); }
+    .ph-date { color: var(--muted); font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+    .ph-pts { font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
+    .ph-pts.plus { color: #00ff94; }
+    .ph-pts.minus { color: #ff5e5e; }
+
+    @media(max-width:900px){ .profile-layout{grid-template-columns:1fr;} .profile-sidebar{position:static;height:auto;} .stats-grid{grid-template-columns:1fr 1fr;} .settings-grid{grid-template-columns:1fr;} .profile-main{padding:24px;} }
+  
+@media(max-width:768px){
+  .profile-layout{gap:0;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .orders-table{font-size:12px;}
+  .orders-table th,.orders-table td{padding:10px 12px;}
+}
+@media(max-width:480px){
+  .profile-main{padding:16px !important;}
+  .stats-grid{grid-template-columns:1fr 1fr !important;}
+  .stat-card{padding:16px 12px;}
+  .tab-nav,.profile-nav{flex-wrap:nowrap !important;overflow-x:auto;}
+  .tab-btn{flex-shrink:0;font-size:11px;padding:10px 12px;}
+  .orders-table{display:block;overflow-x:auto;}
+  .settings-grid{grid-template-columns:1fr !important;}
+  .achievements-grid{grid-template-columns:1fr 1fr !important;gap:8px !important;}
+  .order-track-card{padding:14px !important;}
+  .order-steps{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .wishlist-grid{grid-template-columns:1fr 1fr !important;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="gaming.html">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="guias.html">Guías</a>
+    <a href="outlet.html">Outlet</a>
+    <a href="soporte.html">Soporte</a>
+    <a href="comparar.html">⚖ Comparar</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="busqueda.html" style="color:var(--muted);font-size:18px;display:flex;align-items:center;padding:0 4px" title="Buscar">🔍</a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="profile-layout">
+  <!-- SIDEBAR -->
+  <aside class="profile-sidebar">
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar" id="profileAvatar">👤</div>
+      <div class="profile-name" id="profileName">USUARIO</div>
+      <div class="profile-email" id="profileEmail">—</div>
+      <div class="profile-points">⭐ <span id="profilePoints">500</span> puntos</div>
+    </div>
+    <nav class="profile-nav">
+      <div class="profile-nav-sep">Principal</div>
+      <div class="profile-nav-item active" onclick="showTab('dashboard', this)"><span class="profile-nav-icon">📊</span> Dashboard</div>
+      <div class="profile-nav-item" onclick="showTab('pedidos', this)"><span class="profile-nav-icon">📦</span> Mis pedidos</div>
+      <div class="profile-nav-item" onclick="showTab('logros', this)"><span class="profile-nav-icon">🏆</span> Logros</div>
+      <div class="profile-nav-item" onclick="showTab('wishlist', this)"><span class="profile-nav-icon">❤️</span> Lista de deseos</div>
+      <div class="profile-nav-sep">Cuenta</div>
+      <div class="profile-nav-item" onclick="showTab('configuracion', this)"><span class="profile-nav-icon">⚙️</span> Configuración</div>
+      <div class="profile-nav-item" onclick="showTab('puntos', this)"><span class="profile-nav-icon">⭐</span> Mis puntos</div>
+      <div class="profile-nav-item" onclick="showTab('seguridad', this)"><span class="profile-nav-icon">🔒</span> Seguridad</div>
+      <div class="profile-nav-sep">Acciones</div>
+      <div class="profile-nav-item" onclick="window.location.href='index.html'"><span class="profile-nav-icon">🏠</span> Ir a la tienda</div>
+      <div class="profile-nav-item" onclick="logoutUser()" style="color:#ff5e5e"><span class="profile-nav-icon">🚪</span> Cerrar sesión</div>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="profile-main">
+
+    <!-- DASHBOARD -->
+    <div class="profile-section active" id="tab-dashboard">
+      <div class="profile-section-title">DASHBOARD</div>
+      <div class="profile-section-sub">Resumen de tu actividad en NEXUS</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-card-num">3</div><div class="stat-card-label">Pedidos totales</div></div>
+        <div class="stat-card"><div class="stat-card-num">500</div><div class="stat-card-label">Puntos acumulados</div></div>
+        <div class="stat-card"><div class="stat-card-num">4</div><div class="stat-card-label">En lista de deseos</div></div>
+        <div class="stat-card"><div class="stat-card-num">2</div><div class="stat-card-label">Setups guardados</div></div>
+      </div>
+      <div style="margin-bottom:32px">
+        <div class="section-tag" style="margin-bottom:16px">// Último pedido</div>
+        <div style="background:var(--dark);border:1px solid var(--border);padding:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">PEDIDO #NEX-2026-00312</div>
+            <div style="font-size:16px;color:var(--white);margin-top:6px">RTX 5080 16GB + Corsair DDR5 32GB</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:4px">Realizado el 4 de marzo, 2026</div>
+          </div>
+          <div style="text-align:right">
+            <div class="order-status transito">🚚 En tránsito</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);margin-top:8px">1.418€</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-tag" style="margin-bottom:16px">// Actividad reciente</div>
+        <div style="display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border)">
+          <div style="background:var(--dark);padding:16px 20px;display:flex;align-items:center;gap:14px">
+            <span style="font-size:20px">🛒</span>
+            <div style="flex:1"><div style="font-size:13px;color:var(--white)">Pedido #NEX-2026-00312 realizado</div><div style="font-size:11px;color:var(--muted);margin-top:2px">hace 2 días</div></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)">1.418€</span>
+          </div>
+          <div style="background:var(--dark);padding:16px 20px;display:flex;align-items:center;gap:14px">
+            <span style="font-size:20px">⭐</span>
+            <div style="flex:1"><div style="font-size:13px;color:var(--white)">500 puntos de bienvenida añadidos</div><div style="font-size:11px;color:var(--muted);margin-top:2px">hace 3 días</div></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#00ff94">+500 pts</span>
+          </div>
+          <div style="background:var(--dark);padding:16px 20px;display:flex;align-items:center;gap:14px">
+            <span style="font-size:20px">👤</span>
+            <div style="flex:1"><div style="font-size:13px;color:var(--white)">Cuenta creada correctamente</div><div style="font-size:11px;color:var(--muted);margin-top:2px">hace 3 días</div></div>
+            <span class="order-status entregado">Activo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PEDIDOS -->
+    <div class="profile-section" id="tab-pedidos">
+      <div class="profile-section-title">MIS PEDIDOS</div>
+      <div class="profile-section-sub">Historial completo de tus compras con seguimiento en tiempo real</div>
+
+      <!-- Pedido en tránsito con tracking visual -->
+      <div class="order-track-card">
+        <div class="order-track-header">
+          <div>
+            <div class="order-track-num">#NEX-2026-00312</div>
+            <div class="order-track-prod">RTX 5080 16GB + Corsair DDR5 32GB</div>
+            <div style="margin-top:8px"><span class="order-status transito">🚚 En tránsito</span></div>
+          </div>
+          <div class="order-track-total">1.418€</div>
+        </div>
+        <div class="order-steps">
+          <div class="order-step done">
+            <div class="order-step-dot">✓</div>
+            <div class="order-step-label">Pedido</div>
+            <div class="order-step-date">04 Mar</div>
+          </div>
+          <div class="order-step done">
+            <div class="order-step-dot">✓</div>
+            <div class="order-step-label">Confirmado</div>
+            <div class="order-step-date">04 Mar</div>
+          </div>
+          <div class="order-step done">
+            <div class="order-step-dot">✓</div>
+            <div class="order-step-label">Enviado</div>
+            <div class="order-step-date">05 Mar</div>
+          </div>
+          <div class="order-step current">
+            <div class="order-step-dot">🚚</div>
+            <div class="order-step-label">En ruta</div>
+            <div class="order-step-date">Hoy</div>
+          </div>
+          <div class="order-step">
+            <div class="order-step-dot">🏠</div>
+            <div class="order-step-label">Entregado</div>
+            <div class="order-step-date">Mañana</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-ghost" style="font-size:12px;padding:8px 16px" onclick="showToast('📍 Transportista: DHL · Código: 1234567890')">🔍 Ver tracking</button>
+          <button class="btn-ghost" style="font-size:12px;padding:8px 16px" onclick="showToast('📦 Redirección solicitada')">↩ Redireccionar</button>
+        </div>
+      </div>
+
+      <!-- Pedido entregado -->
+      <div class="order-track-card">
+        <div class="order-track-header">
+          <div>
+            <div class="order-track-num">#NEX-2026-00187</div>
+            <div class="order-track-prod">Samsung 990 Pro NVMe 2TB</div>
+            <div style="margin-top:8px"><span class="order-status entregado">✓ Entregado</span></div>
+          </div>
+          <div class="order-track-total">159€</div>
+        </div>
+        <div class="order-steps">
+          <div class="order-step done"><div class="order-step-dot">✓</div><div class="order-step-label">Pedido</div><div class="order-step-date">12 Feb</div></div>
+          <div class="order-step done"><div class="order-step-dot">✓</div><div class="order-step-label">Confirmado</div><div class="order-step-date">12 Feb</div></div>
+          <div class="order-step done"><div class="order-step-dot">✓</div><div class="order-step-label">Enviado</div><div class="order-step-date">13 Feb</div></div>
+          <div class="order-step done"><div class="order-step-dot">✓</div><div class="order-step-label">En ruta</div><div class="order-step-date">14 Feb</div></div>
+          <div class="order-step done"><div class="order-step-dot">✓</div><div class="order-step-label">Entregado</div><div class="order-step-date">15 Feb</div></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-ghost" style="font-size:12px;padding:8px 16px" onclick="showToast('📄 Factura descargada')">📄 Factura</button>
+          <button class="btn-ghost" style="font-size:12px;padding:8px 16px" onclick="showToast('↩ Solicitud de devolución enviada')">↩ Devolver</button>
+          <a href="garantia.html" class="btn-ghost" style="font-size:12px;padding:8px 16px;text-decoration:none">🛡 Garantía</a>
+        </div>
+      </div>
+
+      <!-- Pedido entregado 2 -->
+      <div class="order-track-card">
+        <div class="order-track-header">
+          <div>
+            <div class="order-track-num">#NEX-2026-00043</div>
+            <div class="order-track-prod">Logitech G Pro X Superlight 2 + K100 Air Wireless</div>
+            <div style="margin-top:8px"><span class="order-status entregado">✓ Entregado</span></div>
+          </div>
+          <div class="order-track-total">388€</div>
+        </div>
+        <div class="order-steps">
+          <div class="order-step done"><div class="order-step-dot">✓</div><div class="order-step-label">Pedido</div><div class="order-step-date">08 Ene</div></div>
+          <div class="order-step done"><div class="order-step-dot">✓</div><div class="order-step-label">Confirmado</div><div class="order-step-date">08 Ene</div></div>
+          <div class="order-step done"><div class="order-step-dot">✓</div><div class="order-step-label">Enviado</div><div class="order-step-date">09 Ene</div></div>
+          <div class="order-step done"><div class="order-step-dot">✓</div><div class="order-step-label">En ruta</div><div class="order-step-date">10 Ene</div></div>
+          <div class="order-step done"><div class="order-step-dot">✓</div><div class="order-step-label">Entregado</div><div class="order-step-date">11 Ene</div></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-ghost" style="font-size:12px;padding:8px 16px" onclick="showToast('📄 Factura descargada')">📄 Factura</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- LOGROS -->
+    <div class="profile-section" id="tab-logros">
+      <div class="profile-section-title">LOGROS & BADGES</div>
+      <div class="profile-section-sub">Desbloquea logros comprando y participando en la comunidad NEXUS</div>
+
+      <div style="background:var(--dark);border:1px solid var(--border);border-radius:4px;padding:20px;margin-bottom:24px;display:flex;gap:24px;flex-wrap:wrap">
+        <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent)">7</div><div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">LOGROS DESBLOQUEADOS</div></div>
+        <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:#fbbf24">1.965</div><div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">XP TOTAL</div></div>
+        <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent2)">SILVER</div><div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">NIVEL ACTUAL</div></div>
+        <div style="flex:1;min-width:200px;display:flex;flex-direction:column;justify-content:center">
+          <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:6px">PROGRESO A GOLD — 2.500 XP</div>
+          <div style="background:var(--border);border-radius:4px;height:8px;overflow:hidden"><div style="background:linear-gradient(90deg,var(--accent),var(--accent2));height:100%;width:78%;border-radius:4px"></div></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">535 XP para el siguiente nivel</div>
+        </div>
+      </div>
+
+      <div class="achievements-grid">
+        <div class="achievement-card unlocked">
+          <div class="achievement-badge">+100 XP</div>
+          <div class="achievement-icon">🛒</div>
+          <div class="achievement-name">Primera Compra</div>
+          <div class="achievement-desc">Realizaste tu primer pedido en NEXUS</div>
+        </div>
+        <div class="achievement-card unlocked">
+          <div class="achievement-badge">+250 XP</div>
+          <div class="achievement-icon">💎</div>
+          <div class="achievement-name">High Roller</div>
+          <div class="achievement-desc">Pedido superior a 1.000€ en una sola compra</div>
+        </div>
+        <div class="achievement-card unlocked">
+          <div class="achievement-badge">+150 XP</div>
+          <div class="achievement-icon">⚡</div>
+          <div class="achievement-name">Builder</div>
+          <div class="achievement-desc">Usaste el configurador de PC gaming</div>
+        </div>
+        <div class="achievement-card unlocked">
+          <div class="achievement-badge">+200 XP</div>
+          <div class="achievement-icon">⭐</div>
+          <div class="achievement-name">Crítico</div>
+          <div class="achievement-desc">Publicaste tu primera reseña de producto</div>
+        </div>
+        <div class="achievement-card unlocked">
+          <div class="achievement-badge">+300 XP</div>
+          <div class="achievement-icon">🏆</div>
+          <div class="achievement-name">Leal</div>
+          <div class="achievement-desc">3 pedidos completados con NEXUS</div>
+        </div>
+        <div class="achievement-card unlocked">
+          <div class="achievement-badge">+500 XP</div>
+          <div class="achievement-icon">🎮</div>
+          <div class="achievement-name">Gaming God</div>
+          <div class="achievement-desc">Setup gaming completo de más de 2.000€</div>
+        </div>
+        <div class="achievement-card unlocked">
+          <div class="achievement-badge">+465 XP</div>
+          <div class="achievement-icon">🔖</div>
+          <div class="achievement-name">Coleccionista</div>
+          <div class="achievement-desc">10 productos en tu lista de deseos</div>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-badge">+400 XP</div>
+          <div class="achievement-icon">🌟</div>
+          <div class="achievement-name">Influencer</div>
+          <div class="achievement-desc">Comparte 5 productos en redes sociales</div>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-badge">+600 XP</div>
+          <div class="achievement-icon">💼</div>
+          <div class="achievement-name">Workstation</div>
+          <div class="achievement-desc">Compra un Threadripper o RAM de 128GB</div>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-badge">+1000 XP</div>
+          <div class="achievement-icon">👑</div>
+          <div class="achievement-name">NEXUS ELITE</div>
+          <div class="achievement-desc">Alcanza el nivel Gold y gasta más de 5.000€</div>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-badge">+200 XP</div>
+          <div class="achievement-icon">🤝</div>
+          <div class="achievement-name">Embajador</div>
+          <div class="achievement-desc">Refiere a un amigo que realice una compra</div>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-badge">+350 XP</div>
+          <div class="achievement-icon">🔧</div>
+          <div class="achievement-name">Overclocker</div>
+          <div class="achievement-desc">Compra CPU + Placa Base con soporte OC</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WISHLIST -->
+    <div class="profile-section" id="tab-wishlist">
+      <div class="profile-section-title">LISTA DE DESEOS</div>
+      <div class="profile-section-sub">Productos que has guardado para más adelante</div>
+      <div class="wishlist-grid" id="wishlistGrid"></div>
+    </div>
+
+    <!-- CONFIGURACIÓN -->
+    <div class="profile-section" id="tab-configuracion">
+      <div class="profile-section-title">CONFIGURACIÓN</div>
+      <div class="profile-section-sub">Gestiona tu información personal y preferencias</div>
+      <div class="settings-grid" id="settingsForm">
+        <div class="field-group">
+          <label class="field-label">Nombre</label>
+          <input type="text" class="field-input" id="setNombre" placeholder="Tu nombre">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Apellido</label>
+          <input type="text" class="field-input" id="setApellido" placeholder="Tu apellido">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Email</label>
+          <input type="email" class="field-input" id="setEmail" placeholder="tu@email.com">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Teléfono</label>
+          <input type="tel" class="field-input" id="setTel" placeholder="+34 600 000 000">
+        </div>
+        <hr class="settings-sep">
+        <div class="field-group">
+          <label class="field-label">Dirección de envío</label>
+          <input type="text" class="field-input" placeholder="Calle y número">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Ciudad</label>
+          <input type="text" class="field-input" placeholder="Madrid">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Código Postal</label>
+          <input type="text" class="field-input" placeholder="28001">
+        </div>
+        <div class="field-group">
+          <label class="field-label">País</label>
+          <select class="field-input" style="cursor:pointer">
+            <option>España</option>
+            <option>Portugal</option>
+            <option>Francia</option>
+            <option>Alemania</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:28px">
+        <div style="margin-bottom:16px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--white)">NOTIFICACIONES</div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Ofertas y promociones</div><div class="toggle-desc">Recibe alertas de descuentos en tus categorías favoritas</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Estado de pedidos</div><div class="toggle-desc">Notificaciones cuando tu pedido cambia de estado</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Alertas de precio</div><div class="toggle-desc">Aviso cuando baje el precio de tus productos guardados</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Newsletter semanal</div><div class="toggle-desc">Resumen de novedades y tendencias en hardware</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      </div>
+      <button class="btn-primary" style="margin-top:32px" onclick="saveSettings()">Guardar cambios</button>
+    </div>
+
+    <!-- PUNTOS -->
+    <div class="profile-section" id="tab-puntos">
+      <div class="profile-section-title">MIS PUNTOS</div>
+      <div class="profile-section-sub">Acumula puntos y canjéalos por descuentos</div>
+      <div class="points-bar">
+        <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+          <div><div class="points-total" id="ptsTotal">500</div><div class="points-sub">puntos disponibles · equivale a 5€ de descuento</div></div>
+          <div style="margin-left:auto;text-align:right"><div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">Nivel actual</div><div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);letter-spacing:2px">PLATA</div></div>
+        </div>
+        <div class="points-track" style="margin-top:20px"><div class="points-fill" style="width:20%"></div></div>
+        <div class="points-levels"><span>0 · Bronce</span><span>500 · Plata ⟵</span><span>2000 · Oro</span><span>5000 · Elite</span></div>
+      </div>
+      <div style="margin-bottom:24px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--white)">HISTORIAL DE PUNTOS</div>
+      <ul class="points-history">
+        <li><div><div class="ph-desc">Bienvenida a NEXUS</div><div class="ph-date">01/03/2026</div></div><div class="ph-pts plus">+500</div></li>
+        <li><div><div class="ph-desc">Compra #NEX-2026-00043 (388€)</div><div class="ph-date">08/01/2026</div></div><div class="ph-pts plus">+38</div></li>
+        <li><div><div class="ph-desc">Compra #NEX-2026-00187 (159€)</div><div class="ph-date">12/02/2026</div></div><div class="ph-pts plus">+15</div></li>
+        <li><div><div class="ph-desc">Canje de descuento (−50 pts = 0.50€)</div><div class="ph-date">20/02/2026</div></div><div class="ph-pts minus">−50</div></li>
+      </ul>
+      <div style="margin-top:32px;background:var(--dark);border:1px solid var(--border);padding:28px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--white);margin-bottom:16px">CANJEAR PUNTOS</div>
+        <div style="display:flex;gap:0;max-width:360px">
+          <input type="number" class="field-input" placeholder="Puntos a canjear" id="ptsCanjar" min="100" step="100" style="border-radius:4px 0 0 4px;border-right:none">
+          <button class="btn-primary" style="border-radius:0 4px 4px 0;white-space:nowrap" onclick="canjearPuntos()">Canjear</button>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:10px;font-family:'JetBrains Mono',monospace">100 pts = 1€ · Mínimo 100 puntos</div>
+      </div>
+    </div>
+
+    <!-- SEGURIDAD -->
+    <div class="profile-section" id="tab-seguridad">
+      <div class="profile-section-title">SEGURIDAD</div>
+      <div class="profile-section-sub">Gestiona tu contraseña y la seguridad de tu cuenta</div>
+      <div style="background:var(--dark);border:1px solid var(--border);padding:32px;margin-bottom:24px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--white);margin-bottom:20px">CAMBIAR CONTRASEÑA</div>
+        <div style="display:flex;flex-direction:column;gap:16px;max-width:400px">
+          <div class="field-group"><label class="field-label">Contraseña actual</label><input type="password" class="field-input" placeholder="••••••••" id="oldPass"></div>
+          <div class="field-group"><label class="field-label">Nueva contraseña</label><input type="password" class="field-input" placeholder="Mín. 8 caracteres" id="newPass"></div>
+          <div class="field-group"><label class="field-label">Confirmar nueva contraseña</label><input type="password" class="field-input" placeholder="Repite la nueva contraseña" id="newPass2"></div>
+        </div>
+        <button class="btn-primary" style="margin-top:24px" onclick="changePassword()">Actualizar contraseña</button>
+      </div>
+      <div style="background:var(--dark);border:1px solid var(--border);padding:32px;margin-bottom:24px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--white);margin-bottom:8px">SESIONES ACTIVAS</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Dispositivos con sesión iniciada</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;gap:12px;align-items:center"><span style="font-size:20px">💻</span><div><div style="font-size:13px;color:var(--white)">Este dispositivo</div><div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">Madrid, España · Ahora</div></div></div>
+          <span class="order-status entregado">Activo</span>
+        </div>
+        <button class="btn-ghost" style="margin-top:20px;font-size:12px" onclick="showToast('✓ Otras sesiones cerradas')">Cerrar todas las demás sesiones</button>
+      </div>
+      <div style="background:rgba(255,94,94,0.05);border:1px solid rgba(255,94,94,0.2);padding:32px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#ff5e5e;margin-bottom:8px">ZONA DE PELIGRO</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Estas acciones son irreversibles</div>
+        <button style="background:none;border:1px solid rgba(255,94,94,0.4);color:#ff5e5e;padding:10px 20px;font-size:12px;cursor:pointer;border-radius:4px;letter-spacing:1px;text-transform:uppercase;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.background='rgba(255,94,94,0.1)'" onmouseout="this.style.background='none'" onclick="deleteAccount()">Eliminar cuenta permanentemente</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nexus-extras.js"></script>
+<script>
+  const wishlistData = [
+    { name: 'NVIDIA RTX 5090 32GB', price: 1999, icon: '🎮' },
+    { name: 'Samsung Odyssey G9 OLED', price: 1299, icon: '🖥️' },
+    { name: 'AMD Ryzen Threadripper 7970X', price: 2499, icon: '⚡' },
+    { name: 'Sabrent Rocket 5 Plus 8TB', price: 799, icon: '💾' },
+  ];
+
+  function showTab(id, el) {
+    document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.profile-nav-item').forEach(i => i.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    el.classList.add('active');
+  }
+
+  function loadUserData() {
+    const user = JSON.parse(localStorage.getItem('nexusUser') || 'null');
+    if (!user) { window.location.href = 'login.html'; return; }
+    document.getElementById('profileName').textContent = (user.name || 'Usuario').toUpperCase();
+    document.getElementById('profileEmail').textContent = user.email || '';
+    document.getElementById('profilePoints').textContent = user.points || 500;
+    document.getElementById('ptsTotal').textContent = user.points || 500;
+    const parts = (user.name || '').split(' ');
+    document.getElementById('setNombre').value = parts[0] || '';
+    document.getElementById('setApellido').value = parts[1] || '';
+    document.getElementById('setEmail').value = user.email || '';
+    const emoji = ['🦁','🐉','🚀','⚡','🎯','🔥','💎','🌊'];
+    document.getElementById('profileAvatar').textContent = emoji[Math.floor(Math.random() * emoji.length)];
+  }
+
+  function renderWishlist() {
+    document.getElementById('wishlistGrid').innerHTML = wishlistData.map((w, i) => `
+      <div class="wishlist-item">
+        <button class="wishlist-remove" onclick="removeWish(${i})">✕</button>
+        <div class="wishlist-icon">${w.icon}</div>
+        <div class="wishlist-name">${w.name}</div>
+        <div class="wishlist-price">${w.price}€</div>
+        <button class="btn-primary" style="width:100%;text-align:center;margin-top:14px;font-size:12px;padding:10px" onclick="addToCart('${w.name}',${w.price})">+ Añadir al carrito</button>
+      </div>
+    `).join('');
+  }
+
+  function removeWish(i) {
+    wishlistData.splice(i, 1);
+    renderWishlist();
+    showToast('✓ Eliminado de la lista de deseos');
+  }
+
+  function saveSettings() {
+    const user = JSON.parse(localStorage.getItem('nexusUser') || '{}');
+    user.name = document.getElementById('setNombre').value + ' ' + document.getElementById('setApellido').value;
+    user.email = document.getElementById('setEmail').value;
+    localStorage.setItem('nexusUser', JSON.stringify(user));
+    document.getElementById('profileName').textContent = user.name.toUpperCase();
+    showToast('✓ Cambios guardados correctamente');
+  }
+
+  function canjearPuntos() {
+    const pts = parseInt(document.getElementById('ptsCanjar').value);
+    const user = JSON.parse(localStorage.getItem('nexusUser') || '{}');
+    const current = user.points || 500;
+    if (!pts || pts < 100) { showToast('⚠ Mínimo 100 puntos'); return; }
+    if (pts > current) { showToast('⚠ No tienes suficientes puntos'); return; }
+    user.points = current - pts;
+    localStorage.setItem('nexusUser', JSON.stringify(user));
+    document.getElementById('profilePoints').textContent = user.points;
+    document.getElementById('ptsTotal').textContent = user.points;
+    showToast('✓ ' + pts + ' puntos canjeados = ' + (pts/100).toFixed(2) + '€ de descuento');
+  }
+
+  function changePassword() {
+    const old = document.getElementById('oldPass').value;
+    const n1  = document.getElementById('newPass').value;
+    const n2  = document.getElementById('newPass2').value;
+    if (!old) { showToast('⚠ Introduce tu contraseña actual'); return; }
+    if (n1.length < 8) { showToast('⚠ La nueva contraseña debe tener al menos 8 caracteres'); return; }
+    if (n1 !== n2) { showToast('⚠ Las contraseñas no coinciden'); return; }
+    showToast('✓ Contraseña actualizada correctamente');
+    ['oldPass','newPass','newPass2'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  function deleteAccount() {
+    if (confirm('¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer.')) {
+      localStorage.removeItem('nexusUser');
+      window.location.href = 'index.html';
+    }
+  }
+
+  loadUserData();
+  renderWishlist();
+</script>
+<script src="../assets/js/nexus-ai-chat.js"></script>
+<script src="../assets/js/nexus-pwa.js"></script>
+</body>
+</html>

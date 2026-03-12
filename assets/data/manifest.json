@@ -1,0 +1,86 @@
+{
+  "name": "NEXUS Tech Store",
+  "short_name": "NEXUS",
+  "description": "Hardware de élite, periféricos de precisión y componentes de alto rendimiento.",
+  "start_url": "/pages/index.html",
+  "display": "standalone",
+  "background_color": "#0f1c2e",
+  "theme_color": "#00c8ff",
+  "orientation": "portrait-primary",
+  "categories": [
+    "shopping",
+    "technology"
+  ],
+  "lang": "es",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%230f1c2e'/><text y='130' x='16' font-size='130' font-family='Arial Black,sans-serif' fill='%2300c8ff'>N</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%230f1c2e'/><text y='370' x='30' font-size='380' font-family='Arial Black,sans-serif' fill='%2300c8ff'>N</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "index.html",
+      "sizes": "390x844",
+      "type": "text/html",
+      "form_factor": "narrow",
+      "label": "Inicio NEXUS Tech"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Catálogo",
+      "short_name": "Productos",
+      "url": "/pages/productos.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><text y='80' font-size='80'>🛍️</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Gaming",
+      "short_name": "Gaming",
+      "url": "/pages/gaming.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><text y='80' font-size='80'>🎮</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Carrito",
+      "short_name": "Carrito",
+      "url": "/pages/carrito.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><text y='80' font-size='80'>🛒</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Ofertas",
+      "short_name": "Ofertas",
+      "url": "/pages/ofertas.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><text y='80' font-size='80'>🔥</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="../assets/data/manifest.json">
+  <meta name="theme-color" content="#00c8ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gaming — NEXUS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    .gaming-hero {
+      min-height: 70vh; display: flex; align-items: center; padding: 120px 40px 60px;
+      position: relative; overflow: hidden;
+      background: radial-gradient(ellipse 100% 80% at 50% 50%, rgba(0,180,255,0.05) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 40% at 80% 30%, rgba(123,47,255,0.08) 0%, transparent 60%);
+    }
+    .gaming-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 59px, var(--border) 59px, var(--border) 60px),
+                  repeating-linear-gradient(90deg, transparent, transparent 59px, var(--border) 59px, var(--border) 60px);
+      opacity: 0.15;
+    }
+    .gaming-hero-content { position: relative; z-index: 1; max-width: 640px; }
+    .gaming-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px, 10vw, 120px); line-height: 0.9; letter-spacing: 2px; }
+    .gaming-title .y { color: var(--accent2); }
+    .gaming-title .g { color: var(--accent); }
+    .setup-builder {
+      background: var(--dark); border: 1px solid var(--border); padding: 48px;
+      margin: 0 40px;
+    }
+    .setup-header { margin-bottom: 40px; }
+    .setup-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; color: var(--white); }
+    .setup-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 32px; }
+    .setup-slot {
+      background: var(--card); padding: 28px 24px; cursor: pointer;
+      transition: background 0.2s; position: relative; min-height: 140px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .setup-slot:hover { background: #1a1a1a; }
+    .setup-slot.filled { border-left: 3px solid var(--accent); }
+    .slot-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 12px; }
+    .slot-icon { font-size: 28px; margin-bottom: 8px; }
+    .slot-name { font-size: 14px; color: var(--white); font-weight: 400; }
+    .slot-price { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--accent); margin-top: 8px; }
+    .slot-empty { color: var(--muted); font-size: 13px; font-style: italic; }
+    .slot-add { position: absolute; top: 16px; right: 16px; background: var(--border); border: none; color: var(--muted); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .slot-add:hover { background: var(--accent); color: var(--black); }
+    .setup-total { display: flex; align-items: center; justify-content: space-between; padding-top: 24px; border-top: 1px solid var(--border); }
+    .total-label { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; font-family: 'JetBrains Mono', monospace; }
+    .total-price { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--accent); letter-spacing: 2px; }
+    .gaming-packs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .pack-card { background: var(--dark); padding: 40px 32px; position: relative; overflow: hidden; transition: background 0.2s; cursor: pointer; }
+    .pack-card:hover { background: var(--card); }
+    .pack-card.featured { background: var(--card); }
+    .pack-card.featured::before { content: 'POPULAR'; position: absolute; top: 16px; right: -20px; background: var(--accent); color: var(--black); font-size: 10px; letter-spacing: 2px; padding: 4px 32px; transform: rotate(45deg); font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+    .pack-tier { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .pack-name { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: var(--white); margin-bottom: 24px; }
+    .pack-items { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+    .pack-items li { font-size: 14px; color: var(--muted); display: flex; gap: 10px; align-items: flex-start; }
+    .pack-items li::before { content: '→'; color: var(--accent); font-size: 12px; margin-top: 2px; flex-shrink: 0; }
+    .pack-price { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--accent); letter-spacing: 1px; }
+    .pack-price-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    @media(max-width:900px){ .setup-builder{margin:0 20px;padding:24px;} .gaming-packs{grid-template-columns:1fr;} .gaming-hero{padding:100px 20px 40px;} }
+    @keyframes alertSlide { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+    /* Barra de progreso */
+    .builder-progress { margin-bottom: 28px; }
+    .progress-track { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 8px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.4s cubic-bezier(.22,1,.36,1); }
+    .progress-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+    /* Botón quitar slot */
+    .slot-remove { position: absolute; bottom: 12px; right: 12px; background: none; border: 1px solid rgba(255,77,77,0.3); color: rgba(255,77,77,0.5); width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font-size: 13px; display: none; align-items: center; justify-content: center; transition: all 0.2s; line-height:1; padding:0; }
+    .slot-remove:hover { background: rgba(255,77,77,0.15); color: #ff4d4d; border-color: #ff4d4d; }
+    .setup-slot.filled .slot-remove { display: flex; }
+    /* Indicador rendimiento */
+    .perf-panel { background: var(--card); border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 24px; display: none; }
+    .perf-panel.visible { display: block; animation: alertSlide 0.35s cubic-bezier(.22,1,.36,1); }
+    .perf-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+    .perf-bars { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 14px; }
+    .perf-bar-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 5px; display: flex; justify-content: space-between; }
+    .perf-bar-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .perf-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s cubic-bezier(.22,1,.36,1); }
+  
+@media(max-width:900px){
+  .gaming-hero{padding:80px 20px 48px;}
+  .gaming-hero-title{font-size:clamp(48px,12vw,80px);}
+  .builder-section{padding:40px 20px;}
+  .setup-slots{grid-template-columns:repeat(2,1fr);}
+  .gaming-packs{grid-template-columns:1fr;}
+  .pack-card{padding:28px 20px;}
+}
+@media(max-width:480px){
+  .gaming-hero{padding:68px 16px 36px;}
+  .gaming-hero-title{font-size:clamp(40px,14vw,64px);}
+  .setup-slots{grid-template-columns:1fr;}
+  .builder-inner{padding:20px;}
+  .setup-total{flex-direction:column;align-items:flex-start;gap:12px;}
+  .setup-total .btn-primary{width:100%;text-align:center;}
+}
+
+    .selector-modal-box {
+      background: var(--dark); border: 1px solid var(--border);
+      width: 90%; max-width: 600px; max-height: 80vh;
+      overflow-y: auto; padding: 40px; border-radius: 4px;
+    }
+    @media(max-width: 600px) {
+      .selector-modal-box { width: 96%; padding: 20px 14px; max-height: 86vh; }
+    }
+    @media(max-width: 480px) {
+      .selector-modal-box { width: 100%; padding: 16px 12px; max-height: 88vh; border-radius: 0; }
+      #selectorModal { align-items: flex-end; padding: 0; }
+    }
+
+    .modal-products-grid { grid-template-columns: 1fr 1fr; }
+    @media(max-width:480px){ .modal-products-grid { grid-template-columns: 1fr !important; } }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="gaming.html" class="active">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="guias.html">Guías</a>
+    <a href="outlet.html">Outlet</a>
+    <a href="soporte.html">Soporte</a>
+    <a href="comparar.html">⚖ Comparar</a>
+    <a href="blog.html">Blog</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="busqueda.html" style="color:var(--muted);font-size:18px;display:flex;align-items:center;padding:0 4px" title="Buscar">🔍</a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-text">Carrito</span> <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="gaming-hero">
+  <div class="gaming-hero-content">
+    <div class="hero-tag">✦ Gaming Zone</div>
+    <h1 class="gaming-title">
+      <span class="g">LEVEL</span><br>
+      UP YOUR<br>
+      <span class="y">GAME</span>
+    </h1>
+    <p class="hero-subtitle" style="margin-top:20px">Construye el setup de tus sueños. Configura, compara y domina.</p>
+    <div class="hero-actions" style="margin-top:32px">
+      <a href="#builder" class="btn-primary">Configurar Setup</a>
+      <a href="#packs" class="btn-ghost">Ver Packs →</a>
+    </div>
+  </div>
+</div>
+
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">RTX 5090 <em>★</em></span>
+    <span class="marquee-item">240Hz OLED <em>★</em></span>
+    <span class="marquee-item">Mechanical Switches <em>★</em></span>
+    <span class="marquee-item">Wireless Gaming <em>★</em></span>
+    <span class="marquee-item">RGB Everything <em>★</em></span>
+    <span class="marquee-item">4K Ultra Settings <em>★</em></span>
+    <span class="marquee-item">RTX 5090 <em>★</em></span>
+    <span class="marquee-item">240Hz OLED <em>★</em></span>
+    <span class="marquee-item">Mechanical Switches <em>★</em></span>
+    <span class="marquee-item">Wireless Gaming <em>★</em></span>
+    <span class="marquee-item">RGB Everything <em>★</em></span>
+    <span class="marquee-item">4K Ultra Settings <em>★</em></span>
+  </div>
+</div>
+
+<!-- SETUP BUILDER -->
+<section class="section" id="builder">
+  <div class="setup-builder">
+    <div class="setup-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
+        <div>
+          <div class="section-tag">// Configurador</div>
+          <div class="setup-title">CONSTRUYE TU SETUP</div>
+          <p style="color:var(--muted);font-size:14px;margin-top:8px">Haz clic en cada componente para seleccionarlo.</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding-top:8px">
+          <button onclick="resetSetup()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:8px 16px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;cursor:pointer;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='#ff4d4d';this.style.color='#ff4d4d'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">↺ RESETEAR</button>
+          <button onclick="shareSetup()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:8px 16px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;cursor:pointer;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⎘ COMPARTIR</button>
+        </div>
+      </div>
+      <!-- Barra de progreso -->
+      <div class="builder-progress" style="margin-top:20px">
+        <div class="progress-label">
+          <span id="progressText">0 de 9 componentes</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="setup-slots" id="setupSlots">
+      <div class="setup-slot" id="slot-cpu" onclick="selectComponent('cpu')">
+        <div>
+          <div class="slot-label">Procesador</div>
+          <div class="slot-icon">⚡</div>
+          <div class="slot-name slot-empty" id="name-cpu">Seleccionar CPU</div>
+        </div>
+        <div class="slot-price" id="price-cpu" style="display:none"></div>
+        <button class="slot-add">+</button>
+        <button class="slot-remove" onclick="event.stopPropagation();removeComponent('cpu')">×</button>
+      </div>
+      <div class="setup-slot" id="slot-gpu" onclick="selectComponent('gpu')">
+        <div>
+          <div class="slot-label">Tarjeta Gráfica</div>
+          <div class="slot-icon">🎮</div>
+          <div class="slot-name slot-empty" id="name-gpu">Seleccionar GPU</div>
+        </div>
+        <div class="slot-price" id="price-gpu" style="display:none"></div>
+        <button class="slot-add">+</button>
+        <button class="slot-remove" onclick="event.stopPropagation();removeComponent('gpu')">×</button>
+      </div>
+      <div class="setup-slot" id="slot-ram" onclick="selectComponent('ram')">
+        <div>
+          <div class="slot-label">Memoria RAM</div>
+          <div class="slot-icon">🧠</div>
+          <div class="slot-name slot-empty" id="name-ram">Seleccionar RAM</div>
+        </div>
+        <div class="slot-price" id="price-ram" style="display:none"></div>
+        <button class="slot-add">+</button>
+        <button class="slot-remove" onclick="event.stopPropagation();removeComponent('ram')">×</button>
+      </div>
+      <div class="setup-slot" id="slot-storage" onclick="selectComponent('storage')">
+        <div>
+          <div class="slot-label">Almacenamiento</div>
+          <div class="slot-icon">💾</div>
+          <div class="slot-name slot-empty" id="name-storage">Seleccionar SSD</div>
+        </div>
+        <div class="slot-price" id="price-storage" style="display:none"></div>
+        <button class="slot-add">+</button>
+        <button class="slot-remove" onclick="event.stopPropagation();removeComponent('storage')">×</button>
+      </div>
+      <div class="setup-slot" id="slot-monitor" onclick="selectComponent('monitor')">
+        <div>
+          <div class="slot-label">Monitor</div>
+          <div class="slot-icon">🖥️</div>
+          <div class="slot-name slot-empty" id="name-monitor">Seleccionar Monitor</div>
+        </div>
+        <div class="slot-price" id="price-monitor" style="display:none"></div>
+        <button class="slot-add">+</button>
+        <button class="slot-remove" onclick="event.stopPropagation();removeComponent('monitor')">×</button>
+      </div>
+      <div class="setup-slot" id="slot-peripheral" onclick="selectComponent('peripheral')">
+        <div>
+          <div class="slot-label">Periféricos</div>
+          <div class="slot-icon">⌨️</div>
+          <div class="slot-name slot-empty" id="name-peripheral">Seleccionar Periféricos</div>
+        </div>
+        <div class="slot-price" id="price-peripheral" style="display:none"></div>
+        <button class="slot-add">+</button>
+        <button class="slot-remove" onclick="event.stopPropagation();removeComponent('peripheral')">×</button>
+      </div>
+      <div class="setup-slot" id="slot-motherboard" onclick="selectComponent('motherboard')">
+        <div>
+          <div class="slot-label">Placa Base</div>
+          <div class="slot-icon">🔲</div>
+          <div class="slot-name slot-empty" id="name-motherboard">Seleccionar Placa Base</div>
+        </div>
+        <div class="slot-price" id="price-motherboard" style="display:none"></div>
+        <button class="slot-add">+</button>
+        <button class="slot-remove" onclick="event.stopPropagation();removeComponent('motherboard')">×</button>
+      </div>
+      <div class="setup-slot" id="slot-case" onclick="selectComponent('case')">
+        <div>
+          <div class="slot-label">Caja PC</div>
+          <div class="slot-icon">🖥</div>
+          <div class="slot-name slot-empty" id="name-case">Seleccionar Caja</div>
+        </div>
+        <div class="slot-price" id="price-case" style="display:none"></div>
+        <button class="slot-add">+</button>
+        <button class="slot-remove" onclick="event.stopPropagation();removeComponent('case')">×</button>
+      </div>
+      <div class="setup-slot" id="slot-psu" onclick="selectComponent('psu')">
+        <div>
+          <div class="slot-label">Fuente de Alimentación</div>
+          <div class="slot-icon">🔌</div>
+          <div class="slot-name slot-empty" id="name-psu">Seleccionar Fuente</div>
+        </div>
+        <div class="slot-price" id="price-psu" style="display:none"></div>
+        <button class="slot-add">+</button>
+        <button class="slot-remove" onclick="event.stopPropagation();removeComponent('psu')">×</button>
+      </div>
+    </div>
+    <!-- Panel de rendimiento estimado -->
+    <div class="perf-panel" id="perfPanel">
+      <div class="perf-title">// Rendimiento estimado del setup</div>
+      <div class="perf-bars" id="perfBars"></div>
+    </div>
+    <!-- Alerta PSU -->
+    <div id="psu-alert" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.45);border-left:4px solid #f59e0b;border-radius:4px;padding:18px 20px;margin:0 0 16px 0;animation:alertSlide 0.35s cubic-bezier(.22,1,.36,1)">
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <span style="font-size:26px;line-height:1">🔌</span>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:#f59e0b;margin-bottom:4px">FUENTE INSUFICIENTE</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.6" id="psu-alert-msg"></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">Se recomienda un mínimo de <span id="psu-alert-min" style="font-family:'JetBrains Mono',monospace;color:#f59e0b"></span> para este setup.</div>
+        </div>
+        <button onclick="document.getElementById('psu-alert').style.display='none'" style="margin-left:auto;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;flex-shrink:0;line-height:1">×</button>
+      </div>
+    </div>
+    <div class="setup-total">
+      <div>
+        <div class="total-label">Total estimado</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px" id="componentCount">0 componentes seleccionados</div>
+      </div>
+      <div style="text-align:right">
+        <div class="total-price" id="totalPrice">0€</div>
+        <button class="btn-primary" style="margin-top:16px" onclick="addSetupToCart()">Añadir todo al carrito</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div id="selectorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:20000;align-items:center;justify-content:center;">
+  <div class="selector-modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--white)" id="modalTitle">Seleccionar</div>
+      <button onclick="closeModal()" style="background:none;border:1px solid var(--border);color:var(--muted);width:36px;height:36px;cursor:pointer;border-radius:4px;font-size:18px">×</button>
+    </div>
+    <div id="modalContent" class="products-grid modal-products-grid"></div>
+  </div>
+</div>
+
+<!-- GAMING PACKS -->
+<section class="section" id="packs">
+  <div class="section-header">
+    <div class="section-tag">// Packs Curados</div>
+    <h2 class="section-title">SETUPS COMPLETOS</h2>
+    <p class="section-desc">Packs preconfigurados por nuestros expertos para cada nivel de juego.</p>
+  </div>
+  <div class="gaming-packs">
+
+    <!-- ── STARTER PACK ── -->
+    <div class="pack-card">
+      <div class="pack-tier">Tier 1 · Entry</div>
+      <div class="pack-name">STARTER PACK</div>
+      <ul class="pack-items">
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CPU</span>AMD Ryzen 5 9600X <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">249€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PLACA BASE</span>Gigabyte B650E Aorus Pro X <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">219€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">GPU</span>AMD Radeon RX 7600 XT 16GB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">329€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">RAM</span>Kingston Fury Beast DDR5 32GB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">149€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">SSD</span>Samsung 990 Pro NVMe 2TB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">159€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CAJA</span>DeepCool Morpheus CC560 Digital <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">79€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">FUENTE</span>Seasonic S12III 650W Bronze <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">59€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">MONITOR</span>BenQ Mobiuz EX321UX 32" 4K <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">499€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PERIFÉRICOS</span>Razer DeathAdder V3 + BlackWidow V4 <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">298€</span></li>
+      </ul>
+      <div style="border-top:1px solid var(--border);margin:20px 0 12px;padding-top:16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">1080p / High Settings</span>
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">9 componentes</span>
+      </div>
+      <div class="pack-price">2.040€</div>
+      <div class="pack-price-sub">Ahorra ~180€ vs. precio individual</div>
+      <button class="btn-ghost cart-add" data-name="Starter Pack Gaming" data-price="2040" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
+    </div>
+
+    <!-- ── PRO GAMER PACK ── -->
+    <div class="pack-card featured">
+      <div class="pack-tier">Tier 2 · Pro</div>
+      <div class="pack-name">PRO GAMER PACK</div>
+      <ul class="pack-items">
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CPU</span>Intel Core i7-14700K <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">349€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PLACA BASE</span>MSI MAG X870E Tomahawk WiFi <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">279€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">GPU</span>NVIDIA RTX 4070 Ti Super 16GB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">799€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">RAM</span>Corsair Dominator Titanium DDR5 32GB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">219€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">SSD</span>WD Black SN850X 4TB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">299€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CAJA</span>Fractal Torrent RGB Black <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">169€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">FUENTE</span>Corsair RM850e Fully Modular 850W <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">109€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">MONITOR</span>ASUS ROG Swift OLED 27" 240Hz <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">799€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PERIFÉRICOS</span>Logitech G Pro X Superlight 2 + G915 TKL + Arctis Nova Pro <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">597€</span></li>
+      </ul>
+      <div style="border-top:1px solid var(--border);margin:20px 0 12px;padding-top:16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">1440p / Ultra Settings</span>
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">9 componentes</span>
+      </div>
+      <div class="pack-price">3.619€</div>
+      <div class="pack-price-sub">Ahorra ~300€ vs. precio individual</div>
+      <button class="btn-primary cart-add" data-name="Pro Gamer Pack" data-price="3619" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
+    </div>
+
+    <!-- ── ELITE SETUP ── -->
+    <div class="pack-card">
+      <div class="pack-tier">Tier 3 · Elite</div>
+      <div class="pack-name">ELITE SETUP</div>
+      <ul class="pack-items">
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CPU</span>Intel Core Ultra 9 285K <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">589€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PLACA BASE</span>ASUS ROG Maximus Z890 Apex <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">699€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">GPU</span>NVIDIA GeForce RTX 5080 16GB <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">1.199€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">RAM</span>G.Skill Trident Z5 RGB 64GB DDR5-7200 <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">349€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">SSD</span>Sabrent Rocket 5 Plus 8TB Gen5 <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">799€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">CAJA</span>Lian Li PC-O11 Dynamic EVO XL <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">199€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">FUENTE</span>Corsair HX1500i Platinum ATX 3.1 <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">329€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">MONITOR</span>Samsung Odyssey G9 49" OLED 240Hz <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">1.299€</span></li>
+        <li><span style="color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:1px">PERIFÉRICOS</span>Logitech G Pro X Superlight 2 + Corsair K100 Air + Arctis Nova Pro + Stream Deck <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">706€</span></li>
+      </ul>
+      <div style="border-top:1px solid var(--border);margin:20px 0 12px;padding-top:16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">4K / Max Settings</span>
+        <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">9 componentes</span>
+      </div>
+      <div class="pack-price">6.168€</div>
+      <div class="pack-price-sub">Ahorra ~600€ vs. precio individual</div>
+      <button class="btn-ghost cart-add" data-name="Elite Setup Gaming" data-price="6168" style="margin-top:24px;width:100%;text-align:center">Añadir al carrito</button>
+    </div>
+
+  </div>
+</section>
+
+<div class="footer-bottom" style="border-top:1px solid var(--border)">
+  <span class="footer-copy">© 2026 NEXUS TECH</span>
+  <div style="display:flex;gap:24px">
+    <a href="index.html" style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">← Inicio</a>
+    <a href="productos.html" style="font-size:12px;color:var(--accent);font-family:'JetBrains Mono',monospace">Productos →</a>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nexus-extras.js"></script>
+<script>
+const componentOptions = {
+  cpu: [
+    { name: 'Intel Core Ultra 9 285K',       price: 589,  icon: '⚡', specs: '24C · 5.7GHz · LGA1851',        badge: '−15%' },
+    { name: 'AMD Ryzen 9 9950X',              price: 649,  icon: '⚡', specs: '16C · 5.7GHz · AM5'             },
+    { name: 'Intel Core i9-14900KS',          price: 499,  icon: '⚡', specs: '24C · 6.2GHz · LGA1700',        badge: '−12%' },
+    { name: 'AMD Ryzen 7 9700X',              price: 329,  icon: '⚡', specs: '8C · 5.5GHz · AM5'              },
+    { name: 'Intel Core Ultra 7 265K',        price: 389,  icon: '⚡', specs: '20C · 5.5GHz · LGA1851',        badge: '−9%'  },
+    { name: 'AMD Ryzen 5 9600X',              price: 249,  icon: '⚡', specs: '6C · 5.4GHz · AM5'              },
+    { name: 'Intel Core i7-14700K',           price: 349,  icon: '⚡', specs: '20C · 5.6GHz · LGA1700',        badge: '−17%' },
+    { name: 'AMD Ryzen Threadripper 7970X',   price: 2499, icon: '⚡', specs: '32C · 5.3GHz · sTR5',           badge: 'PRO'  },
+  ],
+  gpu: [
+    { name: 'NVIDIA GeForce RTX 5090 32GB',   price: 1999, icon: '🎮', specs: '32GB GDDR7 · DLSS 4 · 575W',   badge: 'Nuevo' },
+    { name: 'NVIDIA GeForce RTX 5080 16GB',   price: 1199, icon: '🎮', specs: '16GB GDDR7 · DLSS 4 · 360W',   badge: 'Nuevo' },
+    { name: 'NVIDIA GeForce RTX 4090 24GB',   price: 1549, icon: '🎮', specs: '24GB GDDR6X · DLSS 3 · 450W',  badge: '−14%'  },
+    { name: 'NVIDIA RTX 4070 Ti Super 16GB',  price: 799,  icon: '🎮', specs: '16GB GDDR6X · DLSS 3.5',        badge: '−11%'  },
+    { name: 'NVIDIA GeForce RTX 4060 Ti 16GB',price: 449,  icon: '🎮', specs: '16GB GDDR6 · DLSS 3 · 165W'    },
+    { name: 'AMD Radeon RX 9070 XT 16GB',     price: 699,  icon: '🎮', specs: '16GB GDDR6 · FSR 4 · 304W'     },
+    { name: 'AMD Radeon RX 7900 XTX 24GB',    price: 799,  icon: '🎮', specs: '24GB GDDR6 · FSR 3 · 355W',    badge: '−20%'  },
+    { name: 'AMD Radeon RX 7600 XT 16GB',     price: 329,  icon: '🎮', specs: '16GB GDDR6 · FSR 3 · 165W',    badge: 'Nuevo' },
+  ],
+  ram: [
+    { name: 'Corsair Dominator Titanium DDR5 32GB', price: 219, icon: '🧠', specs: 'DDR5-6400 · 2×16GB · CL32' },
+    { name: 'G.Skill Trident Z5 RGB 64GB',          price: 349, icon: '🧠', specs: 'DDR5-7200 · 2×32GB · CL36' },
+    { name: 'G.Skill Ripjaws S5 96GB',              price: 489, icon: '🧠', specs: 'DDR5-6800 · 2×48GB · CL34', badge: 'Nuevo' },
+    { name: 'Kingston Fury Renegade DDR5 128GB',    price: 699, icon: '🧠', specs: 'DDR5-6400 · 4×32GB · CL32', badge: 'PRO'   },
+    { name: 'Kingston Fury Beast DDR5 32GB',        price: 149, icon: '🧠', specs: 'DDR5-6000 · 2×16GB · CL36', badge: '−17%'  },
+    { name: 'TeamGroup T-Force Delta RGB 32GB',     price: 189, icon: '🧠', specs: 'DDR5-7600 · 2×16GB · CL36' },
+    { name: 'Corsair Vengeance DDR5 16GB',          price: 79,  icon: '🧠', specs: 'DDR5-5200 · 2×8GB · CL40'  },
+  ],
+  storage: [
+    { name: 'Samsung 990 Pro NVMe 2TB',    price: 159, icon: '💾', specs: '7450 MB/s · PCIe 4.0 · M.2',   badge: '−20%'  },
+    { name: 'WD Black SN850X 4TB',         price: 299, icon: '💾', specs: '7300 MB/s · PCIe 4.0 · M.2'   },
+    { name: 'Crucial T705 2TB PCIe 5.0',   price: 249, icon: '💾', specs: '14500 MB/s · Gen5 · M.2',      badge: 'Nuevo' },
+    { name: 'Sabrent Rocket 5 Plus 8TB',   price: 799, icon: '💾', specs: '14000 MB/s · Gen5 · M.2',      badge: 'Nuevo' },
+    { name: 'Seagate FireCuda 530 4TB',    price: 319, icon: '💾', specs: '7300 MB/s · PCIe 4.0 · M.2',   badge: '−20%'  },
+    { name: 'Samsung 870 EVO SATA 4TB',    price: 249, icon: '💾', specs: '560 MB/s · SATA · 2.5"'       },
+    { name: 'WD Red Pro NAS HDD 20TB',     price: 399, icon: '💾', specs: '20TB · 7200 RPM · CMR',        badge: 'NAS'   },
+  ],
+  monitor: [
+    { name: 'ASUS ROG Swift OLED 27" 240Hz',   price: 799,  icon: '🖥️', specs: '1440p · OLED · 240Hz · 1ms',  badge: 'Nuevo' },
+    { name: 'LG UltraGear 4K 32" 144Hz',       price: 649,  icon: '🖥️', specs: '4K · IPS · 144Hz · 1ms',      badge: '−19%'  },
+    { name: 'Samsung Odyssey G9 49" OLED',      price: 1299, icon: '🖥️', specs: '5120×1440 · OLED · 240Hz',    badge: 'Nuevo' },
+    { name: 'MSI MPG 321URX QD-OLED 4K',       price: 899,  icon: '🖥️', specs: '4K · QD-OLED · 240Hz',        badge: 'Nuevo' },
+    { name: 'Acer Predator X34X 34" 175Hz',    price: 549,  icon: '🖥️', specs: '3440×1440 · IPS · 175Hz',     badge: '−15%'  },
+    { name: 'BenQ Mobiuz EX321UX 32" 4K',      price: 499,  icon: '🖥️', specs: '4K · IPS · 144Hz'             },
+  ],
+  peripheral: [
+    { name: 'Logitech G Pro X Superlight 2',    price: 159, icon: '🖱️', specs: '60g · HERO 25K · Wireless'    },
+    { name: 'Razer DeathAdder V3 HyperSpeed',   price: 99,  icon: '🖱️', specs: '59g · Focus Pro 30K',          badge: '−23%'  },
+    { name: 'Logitech MX Master 3S',            price: 99,  icon: '🖱️', specs: '8K DPI · Electromagn. · Silencioso' },
+    { name: 'Corsair Scimitar Elite Wireless',  price: 119, icon: '🖱️', specs: '17 botones · 26K DPI'          },
+    { name: 'Razer Basilisk V3 Pro 35K',        price: 139, icon: '🖱️', specs: '35K DPI · 11 botones · Wireless', badge: 'Nuevo' },
+    { name: 'Corsair K100 Air Wireless',        price: 229, icon: '⌨️', specs: 'MX Ultra Low · RGB · BT 5.0'   },
+    { name: 'Razer BlackWidow V4 Pro 75%',      price: 199, icon: '⌨️', specs: 'Yellow Switch · RGB · BT+USB',  badge: 'Nuevo' },
+    { name: 'Logitech G915 TKL Lightspeed',     price: 189, icon: '⌨️', specs: 'GL Tactile · RGB · Wireless',   badge: '−14%'  },
+    { name: 'SteelSeries Arctis Nova Pro Wireless', price: 249, icon: '🎧', specs: 'Hi-Res · ANC · 40h bat.',   badge: '−24%'  },
+    { name: 'HyperX Cloud Alpha Wireless',      price: 149, icon: '🎧', specs: '50mm Driver · 300h bat. · 7.1'  },
+    { name: 'Elgato Stream Deck MK.2',          price: 149, icon: '🎛️', specs: '15 teclas LCD · USB-C',        badge: 'Stream' },
+    { name: 'Rode NT-USB+ Microphone',          price: 189, icon: '🎙️', specs: 'Cardioide · 192kHz/32bit',     badge: 'Stream' },
+  ],
+  motherboard: [
+    { name: 'ASUS ROG Maximus Z890 Apex',      price: 699, icon: '🔲', specs: 'LGA1851 · DDR5 · PCIe 5.0 · Wi-Fi 7',   badge: 'Nuevo' },
+    { name: 'MSI MEG Z890 ACE',                price: 549, icon: '🔲', specs: 'LGA1851 · DDR5 · 4×M.2 · 10G LAN',       badge: 'Nuevo' },
+    { name: 'Gigabyte Z890 Aorus Master',       price: 479, icon: '🔲', specs: 'LGA1851 · DDR5 · AI OC · Wi-Fi 7'               },
+    { name: 'ASUS ProArt X870E-Creator WiFi',   price: 449, icon: '🔲', specs: 'AM5 · DDR5 · Thunderbolt 4 · 10G LAN',  badge: '−13%'  },
+    { name: 'MSI MAG X870E Tomahawk WiFi',      price: 279, icon: '🔲', specs: 'AM5 · DDR5 · PCIe 5.0 · 2.5G LAN'              },
+    { name: 'Gigabyte B650E Aorus Pro X',       price: 219, icon: '🔲', specs: 'AM5 · DDR5 · PCIe 5.0 M.2 · Wi-Fi 6E', badge: '−15%'  },
+    { name: 'ASRock B650M Pro RS WiFi',         price: 149, icon: '🔲', specs: 'AM5 · DDR5 · Micro-ATX · Wi-Fi 6'               },
+  ],
+  case: [
+    { name: 'Lian Li PC-O11 Dynamic EVO XL',   price: 199, icon: '🖥', specs: 'Full Tower · E-ATX · Dual Chamber · USB-C', badge: 'Popular' },
+    { name: 'Fractal Torrent RGB Black',        price: 169, icon: '🖥', specs: 'Mid Tower · ATX · 2×180mm Fan · Mesh',      badge: '−15%'    },
+    { name: 'NZXT H9 Flow Black',               price: 179, icon: '🖥', specs: 'Mid Tower · ATX · Dual Chamber · Panorámico', badge: 'Nuevo'  },
+    { name: 'Corsair 7000D Airflow Full Tower', price: 219, icon: '🖥', specs: 'Full Tower · E-ATX · Alta Airflow · USB-C',  badge: '−16%'    },
+    { name: 'be quiet! Silent Base 802 Window', price: 149, icon: '🖥', specs: 'Mid Tower · ATX · Ultra Silenciosa · USB-C'                   },
+    { name: 'Lian Li O11 Dynamic Mini',         price: 99,  icon: '🖥', specs: 'Mini Tower · ITX/mATX · Dual Chamber'                        },
+    { name: 'DeepCool Morpheus CC560 Digital',  price: 79,  icon: '🖥', specs: 'Mid Tower · ATX · Panel LCD · 4 Fans',      badge: 'Oferta'  },
+  ],
+  psu: [
+    { name: 'Corsair HX1500i Platinum',         price: 329, icon: '🔌', specs: '1500W · 80+ Platinum · ATX 3.1 · Full Modular', badge: 'Nuevo' },
+    { name: 'be quiet! Dark Power Pro 13 1300W',price: 299, icon: '🔌', specs: '1300W · 80+ Titanium · ATX 3.1 · Full Modular'               },
+    { name: 'ASUS ROG THOR 1000P2 Gaming',      price: 249, icon: '🔌', specs: '1000W · 80+ Platinum · OLED · Full Modular',  badge: '−17%'  },
+    { name: 'Seasonic Focus GX-850 Gold',       price: 129, icon: '🔌', specs: '850W · 80+ Gold · Full Modular · 10 años',    badge: '−19%'  },
+    { name: 'Corsair RM850e Fully Modular',     price: 109, icon: '🔌', specs: '850W · 80+ Gold · ATX 3.0 · Full Modular'                    },
+    { name: 'be quiet! Pure Power 12 M 750W',   price: 89,  icon: '🔌', specs: '750W · 80+ Gold · Semi-Modular · ATX 3.0'                    },
+    { name: 'Seasonic S12III 650W Bronze',      price: 59,  icon: '🔌', specs: '650W · 80+ Bronze · Semi-Modular'                             },
+  ],
+};
+
+// ── Compatibilidad tamaño: GPU / Placa Base ↔ Caja ───────────────────────────
+// Longitud real de cada GPU en mm
+const gpuLength = {
+  'NVIDIA GeForce RTX 5090 32GB':    370,
+  'NVIDIA GeForce RTX 5080 16GB':    340,
+  'NVIDIA GeForce RTX 4090 24GB':    336,
+  'NVIDIA RTX 4070 Ti Super 16GB':   305,
+  'NVIDIA GeForce RTX 4060 Ti 16GB': 240,
+  'AMD Radeon RX 9070 XT 16GB':      320,
+  'AMD Radeon RX 7900 XTX 24GB':     287,
+  'AMD Radeon RX 7600 XT 16GB':      220,
+};
+// Longitud máxima de GPU (mm) y factores de placa soportados por cada caja
+const caseSpecs = {
+  'Lian Li PC-O11 Dynamic EVO XL':   { maxGpu: 420, mbForms: ['ITX','mATX','ATX','E-ATX'] },
+  'Fractal Torrent RGB Black':        { maxGpu: 420, mbForms: ['ITX','mATX','ATX'] },
+  'NZXT H9 Flow Black':               { maxGpu: 435, mbForms: ['ITX','mATX','ATX'] },
+  'Corsair 7000D Airflow Full Tower': { maxGpu: 420, mbForms: ['ITX','mATX','ATX','E-ATX'] },
+  'be quiet! Silent Base 802 Window': { maxGpu: 369, mbForms: ['ITX','mATX','ATX','E-ATX'] },
+  'Lian Li O11 Dynamic Mini':         { maxGpu: 360, mbForms: ['ITX','mATX'] },
+  'DeepCool Morpheus CC560 Digital':  { maxGpu: 355, mbForms: ['ITX','mATX','ATX'] },
+};
+// Factor de forma real de cada placa base
+const mbForm = {
+  'ASUS ROG Maximus Z890 Apex':      'E-ATX',
+  'MSI MEG Z890 ACE':                'ATX',
+  'Gigabyte Z890 Aorus Master':      'ATX',
+  'ASUS ProArt X870E-Creator WiFi':  'ATX',
+  'MSI MAG X870E Tomahawk WiFi':     'ATX',
+  'Gigabyte B650E Aorus Pro X':      'ATX',
+  'ASRock B650M Pro RS WiFi':        'mATX',
+};
+
+function checkSizeCompatibility() {
+  const gpu  = setup.gpu;
+  const mb   = setup.motherboard;
+  const pc   = setup.case;
+
+  // Quitar alertas de tamaño previas
+  ['size-alert-gpu','size-alert-mb'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
+
+  if (!pc) return; // sin caja no hay nada que comprobar
+  const caseData = caseSpecs[pc.name];
+  if (!caseData) return;
+
+  const slots = document.getElementById('setupSlots');
+
+  // ── GPU demasiado larga ──
+  if (gpu) {
+    const len = gpuLength[gpu.name];
+    if (len && len > caseData.maxGpu) {
+      const a = document.createElement('div');
+      a.id = 'size-alert-gpu';
+      a.innerHTML = `
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <span style="font-size:26px;line-height:1">📐</span>
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:#f59e0b;margin-bottom:4px">GPU DEMASIADO GRANDE</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.6">
+              <strong style="color:var(--white)">${gpu.name}</strong> mide <span style="font-family:'JetBrains Mono',monospace;color:#f59e0b;font-size:12px">${len} mm</span>
+              pero <strong style="color:var(--white)">${pc.name}</strong> admite un máximo de <span style="font-family:'JetBrains Mono',monospace;color:#f59e0b;font-size:12px">${caseData.maxGpu} mm</span>.
+            </div>
+            <div style="font-size:12px;color:var(--muted);margin-top:6px">Elige una caja más grande o una GPU más compacta.</div>
+          </div>
+          <button onclick="this.parentElement.parentElement.remove()" style="margin-left:auto;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;flex-shrink:0;line-height:1">×</button>
+        </div>`;
+      a.style.cssText = `background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.45);border-left:4px solid #f59e0b;border-radius:4px;padding:18px 20px;margin:0 0 12px 0;animation:alertSlide 0.35s cubic-bezier(.22,1,.36,1)`;
+      slots.parentNode.insertBefore(a, slots);
+      document.getElementById('slot-gpu').style.borderLeftColor  = '#f59e0b';
+      document.getElementById('slot-case').style.borderLeftColor = '#f59e0b';
+    } else {
+      if (setup.gpu)  document.getElementById('slot-gpu').style.borderLeftColor  = 'var(--accent)';
+      if (setup.case) document.getElementById('slot-case').style.borderLeftColor = 'var(--accent)';
+    }
+  }
+
+  // ── Placa base no cabe en la caja ──
+  if (mb) {
+    const form = mbForm[mb.name];
+    if (form && !caseData.mbForms.includes(form)) {
+      const a = document.createElement('div');
+      a.id = 'size-alert-mb';
+      a.innerHTML = `
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <span style="font-size:26px;line-height:1">📐</span>
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:#f59e0b;margin-bottom:4px">PLACA BASE NO COMPATIBLE CON LA CAJA</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.6">
+              <strong style="color:var(--white)">${mb.name}</strong> es formato <span style="font-family:'JetBrains Mono',monospace;color:#f59e0b;font-size:12px">${form}</span>
+              pero <strong style="color:var(--white)">${pc.name}</strong> solo admite <span style="font-family:'JetBrains Mono',monospace;color:#f59e0b;font-size:12px">${caseData.mbForms.join(' · ')}</span>.
+            </div>
+            <div style="font-size:12px;color:var(--muted);margin-top:6px">Elige una caja más grande o una placa base de menor formato.</div>
+          </div>
+          <button onclick="this.parentElement.parentElement.remove()" style="margin-left:auto;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;flex-shrink:0;line-height:1">×</button>
+        </div>`;
+      a.style.cssText = `background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.45);border-left:4px solid #f59e0b;border-radius:4px;padding:18px 20px;margin:0 0 12px 0;animation:alertSlide 0.35s cubic-bezier(.22,1,.36,1)`;
+      slots.parentNode.insertBefore(a, slots);
+      document.getElementById('slot-motherboard').style.borderLeftColor = '#f59e0b';
+      document.getElementById('slot-case').style.borderLeftColor        = '#f59e0b';
+    } else {
+      if (setup.motherboard && !document.getElementById('compat-alert')) document.getElementById('slot-motherboard').style.borderLeftColor = 'var(--accent)';
+      if (setup.case)        document.getElementById('slot-case').style.borderLeftColor = 'var(--accent)';
+    }
+  }
+}
+
+// ── Compatibilidad CPU ↔ Placa Base ──────────────────────────────────────────
+const cpuSocket = {
+  'Intel Core Ultra 9 285K':        'LGA1851',
+  'Intel Core i9-14900KS':          'LGA1700',
+  'Intel Core Ultra 7 265K':        'LGA1851',
+  'Intel Core i7-14700K':           'LGA1700',
+  'AMD Ryzen 9 9950X':              'AM5',
+  'AMD Ryzen 7 9700X':              'AM5',
+  'AMD Ryzen 5 9600X':              'AM5',
+  'AMD Ryzen Threadripper 7970X':   'sTR5',
+};
+const mbSocket = {
+  'ASUS ROG Maximus Z890 Apex':     'LGA1851',
+  'MSI MEG Z890 ACE':               'LGA1851',
+  'Gigabyte Z890 Aorus Master':     'LGA1851',
+  'ASUS ProArt X870E-Creator WiFi': 'AM5',
+  'MSI MAG X870E Tomahawk WiFi':    'AM5',
+  'Gigabyte B650E Aorus Pro X':     'AM5',
+  'ASRock B650M Pro RS WiFi':       'AM5',
+};
+
+function checkCompatibility() {
+  const cpu = setup.cpu;
+  const mb  = setup.motherboard;
+  if (!cpu || !mb) return; // sólo comprobar si ambos están elegidos
+
+  const cpuSock = cpuSocket[cpu.name];
+  const mbSock  = mbSocket[mb.name];
+
+  // Quitar alerta previa si existía
+  const prev = document.getElementById('compat-alert');
+  if (prev) prev.remove();
+
+  if (cpuSock && mbSock && cpuSock !== mbSock) {
+    // Incompatible — mostrar alerta llamativa
+    const alert = document.createElement('div');
+    alert.id = 'compat-alert';
+    alert.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <span style="font-size:26px;line-height:1">⚠️</span>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:#ff4d4d;margin-bottom:4px">INCOMPATIBILIDAD DETECTADA</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.6">
+            <strong style="color:var(--white)">${cpu.name}</strong> usa socket <span style="font-family:'JetBrains Mono',monospace;color:#ff4d4d;font-size:12px">${cpuSock}</span>
+            pero <strong style="color:var(--white)">${mb.name}</strong> requiere socket <span style="font-family:'JetBrains Mono',monospace;color:#ff4d4d;font-size:12px">${mbSock}</span>.
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">Cambia el procesador o la placa base para que sean compatibles.</div>
+        </div>
+        <button onclick="this.parentElement.parentElement.remove()" style="margin-left:auto;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;flex-shrink:0;line-height:1">×</button>
+      </div>
+    `;
+    alert.style.cssText = `
+      background: rgba(255,77,77,0.08);
+      border: 1px solid rgba(255,77,77,0.45);
+      border-left: 4px solid #ff4d4d;
+      border-radius: 4px;
+      padding: 18px 20px;
+      margin: 0 0 24px 0;
+      animation: alertSlide 0.35s cubic-bezier(.22,1,.36,1);
+    `;
+    // Insertar antes de los slots
+    const slots = document.getElementById('setupSlots');
+    slots.parentNode.insertBefore(alert, slots);
+
+    // Marcar los dos slots en rojo
+    document.getElementById('slot-cpu').style.borderLeftColor         = '#ff4d4d';
+    document.getElementById('slot-motherboard').style.borderLeftColor = '#ff4d4d';
+  } else {
+    // Compatible — restaurar color accent
+    if (cpu) document.getElementById('slot-cpu').style.borderLeftColor         = 'var(--accent)';
+    if (mb)  document.getElementById('slot-motherboard').style.borderLeftColor = 'var(--accent)';
+  }
+}
+
+let setup = {};
+let currentSlot = null;
+
+function selectComponent(slot) {
+  currentSlot = slot;
+  const titles = { cpu: 'Procesador', gpu: 'Tarjeta Gráfica', ram: 'Memoria RAM', storage: 'Almacenamiento', monitor: 'Monitor', peripheral: 'Periféricos', motherboard: 'Placa Base', case: 'Caja PC', psu: 'Fuente de Alimentación' };
+  document.getElementById('modalTitle').textContent = 'Seleccionar ' + titles[slot];
+  const options = componentOptions[slot];
+  const _mc = document.getElementById('modalContent');
+  _mc.innerHTML = options.map((o,i) => `
+    <div class="product-card modal-option" data-slot="${slot}" data-idx="${i}" style="cursor:pointer;position:relative">
+      ${o.badge ? `<div class="product-badge" style="font-size:9px;padding:3px 8px">${o.badge}</div>` : ''}
+      <div class="product-img" style="aspect-ratio:unset;padding:20px;font-size:44px">${o.icon}</div>
+      <div class="product-info" style="padding:16px">
+        <div class="product-name" style="font-size:13px;line-height:1.4">${o.name}</div>
+        ${o.specs ? `<div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:6px;line-height:1.6">${o.specs}</div>` : ''}
+        <div class="product-footer" style="margin-top:12px;padding-top:10px">
+          <span class="product-price" style="font-size:22px">${o.price}€</span>
+          <div style="background:var(--accent);color:var(--black);width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">→</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  _mc.onclick = function(e) {
+    const card = e.target.closest('.modal-option');
+    if (!card) return;
+    chooseComponent(card.dataset.slot, parseInt(card.dataset.idx));
+  };
+  document.getElementById('selectorModal').style.display = 'flex';
+}
+
+function chooseComponent(slot, idx) {
+  const opt = componentOptions[slot][idx];
+  setup[slot] = opt;
+  const nameEl = document.getElementById('name-' + slot);
+  nameEl.textContent = opt.name;
+  nameEl.classList.remove('slot-empty');
+  // Show specs below name if available
+  const existingSpecs = document.getElementById('specs-' + slot);
+  if (existingSpecs) existingSpecs.remove();
+  if (opt.specs) {
+    const specsEl = document.createElement('div');
+    specsEl.id = 'specs-' + slot;
+    specsEl.style.cssText = 'font-size:10px;color:var(--muted);font-family:"JetBrains Mono",monospace;margin-top:4px;line-height:1.5';
+    specsEl.textContent = opt.specs;
+    nameEl.after(specsEl);
+  }
+  document.getElementById('price-' + slot).textContent = opt.price.toLocaleString('es-ES') + '€';
+  document.getElementById('price-' + slot).style.display = 'block';
+  document.getElementById('slot-' + slot).classList.add('filled');
+  updateTotal();
+  updateProgress();
+  updatePerfPanel();
+  closeModal();
+  // Comprobar compatibilidad CPU ↔ Placa Base
+  if (slot === 'cpu' || slot === 'motherboard') checkCompatibility();
+  // Comprobar compatibilidad de tamaño GPU / Placa Base ↔ Caja
+  if (slot === 'gpu' || slot === 'motherboard' || slot === 'case') checkSizeCompatibility();
+  // Comprobar fuente de alimentación
+  if (slot === 'psu' || slot === 'cpu' || slot === 'gpu') checkPSU();
+  checkSuggestions();
+}
+
+function closeModal() { document.getElementById('selectorModal').style.display = 'none'; }
+
+// ── Datos de consumo CPU+GPU para comprobar fuente ────────────────────────────
+const cpuTdp = {
+  'Intel Core Ultra 9 285K': 125, 'AMD Ryzen 9 9950X': 170, 'Intel Core i9-14900KS': 150,
+  'AMD Ryzen 7 9700X': 65, 'Intel Core Ultra 7 265K': 125, 'AMD Ryzen 5 9600X': 65,
+  'Intel Core i7-14700K': 125, 'AMD Ryzen Threadripper 7970X': 350,
+};
+const gpuTdp = {
+  'NVIDIA GeForce RTX 5090 32GB': 575, 'NVIDIA GeForce RTX 5080 16GB': 360,
+  'NVIDIA GeForce RTX 4090 24GB': 450, 'NVIDIA RTX 4070 Ti Super 16GB': 285,
+  'NVIDIA GeForce RTX 4060 Ti 16GB': 165, 'AMD Radeon RX 9070 XT 16GB': 304,
+  'AMD Radeon RX 7900 XTX 24GB': 355, 'AMD Radeon RX 7600 XT 16GB': 165,
+};
+const psuWatts = {
+  'Corsair HX1500i Platinum': 1500, 'be quiet! Dark Power Pro 13 1300W': 1300,
+  'ASUS ROG THOR 1000P2 Gaming': 1000, 'Seasonic Focus GX-850 Gold': 850,
+  'Corsair RM850e Fully Modular': 850, 'be quiet! Pure Power 12 M 750W': 750,
+  'Seasonic S12III 650W Bronze': 650,
+};
+
+// ── Datos de puntuación para panel de rendimiento ─────────────────────────────
+const perfScores = {
+  cpu: {
+    'Intel Core Ultra 9 285K': 92, 'AMD Ryzen 9 9950X': 95, 'Intel Core i9-14900KS': 86,
+    'AMD Ryzen 7 9700X': 72, 'Intel Core Ultra 7 265K': 80, 'AMD Ryzen 5 9600X': 63,
+    'Intel Core i7-14700K': 82, 'AMD Ryzen Threadripper 7970X': 99,
+  },
+  gpu: {
+    'NVIDIA GeForce RTX 5090 32GB': 99, 'NVIDIA GeForce RTX 5080 16GB': 87,
+    'NVIDIA GeForce RTX 4090 24GB': 94, 'NVIDIA RTX 4070 Ti Super 16GB': 78,
+    'NVIDIA GeForce RTX 4060 Ti 16GB': 62, 'AMD Radeon RX 9070 XT 16GB': 73,
+    'AMD Radeon RX 7900 XTX 24GB': 81, 'AMD Radeon RX 7600 XT 16GB': 56,
+  },
+  ram: {
+    'Corsair Dominator Titanium DDR5 32GB': 74, 'G.Skill Trident Z5 RGB 64GB': 88,
+    'G.Skill Ripjaws S5 96GB': 90, 'Kingston Fury Renegade DDR5 128GB': 95,
+    'Kingston Fury Beast DDR5 32GB': 65, 'TeamGroup T-Force Delta RGB 32GB': 82,
+    'Corsair Vengeance DDR5 16GB': 52,
+  },
+  storage: {
+    'Samsung 990 Pro NVMe 2TB': 88, 'WD Black SN850X 4TB': 82,
+    'Crucial T705 2TB PCIe 5.0': 96, 'Sabrent Rocket 5 Plus 8TB': 98,
+    'Seagate FireCuda 530 4TB': 80, 'Samsung 870 EVO SATA 4TB': 60,
+    'WD Red Pro NAS HDD 20TB': 55,
+  },
+};
+
+// Colores de barras de rendimiento según valor
+function perfColor(v) {
+  if (v >= 85) return 'linear-gradient(90deg,#00c8ff,#8b5cf6)';
+  if (v >= 65) return '#00c8ff';
+  return '#7a9bbf';
+}
+
+// ── Actualizar panel de rendimiento ──────────────────────────────────────────
+function updatePerfPanel() {
+  const cats = ['cpu','gpu','ram','storage'];
+  const labels = { cpu:'Procesador', gpu:'GPU / Gráfica', ram:'Memoria RAM', storage:'Almacenamiento' };
+  const filled = cats.filter(c => setup[c] && perfScores[c][setup[c].name]);
+  if (!filled.length) {
+    document.getElementById('perfPanel').classList.remove('visible');
+    return;
+  }
+  document.getElementById('perfPanel').classList.add('visible');
+  // Calcular score gaming y productividad
+  const gpuS  = setup.gpu     ? (perfScores.gpu[setup.gpu.name]     || 0) : 0;
+  const cpuS  = setup.cpu     ? (perfScores.cpu[setup.cpu.name]     || 0) : 0;
+  const ramS  = setup.ram     ? (perfScores.ram[setup.ram.name]     || 0) : 0;
+  const ssdS  = setup.storage ? (perfScores.storage[setup.storage.name] || 0) : 0;
+  const gamingScore  = gpuS ? Math.round(gpuS * 0.55 + cpuS * 0.3 + ramS * 0.1 + ssdS * 0.05) : 0;
+  const creativScore = cpuS ? Math.round(cpuS * 0.45 + ramS * 0.25 + ssdS * 0.2 + gpuS * 0.1) : 0;
+
+  let html = '';
+  // Barras por componente
+  filled.forEach(c => {
+    const v = perfScores[c][setup[c].name];
+    html += `<div>
+      <div class="perf-bar-label"><span>${labels[c]}</span><span style="color:var(--white);font-weight:500">${v}/100</span></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="width:${v}%;background:${perfColor(v)}"></div></div>
+    </div>`;
+  });
+  // Scores globales
+  if (gamingScore) html += `<div>
+    <div class="perf-bar-label"><span style="color:var(--accent)">🎮 Gaming Score</span><span style="color:var(--accent);font-weight:500">${gamingScore}/100</span></div>
+    <div class="perf-bar-track"><div class="perf-bar-fill" style="width:${gamingScore}%;background:linear-gradient(90deg,#00c8ff,#8b5cf6)"></div></div>
+  </div>`;
+  if (creativScore) html += `<div>
+    <div class="perf-bar-label"><span style="color:var(--accent2)">🎨 Creación Score</span><span style="color:var(--accent2);font-weight:500">${creativScore}/100</span></div>
+    <div class="perf-bar-track"><div class="perf-bar-fill" style="width:${creativScore}%;background:linear-gradient(90deg,#8b5cf6,#c084fc)"></div></div>
+  </div>`;
+  document.getElementById('perfBars').innerHTML = html;
+}
+
+// ── Comprobar fuente de alimentación ─────────────────────────────────────────
+function checkPSU() {
+  const psu = setup.psu;
+  const cpu = setup.cpu;
+  const gpu = setup.gpu;
+  const alert = document.getElementById('psu-alert');
+  if (!psu || (!cpu && !gpu)) { alert.style.display = 'none'; return; }
+  const watts = psuWatts[psu.name] || 0;
+  const needed = (cpuTdp[cpu?.name] || 0) + (gpuTdp[gpu?.name] || 0) + 100; // +100W resto sistema
+  const recommended = Math.ceil(needed / 50) * 50; // redondear a 50W
+  if (watts < needed) {
+    document.getElementById('psu-alert-msg').innerHTML =
+      `<strong style="color:var(--white)">${psu.name}</strong> solo entrega <span style="font-family:'JetBrains Mono',monospace;color:#f59e0b">${watts} W</span> ` +
+      `pero tu CPU + GPU + sistema necesitan <span style="font-family:'JetBrains Mono',monospace;color:#f59e0b">${needed} W</span>.`;
+    document.getElementById('psu-alert-min').textContent = recommended + ' W';
+    alert.style.display = 'block';
+    document.getElementById('slot-psu').style.borderLeftColor = '#f59e0b';
+  } else {
+    alert.style.display = 'none';
+    if (psu) document.getElementById('slot-psu').style.borderLeftColor = 'var(--accent)';
+  }
+}
+
+// ── Barra de progreso ─────────────────────────────────────────────────────────
+function updateProgress() {
+  const total = 9;
+  const done  = Object.keys(setup).length;
+  const pct   = Math.round(done / total * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent  = pct + '%';
+  document.getElementById('progressText').textContent = done + ' de ' + total + ' componentes';
+}
+
+// ── Resetear setup ────────────────────────────────────────────────────────────
+function resetSetup() {
+  if (!Object.keys(setup).length) { showToast('El configurador ya está vacío'); return; }
+  if (!confirm('¿Seguro que quieres vaciar el configurador?')) return;
+  const slots = ['cpu','gpu','ram','storage','monitor','peripheral','motherboard','case','psu'];
+  const labels = { cpu:'Seleccionar CPU', gpu:'Seleccionar GPU', ram:'Seleccionar RAM',
+    storage:'Seleccionar SSD', monitor:'Seleccionar Monitor', peripheral:'Seleccionar Periféricos',
+    motherboard:'Seleccionar Placa Base', case:'Seleccionar Caja', psu:'Seleccionar Fuente' };
+  slots.forEach(s => {
+    const nameEl = document.getElementById('name-' + s);
+    nameEl.textContent = labels[s];
+    nameEl.classList.add('slot-empty');
+    const specsEl = document.getElementById('specs-' + s);
+    if (specsEl) specsEl.remove();
+    document.getElementById('price-' + s).style.display = 'none';
+    const slotEl = document.getElementById('slot-' + s);
+    slotEl.classList.remove('filled');
+    slotEl.style.borderLeftColor = '';
+  });
+  setup = {};
+  ['compat-alert','size-alert-gpu','size-alert-mb'].forEach(id => { const e = document.getElementById(id); if(e) e.remove(); });
+  document.getElementById('psu-alert').style.display = 'none';
+  document.getElementById('perfPanel').classList.remove('visible');
+  updateTotal();
+  updateProgress();
+  showToast('↺ Configurador reseteado');
+}
+
+// ── Quitar componente individual ──────────────────────────────────────────────
+function removeComponent(slot) {
+  if (!setup[slot]) return;
+  delete setup[slot];
+  const labels = { cpu:'Seleccionar CPU', gpu:'Seleccionar GPU', ram:'Seleccionar RAM',
+    storage:'Seleccionar SSD', monitor:'Seleccionar Monitor', peripheral:'Seleccionar Periféricos',
+    motherboard:'Seleccionar Placa Base', case:'Seleccionar Caja', psu:'Seleccionar Fuente' };
+  const nameEl = document.getElementById('name-' + slot);
+  nameEl.textContent = labels[slot];
+  nameEl.classList.add('slot-empty');
+  const specsEl = document.getElementById('specs-' + slot);
+  if (specsEl) specsEl.remove();
+  document.getElementById('price-' + slot).style.display = 'none';
+  const slotEl = document.getElementById('slot-' + slot);
+  slotEl.classList.remove('filled');
+  slotEl.style.borderLeftColor = '';
+  // Re-evaluar alertas
+  if (slot === 'cpu' || slot === 'motherboard') checkCompatibility();
+  if (slot === 'gpu' || slot === 'motherboard' || slot === 'case') checkSizeCompatibility();
+  if (slot === 'psu' || slot === 'cpu' || slot === 'gpu') checkPSU();
+  checkSuggestions();
+  updateTotal();
+  updateProgress();
+  updatePerfPanel();
+}
+
+// ── Sugerencias inteligentes ──────────────────────────────────────────────────
+function checkSuggestions() {
+  const panel = document.getElementById('suggestPanel');
+  const list = document.getElementById('suggestList');
+  const suggestions = [];
+
+  // Suggestion: if GPU is high-end but CPU is low-end → bottleneck warning
+  if (setup.gpu && setup.cpu) {
+    const gpuS = perfScores.gpu[setup.gpu.name] || 0;
+    const cpuS = perfScores.cpu[setup.cpu.name] || 0;
+    const diff = gpuS - cpuS;
+    if (diff > 25) {
+      suggestions.push({
+        icon: '⚠️',
+        msg: `Tu GPU (${setup.gpu.name.split(' ').slice(-3).join(' ')}) es mucho más potente que tu CPU. Podrías estar creando un <strong style="color:var(--white)">cuello de botella</strong>. Considera subir a Ryzen 7 9950X o Core Ultra 9.`
+      });
+    }
+    if (cpuS - gpuS > 30) {
+      suggestions.push({
+        icon: '💡',
+        msg: `Tu CPU supera con creces a tu GPU. Para aprovechar el procesador al máximo en gaming considera una GPU más potente como la <strong style="color:var(--white)">RTX 5080</strong> o <strong style="color:var(--white)">RX 9070 XT</strong>.`
+      });
+    }
+  }
+
+  // Suggestion: CPU without motherboard → recommend compatible
+  if (setup.cpu && !setup.motherboard) {
+    const cpuName = setup.cpu.name;
+    const socketMap = {
+      'Intel Core Ultra 9 285K': 'Z890', 'Intel Core Ultra 7 265K': 'Z890',
+      'Intel Core i9-14900KS': 'Z790', 'Intel Core i7-14700K': 'Z790',
+      'AMD Ryzen 9 9950X': 'X870E', 'AMD Ryzen 7 9700X': 'X870E',
+      'AMD Ryzen 5 9600X': 'B650', 'AMD Ryzen Threadripper 7970X': 'TRX50',
+    };
+    const rec = socketMap[cpuName];
+    if (rec) suggestions.push({
+      icon: '🔲',
+      msg: `Con tu CPU necesitas una placa base <strong style="color:var(--white)">${rec}</strong>. No olvides añadirla al configurador.`
+    });
+  }
+
+  // Suggestion: high-end GPU without enough PSU watts suggested
+  if (setup.gpu && !setup.psu) {
+    const gpuW = gpuTdp[setup.gpu.name] || 0;
+    const cpuW = setup.cpu ? (cpuTdp[setup.cpu.name] || 0) : 100;
+    const needed = gpuW + cpuW + 100;
+    let rec = '';
+    if (needed > 1000) rec = 'HX1500i Platinum (1500W)';
+    else if (needed > 800) rec = 'Dark Power Pro 1300W';
+    else if (needed > 650) rec = 'ROG THOR 1000W';
+    else if (needed > 500) rec = 'Focus GX-850W';
+    if (rec) suggestions.push({
+      icon: '🔌',
+      msg: `Tu setup necesita aprox. <strong style="color:var(--white)">${needed}W</strong>. Te recomendamos añadir la fuente <strong style="color:var(--white)">${rec}</strong>.`
+    });
+  }
+
+  // Suggestion: RAM is only 16GB with high-end GPU
+  if (setup.ram && setup.gpu) {
+    const ramName = setup.ram.name;
+    if (ramName.includes('16GB')) {
+      suggestions.push({
+        icon: '🧠',
+        msg: `Con esa GPU, 16GB de RAM puede limitar tu rendimiento en juegos modernos y streaming. Considera <strong style="color:var(--white)">32GB DDR5</strong>.`
+      });
+    }
+  }
+
+  // Suggestion: no SSD with powerful CPU/GPU
+  if ((setup.cpu || setup.gpu) && !setup.storage) {
+    suggestions.push({ icon: '💾', msg: 'No has añadido almacenamiento. Un NVMe PCIe 4.0 o 5.0 reducirá los tiempos de carga dramáticamente.' });
+  }
+
+  // Suggestion: OLED monitor with mid-range GPU
+  if (setup.monitor && setup.gpu) {
+    const monName = setup.monitor.name;
+    const gpuS = perfScores.gpu[setup.gpu.name] || 0;
+    if ((monName.includes('OLED') || monName.includes('4K')) && gpuS < 70) {
+      suggestions.push({
+        icon: '🖥️',
+        msg: `Tu monitor es muy exigente para tu GPU. Para sacarle partido a un panel 4K/OLED necesitas al menos una <strong style="color:var(--white)">RTX 4070 Ti Super</strong> o superior.`
+      });
+    }
+  }
+
+  if (!suggestions.length) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+  list.innerHTML = suggestions.map(s => `
+    <div style="display:flex;gap:10px;font-size:13px;color:var(--muted);line-height:1.6">
+      <span style="flex-shrink:0">${s.icon}</span>
+      <span>${s.msg}</span>
+    </div>
+  `).join('');
+}
+
+
+// ── Compartir / exportar setup ────────────────────────────────────────────────
+function shareSetup() {
+  const items = Object.values(setup);
+  if (!items.length) { showToast('⚠ Añade componentes antes de compartir'); return; }
+  const total = items.reduce((s, c) => s + c.price, 0);
+  const lines = items.map(c => `• ${c.name} — ${c.price.toLocaleString('es-ES')}€`).join('\n');
+  const text  = `🖥 Mi Setup NEXUS\n\n${lines}\n\nTotal: ${total.toLocaleString('es-ES')}€\n\nnexustech.es/gaming.html`;
+  if (navigator.share) {
+    navigator.share({ title: 'Mi Setup NEXUS', text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => showToast('⎘ Setup copiado al portapapeles'));
+  }
+}
+
+function updateTotal() {
+  const total = Object.values(setup).reduce((s, c) => s + c.price, 0);
+  const count = Object.keys(setup).length;
+  document.getElementById('totalPrice').textContent = total.toLocaleString('es-ES') + '€';
+  document.getElementById('componentCount').textContent = count + ' componente' + (count !== 1 ? 's' : '') + ' seleccionado' + (count !== 1 ? 's' : '');
+}
+
+function addSetupToCart() {
+  const items = Object.values(setup);
+  if (!items.length) { showToast('⚠ Selecciona al menos un componente'); return; }
+  if (document.getElementById('compat-alert')) { showToast('⚠ Hay incompatibilidad CPU ↔ Placa Base — corrígela antes de añadir al carrito'); return; }
+  if (document.getElementById('size-alert-gpu') || document.getElementById('size-alert-mb')) { showToast('⚠ Hay incompatibilidad de tamaño — corrígela antes de añadir al carrito'); return; }
+  items.forEach(i => cart.push({ name: i.name, price: i.price }));
+  localStorage.setItem('nexusCart', JSON.stringify(cart));
+  updateCartCount();
+  showToast('✓ Setup completo añadido al carrito (' + items.length + ' items)');
+}
+
+document.getElementById('selectorModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Pack buttons — event delegation
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.cart-add');
+  if (!btn) return;
+  // Skip modal buttons (handled per-render) and setup builder
+  if (btn.closest('#selectorModal')) return;
+  addToCart(btn.dataset.name, parseFloat(btn.dataset.price));
+  const orig = btn.textContent;
+  btn.textContent = '✓ Añadido';
+  btn.style.opacity = '0.75';
+  setTimeout(() => { btn.textContent = orig; btn.style.opacity = ''; }, 1400);
+});
+</script>
+<script src="../assets/js/nexus-ai-chat.js"></script>
+<script src="../assets/js/nexus-pwa.js"></script>
+</body>
+</html>

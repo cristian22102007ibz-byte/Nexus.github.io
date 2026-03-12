@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="../assets/data/manifest.json">
+  <meta name="theme-color" content="#00c8ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financiación — NEXUS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    .fin-hero { padding: 120px 40px 80px; background: var(--dark); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+    .fin-hero-glow { position: absolute; right: 0; top: 0; width: 50%; height: 100%; background: radial-gradient(ellipse at right, rgba(0,180,255,0.08), transparent 70%); }
+    .fin-hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; position: relative; z-index: 1; }
+
+    /* Calculator */
+    .fin-calc { background: var(--card); border: 1px solid var(--border); padding: 40px; }
+    .calc-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--white); margin-bottom: 28px; display: flex; align-items: center; gap: 12px; }
+    .calc-title::before { content: '//'; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 16px; }
+    .calc-input-row { display: flex; gap: 0; margin-bottom: 20px; }
+    .calc-currency { background: var(--dark); border: 1px solid var(--border); border-right: none; color: var(--accent); padding: 13px 16px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; border-radius: 4px 0 0 4px; display: flex; align-items: center; }
+    .calc-amount { flex: 1; background: var(--dark); border: 1px solid var(--border); border-left: none; color: var(--white); padding: 13px 16px; font-family: 'Bebas Neue', sans-serif; font-size: 24px; outline: none; border-radius: 0 4px 4px 0; transition: border-color 0.2s; }
+    .calc-amount:focus { border-color: var(--accent); }
+    .calc-slider-wrap { margin-bottom: 24px; }
+    .calc-slider-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase; }
+    .calc-slider { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    .calc-months-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 24px; }
+    .calc-month-btn { background: var(--dark); border: 1px solid var(--border); color: var(--muted); padding: 10px 6px; font-size: 12px; cursor: pointer; border-radius: 4px; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; text-align: center; }
+    .calc-month-btn.active { background: rgba(0,180,255,0.15); border-color: var(--accent); color: var(--accent); }
+    .calc-month-btn:hover:not(.active) { border-color: var(--muted); color: var(--text); }
+    .calc-result { background: var(--dark); border: 1px solid var(--border); padding: 24px; margin-top: 4px; }
+    .calc-result-monthly { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--accent); letter-spacing: 2px; line-height: 1; }
+    .calc-result-label { font-size: 13px; color: var(--muted); margin-top: 4px; margin-bottom: 16px; }
+    .calc-result-breakdown { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 16px; }
+    .calc-bd-item { background: var(--card); padding: 12px; text-align: center; }
+    .calc-bd-num { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text); }
+    .calc-bd-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 3px; }
+    .calc-disclaimer { font-size: 11px; color: var(--muted); margin-top: 16px; line-height: 1.6; font-family: 'JetBrains Mono', monospace; }
+
+    /* Plans table */
+    .plans-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .plan-card { background: var(--dark); padding: 36px 28px; transition: background 0.2s; position: relative; }
+    .plan-card:hover { background: var(--card); }
+    .plan-card.featured { background: rgba(0,180,255,0.06); border: 2px solid var(--accent); margin: -1px; }
+    .plan-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--black); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 12px; border-radius: 2px; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+    .plan-months { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: var(--accent); letter-spacing: 2px; line-height: 1; }
+    .plan-months-label { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+    .plan-rate { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--white); }
+    .plan-rate-sub { font-size: 12px; color: var(--muted); margin-top: 4px; margin-bottom: 20px; }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .plan-features li { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: flex-start; }
+    .plan-features li::before { content: '✓'; color: #00ff94; flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+
+    /* FAQ */
+    .fin-faq { padding: 80px 40px; background: var(--dark); border-top: 1px solid var(--border); }
+    .fin-faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); max-width: 1000px; }
+    .fin-faq-item { background: var(--dark); padding: 28px; }
+    .fin-faq-q { font-size: 14px; color: var(--white); margin-bottom: 10px; }
+    .fin-faq-a { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    @media(max-width:900px){ .fin-hero-inner{grid-template-columns:1fr;gap:40px;} .plans-grid{grid-template-columns:1fr 1fr;} .fin-faq-grid{grid-template-columns:1fr;} .calc-months-grid{grid-template-columns:repeat(4,1fr);} .fin-hero,.fin-faq{padding-left:20px;padding-right:20px;} }
+    @media(max-width:600px){ .plans-grid{grid-template-columns:1fr;} .calc-months-grid{grid-template-columns:repeat(2,1fr);} }
+  
+@media(max-width:768px){
+  .fin-hero{padding:80px 20px 40px;}
+  .fin-hero-inner{grid-template-columns:1fr;gap:32px;}
+  .plans-grid{grid-template-columns:1fr 1fr;}
+  .fin-faq-grid{grid-template-columns:1fr;}
+}
+@media(max-width:480px){
+  .fin-hero{padding:68px 16px 32px;}
+  .plans-grid{grid-template-columns:1fr;}
+  .calc-months-grid{grid-template-columns:repeat(2,1fr);}
+  .calc-result-breakdown{grid-template-columns:1fr;}
+  .fin-faq{padding:40px 16px;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="guias.html">Guías</a>
+    <a href="outlet.html">Outlet</a>
+    <a href="soporte.html">Soporte</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="busqueda.html" style="color:var(--muted);font-size:18px;display:flex;align-items:center;padding:0 4px" title="Buscar">🔍</a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<!-- Hero + Calculator -->
+<div class="fin-hero">
+  <div class="fin-hero-glow"></div>
+  <div class="fin-hero-inner">
+    <div>
+      <div class="section-tag">// Sin complicaciones</div>
+      <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,96px);letter-spacing:2px;color:var(--white);line-height:0.95">
+        FINANCIA<br>TU <span style="color:var(--accent)">SETUP</span><br>SOÑADO
+      </h1>
+      <p style="font-size:16px;color:var(--muted);line-height:1.7;margin-top:24px;max-width:480px">Divide el pago de cualquier compra en cómodas cuotas mensuales. <strong style="color:var(--white)">0% de interés</strong> hasta 12 meses. Aprobación instantánea online.</p>
+      <div style="display:flex;gap:16px;margin-top:32px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text)"><span style="font-size:20px">✅</span> Aprobación en 2 minutos</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text)"><span style="font-size:20px">🔒</span> 100% online y seguro</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text)"><span style="font-size:20px">0️⃣</span> Sin intereses hasta 12 meses</div>
+      </div>
+    </div>
+    <!-- Calculator -->
+    <div class="fin-calc">
+      <div class="calc-title">CALCULADORA DE CUOTAS</div>
+      <div class="calc-input-row">
+        <div class="calc-currency">€</div>
+        <input type="number" class="calc-amount" id="calcAmount" value="1199" min="100" max="10000" oninput="calcUpdate()">
+      </div>
+      <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-bottom:20px">IMPORTE A FINANCIAR · mín. 100€ · máx. 10.000€</div>
+      <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Número de cuotas</div>
+      <div class="calc-months-grid">
+        <button class="calc-month-btn" onclick="selectMonths(3,this)">3 meses</button>
+        <button class="calc-month-btn" onclick="selectMonths(6,this)">6 meses</button>
+        <button class="calc-month-btn active" onclick="selectMonths(12,this)">12 meses</button>
+        <button class="calc-month-btn" onclick="selectMonths(24,this)">24 meses</button>
+        <button class="calc-month-btn" onclick="selectMonths(36,this)">36 meses</button>
+        <button class="calc-month-btn" onclick="selectMonths(48,this)">48 meses</button>
+      </div>
+      <div class="calc-result">
+        <div class="calc-result-monthly" id="calcMonthly">99.92€</div>
+        <div class="calc-result-label" id="calcLabel">12 cuotas mensuales · 0% TIN · 0% TAE</div>
+        <div class="calc-result-breakdown">
+          <div class="calc-bd-item"><div class="calc-bd-num" id="calcTotal">1.199€</div><div class="calc-bd-label">Total a pagar</div></div>
+          <div class="calc-bd-item"><div class="calc-bd-num" id="calcInterest">0€</div><div class="calc-bd-label">Intereses</div></div>
+          <div class="calc-bd-item"><div class="calc-bd-num" id="calcTAE">0%</div><div class="calc-bd-label">TAE</div></div>
+        </div>
+      </div>
+      <div class="calc-disclaimer">* Oferta válida hasta 12 meses sin intereses. A partir de 24 meses: TIN 9.9%. Sujeto a aprobación de Cofidis.</div>
+      <button class="btn-primary" style="width:100%;text-align:center;margin-top:20px" onclick="showToast('✓ Solicitando financiación...')">Solicitar financiación →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Plans -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-tag">// Elige tu plan</div>
+    <h2 class="section-title">PLANES DE FINANCIACIÓN</h2>
+    <p class="section-desc">Todos los planes incluyen gestión 100% online, sin papeleo y con respuesta inmediata.</p>
+  </div>
+  <div class="plans-grid">
+    <div class="plan-card"><div class="plan-months">3</div><div class="plan-months-label">meses</div><div class="plan-rate" style="color:#00ff94">0% TIN</div><div class="plan-rate-sub">Sin intereses</div><ul class="plan-features"><li>Aprobación inmediata</li><li>Desde 100€</li><li>Sin comisión de apertura</li><li>Pago el día 5 de cada mes</li></ul></div>
+    <div class="plan-card"><div class="plan-months">6</div><div class="plan-months-label">meses</div><div class="plan-rate" style="color:#00ff94">0% TIN</div><div class="plan-rate-sub">Sin intereses</div><ul class="plan-features"><li>Aprobación inmediata</li><li>Desde 150€</li><li>Sin comisión de apertura</li><li>Amortización anticipada gratis</li></ul></div>
+    <div class="plan-card featured"><div class="plan-badge">Más popular</div><div class="plan-months">12</div><div class="plan-months-label">meses</div><div class="plan-rate" style="color:#00ff94">0% TIN</div><div class="plan-rate-sub">Sin intereses</div><ul class="plan-features"><li>Aprobación inmediata</li><li>Desde 200€</li><li>Sin comisión de apertura</li><li>Amortización anticipada gratis</li><li>Seguro de pago opcional</li></ul></div>
+    <div class="plan-card"><div class="plan-months">24</div><div class="plan-months-label">meses</div><div class="plan-rate">9.9% TIN</div><div class="plan-rate-sub">TAE 10.38%</div><ul class="plan-features"><li>Aprobación en 2 min</li><li>Desde 300€</li><li>Cuotas desde 15€/mes</li><li>Amortización anticipada gratis</li></ul></div>
+  </div>
+</div>
+
+<!-- How it works -->
+<div style="padding:80px 40px;background:var(--dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="section-tag" style="margin-bottom:16px">// Proceso</div>
+  <h2 class="section-title" style="margin-bottom:48px">¿CÓMO FUNCIONA?</h2>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border)">
+    <div style="background:var(--dark);padding:36px 28px;text-align:center">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--accent);color:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:24px;margin:0 auto 20px">1</div>
+      <div style="font-size:20px;margin-bottom:12px">🛒</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--white);margin-bottom:8px">ELIGE TUS PRODUCTOS</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">Añade lo que quieras al carrito. Cualquier producto es financiable.</div>
+    </div>
+    <div style="background:var(--dark);padding:36px 28px;text-align:center">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--accent);color:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:24px;margin:0 auto 20px">2</div>
+      <div style="font-size:20px;margin-bottom:12px">💳</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--white);margin-bottom:8px">SELECCIONA FINANCIACIÓN</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">En el checkout elige "Financiación" y selecciona el número de cuotas.</div>
+    </div>
+    <div style="background:var(--dark);padding:36px 28px;text-align:center">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--accent);color:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:24px;margin:0 auto 20px">3</div>
+      <div style="font-size:20px;margin-bottom:12px">📱</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--white);margin-bottom:8px">APROBACIÓN INSTANTÁNEA</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">Rellenas un formulario rápido. Respuesta en menos de 2 minutos. Sin papeleo.</div>
+    </div>
+    <div style="background:var(--dark);padding:36px 28px;text-align:center">
+      <div style="width:52px;height:52px;border-radius:50%;background:#00ff94;color:var(--black);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:24px;margin:0 auto 20px">4</div>
+      <div style="font-size:20px;margin-bottom:12px">📦</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--white);margin-bottom:8px">DISFRUTA HOY</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">El pedido se procesa al instante. Tu setup llega en 24–48h. La primera cuota en 30 días.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="fin-faq">
+  <div class="section-tag" style="margin-bottom:16px">// Preguntas frecuentes</div>
+  <h2 class="section-title" style="margin-bottom:40px">FAQ FINANCIACIÓN</h2>
+  <div class="fin-faq-grid">
+    <div class="fin-faq-item"><div class="fin-faq-q">¿Cuál es el importe mínimo y máximo?</div><div class="fin-faq-a">El importe mínimo para financiar es de 100€. El máximo es de 10.000€ por operación. Para importes superiores, contacta con nosotros.</div></div>
+    <div class="fin-faq-item"><div class="fin-faq-q">¿Qué documentación necesito?</div><div class="fin-faq-a">Solo necesitas tu DNI/NIE y un número de teléfono móvil. Todo el proceso es digital. No hay que enviar nóminas ni justificantes de ingresos para importes hasta 3.000€.</div></div>
+    <div class="fin-faq-item"><div class="fin-faq-q">¿Qué pasa si quiero pagar antes?</div><div class="fin-faq-a">Puedes cancelar anticipadamente tu financiación en cualquier momento sin penalización desde tu área de cliente Cofidis. Sin coste adicional.</div></div>
+    <div class="fin-faq-item"><div class="fin-faq-q">¿Cuándo se cobra la primera cuota?</div><div class="fin-faq-a">La primera cuota se carga aproximadamente 30 días después de la aprobación, el día que hayas indicado. Las siguientes, cada mes en la misma fecha.</div></div>
+    <div class="fin-faq-item"><div class="fin-faq-q">¿El 0% es real?</div><div class="fin-faq-a">Sí. Para plazos de 3, 6 y 12 meses el TIN y TAE son 0%. NEXUS asume el coste financiero para ofrecerte este beneficio sin ningún cargo oculto.</div></div>
+    <div class="fin-faq-item"><div class="fin-faq-q">¿Cuánto tarda en aprobarse?</div><div class="fin-faq-a">La respuesta es prácticamente inmediata (menos de 2 minutos) en la mayoría de casos. En algunos casos puede demorar hasta 24h si se requiere verificación adicional.</div></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand"><span class="nav-logo" style="display:block;margin-bottom:16px">NEXUS</span><p class="footer-desc">Hardware de alto rendimiento. Financiación flexible. Servicio de confianza.</p></div>
+  <div><div class="footer-col-title">Tienda</div><div class="footer-links"><a href="productos.html">Catálogo</a><a href="gaming.html">Gaming</a><a href="ofertas.html">Ofertas</a></div></div>
+  <div><div class="footer-col-title">Empresa</div><div class="footer-links"><a href="sobre-nosotros.html">Sobre nosotros</a><a href="blog.html">Blog</a><a href="afiliados.html">Afiliados</a></div></div>
+  <div><div class="footer-col-title">Ayuda</div><div class="footer-links"><a href="guias.html">Guías</a>
+    <a href="outlet.html">Outlet</a>
+    <a href="soporte.html">Soporte</a><a href="financiacion.html">Financiación</a><a href="programa-puntos.html">Puntos</a></div></div>
+</footer>
+<div class="footer-bottom"><span class="footer-copy">© 2026 NEXUS TECH S.L. · Financiación gestionada por Cofidis S.A.</span></div>
+
+<div class="toast" id="toast"></div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nexus-extras.js"></script>
+<script>
+let calcMonths = 12;
+const rates = { 3:0, 6:0, 12:0, 24:9.9, 36:9.9, 48:11.9 };
+
+function calcUpdate() {
+  const amount = parseFloat(document.getElementById('calcAmount').value) || 0;
+  const rate = rates[calcMonths] / 100 / 12;
+  let monthly, total, interest;
+  if (rate === 0) {
+    monthly = amount / calcMonths;
+    total = amount;
+    interest = 0;
+  } else {
+    monthly = amount * rate * Math.pow(1+rate,calcMonths) / (Math.pow(1+rate,calcMonths)-1);
+    total = monthly * calcMonths;
+    interest = total - amount;
+  }
+  document.getElementById('calcMonthly').textContent = monthly.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2}) + '€';
+  document.getElementById('calcLabel').textContent = `${calcMonths} cuotas mensuales · ${rates[calcMonths]}% TIN · ${rates[calcMonths]===0?'0':'10.38'}% TAE`;
+  document.getElementById('calcTotal').textContent = total.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2}) + '€';
+  document.getElementById('calcInterest').textContent = interest.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2}) + '€';
+  document.getElementById('calcTAE').textContent = rates[calcMonths]===0 ? '0%' : '10.38%';
+}
+
+function selectMonths(m, btn) {
+  calcMonths = m;
+  document.querySelectorAll('.calc-month-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  calcUpdate();
+}
+
+calcUpdate();
+</script>
+<script src="../assets/js/nexus-ai-chat.js"></script>
+<script src="../assets/js/nexus-pwa.js"></script>
+</body>
+</html>
