@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00c8ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RTX 5080 16GB — NEXUS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Breadcrumb */
+    .breadcrumb { padding: 80px 40px 0; display: flex; gap: 8px; align-items: center; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--muted); }
+    .breadcrumb a { color: var(--muted); transition: color 0.2s; }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb span { color: var(--border); }
+
+    /* Product grid */
+    .product-page { display: grid; grid-template-columns: 1fr 480px; gap: 0; padding: 32px 40px 80px; max-width: 1400px; margin: 0 auto; }
+
+    /* Gallery */
+    .gallery { padding-right: 48px; }
+    .gallery-main { aspect-ratio: 1; background: var(--dark); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 160px; position: relative; overflow: hidden; cursor: zoom-in; margin-bottom: 12px; }
+    .gallery-main::after { content: '🔍'; position: absolute; bottom: 16px; right: 16px; font-size: 20px; opacity: 0; transition: opacity 0.2s; }
+    .gallery-main:hover::after { opacity: 0.6; }
+    .gallery-badge-wrap { position: absolute; top: 16px; left: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .gallery-thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .gallery-thumb { width: 72px; height: 72px; background: var(--card); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; transition: all 0.2s; border-radius: 2px; }
+    .gallery-thumb:hover, .gallery-thumb.active { border-color: var(--accent); background: var(--dark); }
+
+    /* Product info */
+    .product-info-panel { padding-left: 0; }
+    .product-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+    .product-meta-brand { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+    .product-meta-sku { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+    .product-page-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(32px,4vw,52px); letter-spacing: 2px; color: var(--white); line-height: 1; margin-bottom: 16px; }
+    .product-page-rating { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .rating-stars { color: #ffb347; font-size: 16px; letter-spacing: 1px; }
+    .rating-count { font-size: 13px; color: var(--muted); }
+    .rating-verified { font-size: 11px; color: var(--accent); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+    .product-page-price { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+    .price-main { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: var(--accent); letter-spacing: 1px; line-height: 1; }
+    .price-old { font-size: 20px; color: var(--muted); text-decoration: line-through; }
+    .price-save { font-size: 14px; background: rgba(0,255,148,0.1); color: #00ff94; border: 1px solid rgba(0,255,148,0.2); padding: 4px 10px; border-radius: 2px; font-family: 'JetBrains Mono', monospace; }
+    .price-iva { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+    .stock-status { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 28px; }
+    .stock-dot { width: 8px; height: 8px; border-radius: 50%; background: #00ff94; box-shadow: 0 0 6px #00ff94; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    .stock-dot.low { background: #ffb347; box-shadow: 0 0 6px #ffb347; }
+    .stock-text { color: var(--text); }
+    .stock-units { color: var(--muted); font-size: 12px; }
+
+    /* Variant selector */
+    .variant-section { margin-bottom: 24px; }
+    .variant-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; display: flex; justify-content: space-between; }
+    .variant-options { display: flex; gap: 8px; flex-wrap: wrap; }
+    .variant-btn { background: var(--card); border: 1.5px solid var(--border); color: var(--text); padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 4px; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; }
+    .variant-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,180,255,0.08); }
+    .variant-btn:hover:not(.active) { border-color: var(--muted); }
+    .variant-btn.unavailable { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
+
+    /* CTA */
+    .product-cta { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+    .product-cta .btn-primary { flex: 1; text-align: center; padding: 16px; font-size: 14px; min-width: 200px; }
+    .product-cta .btn-wishlist { width: 52px; height: 52px; background: var(--card); border: 1.5px solid var(--border); color: var(--muted); cursor: pointer; border-radius: 4px; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+    .product-cta .btn-wishlist:hover, .product-cta .btn-wishlist.active { border-color: #ff5e5e; color: #ff5e5e; background: rgba(255,94,94,0.08); }
+    .product-cta .btn-compare { width: 52px; height: 52px; background: var(--card); border: 1.5px solid var(--border); color: var(--muted); cursor: pointer; border-radius: 4px; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+    .product-cta .btn-compare:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Delivery info */
+    .delivery-box { background: var(--dark); border: 1px solid var(--border); padding: 20px; margin-bottom: 24px; }
+    .delivery-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .delivery-item:last-child { border-bottom: none; }
+    .delivery-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .delivery-title { font-size: 13px; color: var(--white); }
+    .delivery-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* Specs table */
+    .specs-section { padding: 60px 40px; background: var(--dark); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: var(--border); border: 1px solid var(--border); max-width: 900px; }
+    .spec-row { background: var(--dark); display: grid; grid-template-columns: 200px 1fr; gap: 0; }
+    .spec-row:hover { background: var(--card); }
+    .spec-key { padding: 14px 20px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; border-right: 1px solid var(--border); }
+    .spec-val { padding: 14px 20px; font-size: 14px; color: var(--text); }
+    .spec-val.highlight { color: var(--accent); font-weight: 400; }
+
+    /* Performance bars */
+    .performance-section { padding: 60px 40px; border-bottom: 1px solid var(--border); }
+    .perf-bars { max-width: 700px; display: flex; flex-direction: column; gap: 20px; }
+    .perf-bar-item { }
+    .perf-bar-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .perf-bar-label { font-size: 13px; color: var(--text); }
+    .perf-bar-value { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
+    .perf-bar-track { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .perf-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 4px; width: 0; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+    .perf-comparison { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+    .perf-comparison .better { color: #00ff94; }
+
+    /* Reviews */
+    .reviews-section { padding: 60px 40px; border-bottom: 1px solid var(--border); }
+    .reviews-header { display: grid; grid-template-columns: 200px 1fr; gap: 48px; margin-bottom: 48px; align-items: start; }
+    .reviews-score { text-align: center; }
+    .reviews-big-num { font-family: 'Bebas Neue', sans-serif; font-size: 96px; color: var(--white); line-height: 1; }
+    .reviews-big-stars { font-size: 24px; color: #ffb347; letter-spacing: 3px; margin: 4px 0; }
+    .reviews-big-count { font-size: 13px; color: var(--muted); }
+    .reviews-bars { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .reviews-bar-row { display: flex; align-items: center; gap: 12px; }
+    .reviews-bar-label { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; width: 48px; text-align: right; }
+    .reviews-bar-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .reviews-bar-fill { height: 100%; background: #ffb347; border-radius: 3px; transition: width 1s ease; }
+    .reviews-bar-pct { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; width: 36px; }
+    .reviews-grid { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 32px; }
+    .review-card { background: var(--dark); padding: 28px; transition: background 0.2s; }
+    .review-card:hover { background: var(--card); }
+    .review-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+    .review-author { font-size: 14px; color: var(--white); font-weight: 400; }
+    .review-stars { color: #ffb347; font-size: 14px; letter-spacing: 1px; }
+    .review-date { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+    .review-verified { font-size: 10px; color: var(--accent); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; margin-top: 2px; }
+    .review-title { font-size: 15px; color: var(--white); margin-bottom: 8px; font-weight: 400; }
+    .review-text { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    .review-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+    .review-tag { font-size: 10px; padding: 3px 8px; background: var(--card); border: 1px solid var(--border); border-radius: 2px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+    .review-helpful { display: flex; gap: 8px; margin-top: 16px; align-items: center; font-size: 12px; color: var(--muted); }
+    .review-helpful button { background: none; border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; font-size: 11px; cursor: pointer; border-radius: 20px; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .review-helpful button:hover { border-color: var(--accent); color: var(--accent); }
+    /* Write review */
+    .write-review { background: var(--dark); border: 1px solid var(--border); padding: 32px; }
+    .write-review-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: var(--white); margin-bottom: 20px; }
+    .star-picker { display: flex; gap: 4px; margin-bottom: 20px; }
+    .star-pick { font-size: 28px; cursor: pointer; color: var(--border); transition: color 0.1s; filter: grayscale(1); }
+    .star-pick:hover, .star-pick.active { color: #ffb347; filter: none; }
+
+    /* Related products */
+    .related-section { padding: 60px 40px; }
+
+    @media(max-width:900px){ .product-page{grid-template-columns:1fr;} .gallery{padding-right:0;margin-bottom:40px;} .reviews-header{grid-template-columns:1fr;} .specs-grid{grid-template-columns:1fr;} .breadcrumb{padding:72px 20px 0;} .product-page{padding:24px 20px 60px;} .performance-section,.reviews-section,.specs-section,.related-section{padding:40px 20px;} }
+  
+@media(max-width:768px){
+  .product-page{gap:0;}
+  .gallery-thumbs{gap:6px;}
+  .product-title{font-size:clamp(24px,6vw,36px);}
+  .related-grid{grid-template-columns:repeat(2,1fr);}
+  .benchmark-bar-wrap{flex-direction:column;gap:4px;}
+}
+@media(max-width:480px){
+  .product-page{padding:16px 16px 40px;}
+  .gallery-main{font-size:80px;padding:24px;}
+  .gallery-thumbs span{width:44px;height:44px;font-size:20px;}
+  .product-title{font-size:clamp(22px,7vw,32px);}
+  .specs-table td,.specs-table th{padding:10px 12px;font-size:12px;}
+  .related-grid{grid-template-columns:1fr 1fr;}
+  .review-card{padding:16px;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html" class="active">Productos</a>
+    <a href="gaming.html">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="guias.html">Guías</a>
+    <a href="outlet.html">Outlet</a>
+    <a href="soporte.html">Soporte</a>
+    <a href="comparar.html">⚖ Comparar</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="busqueda.html" style="color:var(--muted);font-size:18px;display:flex;align-items:center;padding:0 4px" title="Buscar">🔍</a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb">
+  <a href="index.html">Inicio</a><span>/</span>
+  <a href="productos.html">Productos</a><span>/</span>
+  <a href="productos.html?cat=gpu">Tarjetas Gráficas</a><span>/</span>
+  <span style="color:var(--text)">RTX 5080 16GB</span>
+</div>
+
+<!-- Product -->
+<div class="product-page">
+  <!-- GALLERY -->
+  <div class="gallery">
+    <div class="gallery-main" id="galleryMain">
+      <div class="gallery-badge-wrap">
+        <span class="product-badge new" style="position:static">Nuevo</span>
+        <span class="product-badge" style="position:static">−14%</span>
+      </div>
+      <span id="mainEmoji" style="filter:drop-shadow(0 0 40px rgba(0,180,255,0.3))">🎮</span>
+    </div>
+    <div class="gallery-thumbs">
+      <div class="gallery-thumb active" onclick="setEmoji('🎮',this)">🎮</div>
+      <div class="gallery-thumb" onclick="setEmoji('💻',this)">💻</div>
+      <div class="gallery-thumb" onclick="setEmoji('🖥️',this)">🖥️</div>
+      <div class="gallery-thumb" onclick="setEmoji('⚡',this)">⚡</div>
+      <div class="gallery-thumb" onclick="setEmoji('🔧',this)">🔧</div>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="product-info-panel">
+    <div class="product-meta">
+      <span class="product-meta-brand">NVIDIA</span>
+      <span style="color:var(--border)">·</span>
+      <span class="product-meta-sku">SKU: NV-RTX5080-16G</span>
+    </div>
+    <h1 class="product-page-title">GEFORCE RTX<br>5080 16GB</h1>
+
+    <div class="product-page-rating">
+      <span class="rating-stars">★★★★★</span>
+      <span class="rating-count">4.9 / 5</span>
+      <span style="color:var(--border)">·</span>
+      <a href="#reviews" style="color:var(--accent);font-size:13px">147 valoraciones</a>
+      <span class="rating-verified">✓ VERIFICADO</span>
+    </div>
+
+    <div class="product-page-price">
+      <span class="price-main">1.199€</span>
+      <span class="price-old">1.399€</span>
+      <span class="price-save">AHORRAS 200€</span>
+    </div>
+    <div class="price-iva">IVA incluido · Financiación desde 99.92€/mes sin intereses</div>
+
+    <div class="stock-status">
+      <div class="stock-dot low"></div>
+      <span class="stock-text">Stock bajo</span>
+      <span class="stock-units">— Quedan solo 7 unidades</span>
+    </div>
+
+    <!-- Variants -->
+    <div class="variant-section">
+      <div class="variant-label"><span>Modelo</span></div>
+      <div class="variant-options">
+        <div class="variant-btn active">RTX 5080 16GB</div>
+        <div class="variant-btn" onclick="window.location.href='productos.html'">RTX 5090 32GB</div>
+        <div class="variant-btn" onclick="window.location.href='productos.html'">RTX 5070 Ti 16GB</div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="product-cta">
+      <button class="btn-primary cart-add" data-name="GeForce RTX 5080 16GB" data-price="1199" style="flex:1">
+        🛒 Añadir al carrito
+      </button>
+      <button class="btn-wishlist" id="wishlistBtn" onclick="toggleWishlist()" title="Lista de deseos">🤍</button>
+      <button class="btn-compare compare-add-btn" data-name="GeForce RTX 5080 16GB" data-price="1199" title="Comparar">⚖</button>
+    </div>
+
+    <button onclick="window.location.href='checkout.html'" class="btn-ghost" style="width:100%;text-align:center;margin-bottom:24px">⚡ Comprar ahora</button>
+
+    <!-- Delivery info -->
+    <div class="delivery-box">
+      <div class="delivery-item">
+        <span class="delivery-icon">🚚</span>
+        <div>
+          <div class="delivery-title">Envío <strong style="color:#00ff94">GRATIS</strong> — Entrega estimada: <strong style="color:var(--white)" id="deliveryDate">cargando...</strong></div>
+          <div class="delivery-detail">Pedido antes de las 14:00h · Envío Express 24–48h disponible por 5.99€</div>
+        </div>
+      </div>
+      <div class="delivery-item">
+        <span class="delivery-icon">↩</span>
+        <div>
+          <div class="delivery-title">Devolución gratuita 30 días</div>
+          <div class="delivery-detail">Sin preguntas · Recogida en domicilio incluida</div>
+        </div>
+      </div>
+      <div class="delivery-item">
+        <span class="delivery-icon">🛡</span>
+        <div>
+          <div class="delivery-title">Garantía oficial NVIDIA 3 años</div>
+          <div class="delivery-detail">+ Soporte prioritario NEXUS 24 meses</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Share -->
+    <div style="display:flex;gap:8px;align-items:center">
+      <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px">COMPARTIR:</span>
+      <button onclick="shareProduct('twitter')" style="background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;cursor:pointer;border-radius:4px;font-size:11px;transition:all 0.2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">𝕏</button>
+      <button onclick="shareProduct('whatsapp')" style="background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;cursor:pointer;border-radius:4px;font-size:11px;transition:all 0.2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">WhatsApp</button>
+      <button onclick="copyLink()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;cursor:pointer;border-radius:4px;font-size:11px;transition:all 0.2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🔗 Copiar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SPECS -->
+<div class="specs-section">
+  <div style="max-width:900px">
+    <div class="section-tag">// Especificaciones técnicas</div>
+    <h2 class="section-title" style="margin-bottom:32px">FICHA TÉCNICA</h2>
+    <div class="specs-grid">
+      <div class="spec-row"><div class="spec-key">VRAM</div><div class="spec-val highlight">16 GB GDDR7</div></div>
+      <div class="spec-row"><div class="spec-key">Bus</div><div class="spec-val">256-bit</div></div>
+      <div class="spec-row"><div class="spec-key">CUDA Cores</div><div class="spec-val highlight">10752</div></div>
+      <div class="spec-row"><div class="spec-key">Clock base</div><div class="spec-val">2.295 GHz</div></div>
+      <div class="spec-row"><div class="spec-key">Clock boost</div><div class="spec-val highlight">2.617 GHz</div></div>
+      <div class="spec-row"><div class="spec-key">Ancho de banda</div><div class="spec-val">960 GB/s</div></div>
+      <div class="spec-row"><div class="spec-key">TDP</div><div class="spec-val">360W</div></div>
+      <div class="spec-row"><div class="spec-key">Conector</div><div class="spec-val">1× PCIe 16-pin (600W)</div></div>
+      <div class="spec-row"><div class="spec-key">Salidas</div><div class="spec-val">3× DP 2.1 · 1× HDMI 2.1a</div></div>
+      <div class="spec-row"><div class="spec-key">Arquitectura</div><div class="spec-val highlight">Blackwell · 4nm TSMC</div></div>
+      <div class="spec-row"><div class="spec-key">Ray Tracing</div><div class="spec-val highlight">5ª generación</div></div>
+      <div class="spec-row"><div class="spec-key">DLSS</div><div class="spec-val highlight">DLSS 4 · Multi Frame Gen</div></div>
+      <div class="spec-row"><div class="spec-key">Dimensiones</div><div class="spec-val">336 × 140 × 61 mm</div></div>
+      <div class="spec-row"><div class="spec-key">Slots</div><div class="spec-val">3 slots</div></div>
+      <div class="spec-row"><div class="spec-key">Peso</div><div class="spec-val">1.85 kg</div></div>
+      <div class="spec-row"><div class="spec-key">PSU recomendada</div><div class="spec-val">850W+</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PERFORMANCE -->
+<div class="performance-section">
+  <div class="section-tag">// Rendimiento</div>
+  <h2 class="section-title" style="margin-bottom:36px">BENCHMARKS</h2>
+  <div class="perf-bars" id="perfBars">
+    <div class="perf-bar-item" data-val="91"><div class="perf-bar-header"><span class="perf-bar-label">Cyberpunk 2077 4K Ultra RT</span><span class="perf-bar-value">127 FPS</span></div><div class="perf-bar-track"><div class="perf-bar-fill"></div></div><div class="perf-comparison"><span class="better">↑ 48% más rápida</span> que RTX 4080 Super</div></div>
+    <div class="perf-bar-item" data-val="88"><div class="perf-bar-header"><span class="perf-bar-label">Microsoft Flight Simulator 2024 4K</span><span class="perf-bar-value">98 FPS</span></div><div class="perf-bar-track"><div class="perf-bar-fill"></div></div><div class="perf-comparison"><span class="better">↑ 41% más rápida</span> que RTX 4080 Super</div></div>
+    <div class="perf-bar-item" data-val="95"><div class="perf-bar-header"><span class="perf-bar-label">Spider-Man 2 4K Max RT + DLSS 4</span><span class="perf-bar-value">185 FPS</span></div><div class="perf-bar-track"><div class="perf-bar-fill"></div></div><div class="perf-comparison"><span class="better">↑ 62% más rápida</span> que RTX 4080 Super</div></div>
+    <div class="perf-bar-item" data-val="82"><div class="perf-bar-header"><span class="perf-bar-label">Stable Diffusion XL (img/s)</span><span class="perf-bar-value">8.4 img/s</span></div><div class="perf-bar-track"><div class="perf-bar-fill"></div></div><div class="perf-comparison"><span class="better">↑ 55% más rápida</span> que RTX 4080 Super</div></div>
+    <div class="perf-bar-item" data-val="76"><div class="perf-bar-header"><span class="perf-bar-label">Blender BMW Render (GPU)</span><span class="perf-bar-value">42 seg</span></div><div class="perf-bar-track"><div class="perf-bar-fill"></div></div><div class="perf-comparison"><span class="better">↑ 38% más rápida</span> que RTX 4080 Super</div></div>
+  </div>
+</div>
+
+<!-- REVIEWS -->
+<div class="reviews-section" id="reviews">
+  <div class="section-tag">// Opiniones de clientes</div>
+  <h2 class="section-title" style="margin-bottom:40px">VALORACIONES</h2>
+
+  <div class="reviews-header">
+    <div class="reviews-score">
+      <div class="reviews-big-num">4.9</div>
+      <div class="reviews-big-stars">★★★★★</div>
+      <div class="reviews-big-count">147 valoraciones</div>
+    </div>
+    <div class="reviews-bars">
+      <div class="reviews-bar-row"><span class="reviews-bar-label">5 ★</span><div class="reviews-bar-track"><div class="reviews-bar-fill" style="width:83%"></div></div><span class="reviews-bar-pct">83%</span></div>
+      <div class="reviews-bar-row"><span class="reviews-bar-label">4 ★</span><div class="reviews-bar-track"><div class="reviews-bar-fill" style="width:12%"></div></div><span class="reviews-bar-pct">12%</span></div>
+      <div class="reviews-bar-row"><span class="reviews-bar-label">3 ★</span><div class="reviews-bar-track"><div class="reviews-bar-fill" style="width:3%"></div></div><span class="reviews-bar-pct">3%</span></div>
+      <div class="reviews-bar-row"><span class="reviews-bar-label">2 ★</span><div class="reviews-bar-track"><div class="reviews-bar-fill" style="width:1%"></div></div><span class="reviews-bar-pct">1%</span></div>
+      <div class="reviews-bar-row"><span class="reviews-bar-label">1 ★</span><div class="reviews-bar-track"><div class="reviews-bar-fill" style="width:1%"></div></div><span class="reviews-bar-pct">1%</span></div>
+    </div>
+  </div>
+
+  <div class="reviews-grid" id="reviewsContainer"></div>
+
+  <div style="text-align:center;margin:32px 0">
+    <button class="btn-ghost" onclick="loadMoreReviews()">Cargar más valoraciones</button>
+  </div>
+
+  <!-- Write review -->
+  <div class="write-review">
+    <div class="write-review-title">ESCRIBE TU VALORACIÓN</div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:8px">Tu puntuación</div>
+      <div class="star-picker" id="starPicker">
+        <span class="star-pick" data-val="1" onclick="setStar(1)">★</span>
+        <span class="star-pick" data-val="2" onclick="setStar(2)">★</span>
+        <span class="star-pick" data-val="3" onclick="setStar(3)">★</span>
+        <span class="star-pick" data-val="4" onclick="setStar(4)">★</span>
+        <span class="star-pick" data-val="5" onclick="setStar(5)">★</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div><label style="display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:7px">Nombre</label><input type="text" id="reviewName" class="form-input" placeholder="Tu nombre" style="width:100%;background:var(--card);border:1px solid var(--border);color:var(--white);padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;border-radius:4px;transition:border-color 0.2s"></div>
+      <div><label style="display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:7px">Título</label><input type="text" id="reviewTitle" class="form-input" placeholder="Resumen de tu opinión" style="width:100%;background:var(--card);border:1px solid var(--border);color:var(--white);padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;border-radius:4px;transition:border-color 0.2s"></div>
+    </div>
+    <div style="margin-bottom:16px"><label style="display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:7px">Tu opinión</label><textarea id="reviewText" rows="4" placeholder="Cuéntanos tu experiencia con este producto..." style="width:100%;background:var(--card);border:1px solid var(--border);color:var(--white);padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;border-radius:4px;resize:vertical;transition:border-color 0.2s"></textarea></div>
+    <button class="btn-primary" onclick="submitReview()">Publicar valoración</button>
+  </div>
+</div>
+
+<!-- RELATED PRODUCTS -->
+<div class="related-section">
+  <div class="section-tag">// También te puede interesar</div>
+  <h2 class="section-title" style="margin-bottom:40px">PRODUCTOS RELACIONADOS</h2>
+  <div class="products-grid" id="relatedGrid"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="./app.js"></script>
+<script src="./products-db.js"></script>
+<script src="./nexus-extras.js"></script>
+<script>
+
+/* ── Load product from URL ── */
+const urlId = decodeURIComponent(new URLSearchParams(location.search).get('id') || '');
+const p = nexusFind(urlId);
+
+/* ── Fallback generic data if product not in detailed DB ── */
+const prod = p || {
+  name: urlId || 'Producto', brand: '—', price: 0, icon: '📦', cat: '—', rating: 4,
+  gallery: ['📦','💻','🖥️','⚡','🔧'],
+  desc: 'Ficha técnica detallada disponible próximamente.',
+  highlights: [],
+  specs: {},
+  benchmarks: [],
+  reviews: []
+};
+
+/* ── Render page ── */
+document.title = prod.name + ' — NEXUS';
+
+// Breadcrumb
+document.querySelector('.breadcrumb').innerHTML =
+  `<a href="index.html">Inicio</a><span>/</span>
+   <a href="productos.html">Productos</a><span>/</span>
+   <a href="productos.html">${prod.cat}</a><span>/</span>
+   <span style="color:var(--text)">${prod.name}</span>`;
+
+// Gallery
+document.getElementById('mainEmoji').textContent = prod.icon;
+const thumbsEl = document.querySelector('.gallery-thumbs');
+thumbsEl.innerHTML = (prod.gallery || [prod.icon,'💻','🖥️','⚡','🔧']).map((e,i) =>
+  `<div class="gallery-thumb${i===0?' active':''}" onclick="setEmoji('${e}',this)">${e}</div>`
+).join('');
+
+// Badge
+const badgeWrap = document.querySelector('.gallery-badge-wrap');
+badgeWrap.innerHTML = '';
+if(prod.oldPrice){
+  const pct = Math.round((1 - prod.price/prod.oldPrice)*100);
+  badgeWrap.innerHTML = `<span class="product-badge" style="position:static">−${pct}%</span>`;
+}
+
+// Brand + SKU
+document.querySelector('.product-meta-brand').textContent = prod.brand;
+document.querySelector('.product-meta-sku').textContent =
+  'SKU: NX-' + prod.name.toUpperCase().replace(/\s+/g,'-').substring(0,14);
+
+// Title
+document.querySelector('.product-page-title').textContent = prod.name.toUpperCase();
+
+// Description block — inject after title if not present
+let descEl = document.getElementById('prodDesc');
+if(!descEl && prod.desc){
+  descEl = document.createElement('p');
+  descEl.id = 'prodDesc';
+  descEl.style.cssText = 'font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px;';
+  document.querySelector('.product-page-title').insertAdjacentElement('afterend', descEl);
+}
+if(descEl) descEl.textContent = prod.desc || '';
+
+// Highlights
+let hlEl = document.getElementById('prodHighlights');
+if(!hlEl && prod.highlights && prod.highlights.length){
+  hlEl = document.createElement('ul');
+  hlEl.id = 'prodHighlights';
+  hlEl.style.cssText = 'margin:0 0 20px;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;';
+  descEl ? descEl.insertAdjacentElement('afterend', hlEl) : document.querySelector('.product-page-title').insertAdjacentElement('afterend', hlEl);
+}
+if(hlEl) hlEl.innerHTML = (prod.highlights||[]).map(h =>
+  `<li style="font-size:13px;color:var(--text);display:flex;gap:8px;align-items:flex-start">
+     <span style="color:var(--accent);flex-shrink:0;font-family:'JetBrains Mono',monospace">✦</span>${h}
+   </li>`).join('');
+
+// Rating
+const ratingCount = prod.reviews ? prod.reviews.length * 37 + 12 : 48;
+document.querySelector('.rating-stars').textContent = '★'.repeat(prod.rating) + '☆'.repeat(5-prod.rating);
+document.querySelector('.rating-count').textContent = prod.rating + '.0 / 5';
+document.querySelector('a[href="#reviews"]').textContent = ratingCount + ' valoraciones';
+
+// Price
+document.querySelector('.price-main').textContent = (prod.price||0).toLocaleString('es-ES') + '€';
+const priceOldEl = document.querySelector('.price-old');
+const priceSaveEl = document.querySelector('.price-save');
+if(prod.oldPrice){
+  priceOldEl.textContent = prod.oldPrice.toLocaleString('es-ES') + '€';
+  priceSaveEl.textContent = 'AHORRAS ' + (prod.oldPrice - prod.price).toLocaleString('es-ES') + '€';
+  priceOldEl.style.display = '';
+  priceSaveEl.style.display = '';
+} else {
+  priceOldEl.style.display = 'none';
+  priceSaveEl.style.display = 'none';
+}
+document.querySelector('.price-iva').textContent =
+  'IVA incluido · Financiación desde ' + Math.round((prod.price||0)/12).toLocaleString('es-ES') + '€/mes sin intereses';
+
+// Stock (randomise per product but consistent using price as seed)
+const stockSeed = (prod.price || 100) % 7;
+const stockVariants = [
+  {dot:'',text:'En stock',units:'— Disponible inmediatamente'},
+  {dot:'',text:'En stock',units:'— Más de 20 unidades'},
+  {dot:'low',text:'Stock bajo',units:'— Quedan solo 5 unidades'},
+  {dot:'',text:'En stock',units:'— Disponible para envío en 24h'},
+  {dot:'low',text:'Stock bajo',units:'— Últimas 8 unidades'},
+  {dot:'',text:'En stock',units:'— Disponible'},
+  {dot:'',text:'En stock',units:'— Entrega inmediata'},
+];
+const sv = stockVariants[stockSeed];
+document.querySelector('.stock-dot').className = 'stock-dot' + (sv.dot ? ' '+sv.dot : '');
+document.querySelector('.stock-text').textContent = sv.text;
+document.querySelector('.stock-units').textContent = sv.units;
+
+// CTA buttons
+document.querySelectorAll('.cart-add').forEach(b => { b.dataset.name = prod.name; b.dataset.price = prod.price; });
+document.querySelectorAll('.compare-add-btn, .btn-compare').forEach(b => { b.dataset.name = prod.name; b.dataset.price = prod.price; });
+
+// Variants — same category products
+const allProds = typeof allProducts !== 'undefined' ? allProducts : [];
+const catMap = { cpu:'cpu', gpu:'gpu', ram:'ram', storage:'storage', monitor:'monitor', peripheral:'peripheral', motherboard:'motherboard', case:'case', psu:'psu' };
+const myCat = catMap[prod.cat?.toLowerCase()] || prod.cat;
+const samecat = NEXUS_DB.filter(x => x.cat === prod.cat && x.name !== prod.name).slice(0, 3);
+const variantEl = document.querySelector('.variant-options');
+variantEl.innerHTML = `<div class="variant-btn active" style="font-size:12px">${prod.name}</div>` +
+  samecat.map(x => `<div class="variant-btn" style="font-size:12px" onclick="window.location.href='producto.html?id='+encodeURIComponent('${x.name.replace(/'/g,"\'").replace(/"/g,'&quot;')}')">
+    ${x.name} — ${x.price.toLocaleString('es-ES')}€</div>`).join('');
+
+// Guarantee line
+const guarantee = prod.specs && prod.specs['Garantía'] ? prod.specs['Garantía'] : '2 años';
+const warrantyItems = document.querySelectorAll('.delivery-item');
+if(warrantyItems[2]) warrantyItems[2].querySelector('.delivery-title').textContent =
+  `Garantía oficial ${prod.brand} ${guarantee}`;
+
+// Specs table
+const specsGrid = document.querySelector('.specs-grid');
+if(prod.specs && Object.keys(prod.specs).length > 0){
+  specsGrid.innerHTML = Object.entries(prod.specs).map(([k,v],i) => `
+    <div class="spec-row">
+      <div class="spec-key">${k}</div>
+      <div class="spec-val${i%4===0||i%4===2?' highlight':''}">${v}</div>
+    </div>`).join('');
+} else {
+  specsGrid.innerHTML = '<div class="spec-row"><div class="spec-key">Info</div><div class="spec-val">Especificaciones detalladas próximamente</div></div>';
+}
+
+// Performance bars
+const perfBarsEl = document.getElementById('perfBars');
+if(prod.benchmarks && prod.benchmarks.length > 0){
+  perfBarsEl.innerHTML = prod.benchmarks.map(b => `
+    <div class="perf-bar-item" data-val="${b.val}">
+      <div class="perf-bar-header">
+        <span class="perf-bar-label">${b.label}</span>
+        <span class="perf-bar-value">${b.unit}</span>
+      </div>
+      <div class="perf-bar-track"><div class="perf-bar-fill"></div></div>
+    </div>`).join('');
+} else {
+  document.querySelector('.performance-section').style.display = 'none';
+}
+
+// Reviews
+const reviewsData = (prod.reviews && prod.reviews.length > 0) ? prod.reviews : [
+  {author:'Usuario verificado',rating:prod.rating,date:'01/03/2026',title:'Muy buen producto',text:'Calidad excelente y envío muy rápido de NEXUS. Totalmente recomendado.',verified:true,helpful:12}
+];
+const reviewsCount = reviewsData.length * 37 + 12;
+document.querySelector('.reviews-big-num').textContent = prod.rating + '.0';
+document.querySelector('.reviews-big-stars').textContent = '★'.repeat(prod.rating) + '☆'.repeat(5-prod.rating);
+document.querySelector('.reviews-big-count').textContent = reviewsCount + ' valoraciones';
+
+function renderReviews(){
+  document.getElementById('reviewsContainer').innerHTML = reviewsData.map(r => `
+    <div class="review-card">
+      <div class="review-header">
+        <div>
+          <div class="review-author">${r.author} ${r.verified ? '<span style="font-size:10px;color:var(--accent);font-family:'JetBrains Mono',monospace;letter-spacing:1px">✓ VERIFICADA</span>' : ''}</div>
+          <div class="review-date">${r.date}</div>
+        </div>
+        <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+      </div>
+      <div class="review-title">${r.title}</div>
+      <div class="review-text">${r.text}</div>
+      <div class="review-helpful">
+        <span>¿Te ha resultado útil?</span>
+        <button onclick="this.textContent='👍 '+(parseInt(this.textContent.replace(/\D/g,''))+1);this.disabled=true">👍 ${r.helpful||0}</button>
+        <button onclick="this.disabled=true">👎</button>
+      </div>
+    </div>`).join('');
+}
+
+// Related products
+const related = NEXUS_DB.filter(x => x.cat === prod.cat && x.name !== prod.name).slice(0, 4);
+if(related.length < 4){
+  NEXUS_DB.filter(x => x.name !== prod.name && !related.includes(x)).forEach(x => { if(related.length < 4) related.push(x); });
+}
+document.getElementById('relatedGrid').innerHTML = related.map(r => `
+  <div class="product-card" onclick="window.location.href='producto.html?id='+encodeURIComponent('${r.name.replace(/'/g,"\'").replace(/"/g,'&quot;')}');" style="cursor:pointer">
+    ${r.oldPrice ? `<div class="product-badge">−${Math.round((1-r.price/r.oldPrice)*100)}%</div>` : ''}
+    <div class="product-img">${r.icon}</div>
+    <div class="product-info">
+      <div class="product-brand">${r.brand}</div>
+      <div class="product-name">${r.name}</div>
+      <div class="product-footer">
+        <div class="product-footer-prices">
+          <span class="product-price">${r.price.toLocaleString('es-ES')}€</span>
+          ${r.oldPrice ? `<span class="product-price-old">${r.oldPrice.toLocaleString('es-ES')}€</span>` : ''}
+        </div>
+        <div class="product-footer-btns">
+          <button class="add-btn cart-add" data-name="${r.name}" data-price="${r.price}" onclick="event.stopPropagation()">+</button>
+        </div>
+      </div>
+    </div>
+  </div>`).join('');
+
+/* ── Utilities ── */
+function setEmoji(emoji, thumb){
+  document.getElementById('mainEmoji').textContent = emoji;
+  document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+}
+function toggleWishlist(){
+  const btn = document.getElementById('wishlistBtn');
+  const isActive = btn.classList.toggle('active');
+  btn.textContent = isActive ? '❤️' : '🤍';
+  showToast(isActive ? '❤️ Añadido a la lista de deseos' : '✓ Eliminado de la lista de deseos');
+}
+function shareProduct(platform){
+  const url = encodeURIComponent(window.location.href);
+  const text = encodeURIComponent('¡Mira ' + prod.name + ' en NEXUS!');
+  if(platform === 'twitter') window.open('https://twitter.com/intent/tweet?text='+text+'&url='+url);
+  else if(platform === 'whatsapp') window.open('https://wa.me/?text='+text+'%20'+url);
+}
+function copyLink(){ navigator.clipboard.writeText(window.location.href).then(() => showToast('🔗 Enlace copiado')); }
+
+let selectedStars = 0;
+function setStar(n){
+  selectedStars = n;
+  document.querySelectorAll('.star-pick').forEach((s,i) => { s.classList.toggle('active', i < n); s.style.filter = i < n ? 'none' : 'grayscale(1)'; });
+}
+function submitReview(){
+  const name = document.getElementById('reviewName').value.trim();
+  const title = document.getElementById('reviewTitle').value.trim();
+  const text = document.getElementById('reviewText').value.trim();
+  if(!selectedStars){ showToast('⚠ Selecciona una puntuación'); return; }
+  if(!name || !text){ showToast('⚠ Rellena nombre y opinión'); return; }
+  document.getElementById('reviewsContainer').insertAdjacentHTML('afterbegin',
+    `<div class="review-card" style="border-left:2px solid var(--accent)">
+      <div class="review-header"><div><div class="review-author">${name} <span style="font-size:10px;color:var(--accent);font-family:'JetBrains Mono',monospace">✓ NUEVA</span></div><div class="review-date">Ahora</div></div>
+      <div class="review-stars">${'★'.repeat(selectedStars)}</div></div>
+      <div class="review-title">${title||'Sin título'}</div><div class="review-text">${text}</div>
+    </div>`);
+  document.getElementById('reviewName').value = '';
+  document.getElementById('reviewTitle').value = '';
+  document.getElementById('reviewText').value = '';
+  setStar(0);
+  showToast('✓ Valoración publicada. ¡Gracias!');
+}
+function loadMoreReviews(){}
+
+// Delivery date
+const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 2);
+document.getElementById('deliveryDate').textContent = tomorrow.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+
+// Animate perf bars on scroll
+const perfObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      document.querySelectorAll('.perf-bar-item').forEach(bar => {
+        const fill = bar.querySelector('.perf-bar-fill');
+        if(fill) fill.style.width = bar.dataset.val + '%';
+      });
+      perfObs.disconnect();
+    }
+  });
+}, {threshold: 0.2});
+const perfSection = document.querySelector('.performance-section');
+if(perfSection) perfObs.observe(perfSection);
+
+renderReviews();
+</script>
+<script src="./nexus-ai-chat.js"></script>
+<script src="./nexus-pwa.js"></script>
+<footer>
+  <div class="footer-brand">
+    <span class="nav-logo" style="display:block;margin-bottom:16px">NEXUS</span>
+    <p class="footer-desc">Tu tienda de confianza para hardware, periféricos y componentes de alto rendimiento desde 2010. Más de 180.000 clientes satisfechos.</p>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">𝕏</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">📸</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">💬</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Tienda</div>
+    <div class="footer-links">
+      <a href="productos.html">Todos los productos</a>
+      <a href="gaming.html">Gaming Setup</a>
+      <a href="ofertas.html">Ofertas y chollos</a>
+      <a href="outlet.html">Outlet</a>
+      <a href="comparar.html">⚖ Comparador</a>
+      <a href="busqueda.html">Buscador</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Mi cuenta</div>
+    <div class="footer-links">
+      <a href="perfil.html">Mi perfil</a>
+      <a href="carrito.html">Mi carrito</a>
+      <a href="login.html">Iniciar sesión</a>
+      <a href="registro.html">Crear cuenta</a>
+      <a href="programa-puntos.html">⭐ Programa de puntos</a>
+      <a href="afiliados.html">Programa de afiliados</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Información</div>
+    <div class="footer-links">
+      <a href="soporte.html">Centro de ayuda</a>
+      <a href="garantia.html">Garantías</a>
+      <a href="financiacion.html">Financiación 0%</a>
+      <a href="guias.html">Guías de compra</a>
+      <a href="blog.html">Blog</a>
+      <a href="sobre-nosotros.html">Sobre nosotros</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00c8ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Página no encontrada · NEXUS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .error-bg { position: fixed; inset: 0; overflow: hidden; z-index: 0; }
+    .error-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 60px 60px; opacity: 0.2; }
+    .error-glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(0,180,255,0.07) 0%, transparent 70%); border-radius: 50%; animation: breathe 4s ease-in-out infinite; }
+    @keyframes breathe { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.15)} }
+    .error-wrap { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 20px; }
+    .error-code { font-family: 'Bebas Neue', sans-serif; font-size: clamp(120px,20vw,220px); letter-spacing: 8px; color: var(--dark); line-height: 1; position: relative; }
+    .error-code::after { content: '404'; position: absolute; inset: 0; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; opacity: 0.15; }
+    .error-code-outline { font-family: 'Bebas Neue', sans-serif; font-size: clamp(120px,20vw,220px); letter-spacing: 8px; line-height: 1; position: absolute; inset: 0; -webkit-text-stroke: 1px var(--border); color: transparent; }
+    .error-icon { font-size: 64px; margin-bottom: 24px; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    .error-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px,5vw,48px); letter-spacing: 3px; color: var(--white); margin-bottom: 12px; }
+    .error-msg { font-size: 16px; color: var(--muted); max-width: 440px; line-height: 1.7; margin-bottom: 40px; }
+    .error-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 56px; }
+    .error-suggestions { max-width: 600px; width: 100%; }
+    .error-suggestions-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 16px; }
+    .error-links { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .error-link { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 10px 20px; border-radius: 4px; font-size: 13px; transition: all 0.2s; }
+    .error-link:hover { border-color: var(--accent); color: var(--accent); }
+    .error-search { display: flex; gap: 0; max-width: 400px; margin: 32px auto 0; }
+    .error-search-input { flex: 1; background: var(--card); border: 1px solid var(--border); border-right: none; color: var(--white); padding: 12px 16px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; border-radius: 4px 0 0 4px; transition: border-color 0.2s; }
+    .error-search-input:focus { border-color: var(--accent); }
+    .error-search-input::placeholder { color: var(--muted); }
+    .error-search-btn { background: var(--accent); color: var(--black); border: none; padding: 12px 20px; font-size: 14px; cursor: pointer; border-radius: 0 4px 4px 0; transition: opacity 0.2s; }
+    .error-search-btn:hover { opacity: 0.85; }
+    /* Glitch animation on 404 */
+    .glitch { position: relative; }
+    .glitch::before, .glitch::after { content: '404'; position: absolute; top: 0; left: 0; right: 0; font-family: 'Bebas Neue', sans-serif; font-size: inherit; letter-spacing: inherit; line-height: inherit; }
+    .glitch::before { color: rgba(0,180,255,0.6); animation: glitch1 3s infinite; clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%); }
+    .glitch::after { color: rgba(123,47,255,0.6); animation: glitch2 3s infinite; clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%); }
+    @keyframes glitch1 { 0%,90%,100%{transform:none;opacity:0} 91%{transform:translate(-3px,2px);opacity:0.8} 93%{transform:translate(3px,-2px);opacity:0.8} 95%{transform:none;opacity:0} }
+    @keyframes glitch2 { 0%,85%,100%{transform:none;opacity:0} 87%{transform:translate(3px,2px);opacity:0.8} 89%{transform:translate(-3px,-1px);opacity:0.8} 91%{transform:none;opacity:0} }
+  
+@media(max-width:480px){
+  .err-num{font-size:clamp(120px,30vw,200px);}
+  .err-links{grid-template-columns:1fr 1fr;}
+  .err-actions{flex-direction:column;align-items:center;}
+  .err-actions a{width:100%;max-width:280px;text-align:center;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="gaming.html">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="busqueda.html" style="color:var(--muted);font-size:18px;display:flex;align-items:center;padding:0 4px" title="Buscar">🔍</a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="error-bg">
+  <div class="error-grid"></div>
+  <div class="error-glow"></div>
+</div>
+
+<div class="error-wrap">
+  <div style="position:relative;display:inline-block;margin-bottom:16px">
+    <div class="error-code glitch">404</div>
+  </div>
+  <div class="error-icon">🔍</div>
+  <h1 class="error-title">PÁGINA NO ENCONTRADA</h1>
+  <p class="error-msg">La URL que buscas no existe o ha sido movida. No te preocupes, tenemos miles de productos esperándote.</p>
+  <div class="error-actions">
+    <a href="index.html" class="btn-primary">← Ir al inicio</a>
+    <a href="productos.html" class="btn-ghost">Ver catálogo</a>
+  </div>
+
+  <div class="error-suggestions">
+    <div class="error-suggestions-title">O visita una de estas secciones</div>
+    <div class="error-links">
+      <a href="productos.html?cat=cpu" class="error-link">⚡ Procesadores</a>
+      <a href="productos.html?cat=gpu" class="error-link">🎮 GPUs</a>
+      <a href="productos.html?cat=ram" class="error-link">🧠 RAM</a>
+      <a href="productos.html?cat=storage" class="error-link">💾 Storage</a>
+      <a href="ofertas.html" class="error-link">🏷 Ofertas</a>
+      <a href="gaming.html" class="error-link">🕹 Gaming</a>
+      <a href="soporte.html" class="error-link">💬 Soporte</a>
+    </div>
+    <div class="error-search">
+      <input type="text" class="error-search-input" placeholder="Buscar en el catálogo..." id="errorSearch" onkeydown="if(event.key==='Enter')searchFromError()">
+      <button class="error-search-btn" onclick="searchFromError()">🔍</button>
+    </div>
+  </div>
+
+  <div style="position:relative;z-index:1;margin-top:48px;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">
+    <span id="errorCountdown">Redirigiendo al inicio en 30 segundos...</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="./app.js"></script>
+<script src="./nexus-extras.js"></script>
+<script>
+function searchFromError() {
+  const q = document.getElementById('errorSearch').value.trim();
+  if (q) window.location.href = 'productos.html?search=' + encodeURIComponent(q);
+}
+
+// Countdown redirect
+let secs = 30;
+const countdownEl = document.getElementById('errorCountdown');
+const interval = setInterval(() => {
+  secs--;
+  if (secs <= 0) { clearInterval(interval); window.location.href = 'index.html'; }
+  else countdownEl.textContent = `Redirigiendo al inicio en ${secs} segundos...`;
+}, 1000);
+
+// Cancel on interaction
+document.addEventListener('click', () => clearInterval(interval), { once: true });
+document.addEventListener('keydown', () => clearInterval(interval), { once: true });
+document.getElementById('errorSearch').addEventListener('focus', () => {
+  clearInterval(interval);
+  countdownEl.textContent = 'Redirección cancelada · Busca lo que necesitas →';
+});
+</script>
+<script src="./nexus-ai-chat.js"></script>
+<script src="./nexus-pwa.js"></script>
+<footer>
+  <div class="footer-brand">
+    <span class="nav-logo" style="display:block;margin-bottom:16px">NEXUS</span>
+    <p class="footer-desc">Tu tienda de confianza para hardware, periféricos y componentes de alto rendimiento desde 2010. Más de 180.000 clientes satisfechos.</p>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">𝕏</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">📸</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">💬</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Tienda</div>
+    <div class="footer-links">
+      <a href="productos.html">Todos los productos</a>
+      <a href="gaming.html">Gaming Setup</a>
+      <a href="ofertas.html">Ofertas y chollos</a>
+      <a href="outlet.html">Outlet</a>
+      <a href="comparar.html">⚖ Comparador</a>
+      <a href="busqueda.html">Buscador</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Mi cuenta</div>
+    <div class="footer-links">
+      <a href="perfil.html">Mi perfil</a>
+      <a href="carrito.html">Mi carrito</a>
+      <a href="login.html">Iniciar sesión</a>
+      <a href="registro.html">Crear cuenta</a>
+      <a href="programa-puntos.html">⭐ Programa de puntos</a>
+      <a href="afiliados.html">Programa de afiliados</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Información</div>
+    <div class="footer-links">
+      <a href="soporte.html">Centro de ayuda</a>
+      <a href="garantia.html">Garantías</a>
+      <a href="financiacion.html">Financiación 0%</a>
+      <a href="guias.html">Guías de compra</a>
+      <a href="blog.html">Blog</a>
+      <a href="sobre-nosotros.html">Sobre nosotros</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

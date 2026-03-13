@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrito — NEXUS</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00c8ff">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .cart-wrap { max-width: 1300px; margin: 0 auto; padding: 40px 32px 80px; display: grid; grid-template-columns: 1fr 360px; gap: 40px; align-items: start; }
+    .cart-heading { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+    .cart-item { display: grid; grid-template-columns: 72px 1fr auto; gap: 20px; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); }
+    .cart-item-icon { width: 72px; height: 72px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0; }
+    .cart-item-name { font-size: 15px; color: var(--white); font-weight: 500; margin-bottom: 6px; line-height: 1.3; }
+    .cart-item-unit { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+    .qty-row { display: flex; align-items: center; }
+    .qty-btn { width: 30px; height: 30px; background: var(--card); border: 1px solid var(--border); color: var(--text); font-size: 16px; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; }
+    .qty-btn:first-child { border-radius: 4px 0 0 4px; }
+    .qty-btn:last-child { border-radius: 0 4px 4px 0; }
+    .qty-btn:hover { background: var(--border); color: var(--white); }
+    .qty-num { width: 40px; height: 30px; background: var(--dark); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); color: var(--white); font-family: 'JetBrains Mono', monospace; font-size: 14px; text-align: center; line-height: 30px; }
+    .cart-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; flex-shrink: 0; }
+    .cart-item-price { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--accent); }
+    .cart-remove { background: none; border: 1px solid var(--border); color: var(--muted); width: 30px; height: 30px; cursor: pointer; border-radius: 4px; font-size: 13px; transition: all .2s; display: flex; align-items: center; justify-content: center; }
+    .cart-remove:hover { background: #ef4444; border-color: #ef4444; color: white; }
+    .cart-empty { text-align: center; padding: 80px 20px; }
+    .cart-empty-icon { font-size: 72px; opacity: .3; margin-bottom: 20px; }
+    .cart-empty-text { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--muted); letter-spacing: 2px; margin-bottom: 24px; }
+    .summary-box { background: var(--dark); border: 1px solid var(--border); border-radius: 4px; padding: 28px; position: sticky; top: 84px; }
+    .summary-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--white); margin-bottom: 20px; }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 14px; color: var(--muted); border-bottom: 1px solid var(--border); }
+    .summary-row.total-row { border-bottom: none; padding-top: 16px; color: var(--white); }
+    .summary-total-num { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--accent); }
+    .discount-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0 4px; }
+    .discount-remove:hover { color: #ef4444; }
+    .promo-wrap { display: flex; margin: 20px 0 16px; }
+    .promo-input { flex: 1; background: var(--black); border: 1px solid var(--border); border-right: none; color: var(--text); padding: 10px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; border-radius: 4px 0 0 4px; letter-spacing: 1px; }
+    .promo-input:focus { border-color: var(--accent); }
+    .promo-input::placeholder { color: var(--muted); letter-spacing: 0; font-family: 'DM Sans', sans-serif; font-size: 13px; }
+    .promo-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 10px 16px; font-size: 11px; cursor: pointer; border-radius: 0 4px 4px 0; letter-spacing: 1px; text-transform: uppercase; transition: all .2s; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+    .promo-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--black); }
+    .btn-checkout { width: 100%; padding: 16px; background: var(--accent); color: var(--black); border: none; border-radius: 4px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; cursor: pointer; transition: all .2s; margin-bottom: 16px; }
+    .btn-checkout:hover { background: #1ad5ff; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,200,255,.3); }
+    .btn-checkout:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+    .trust-list { display: flex; flex-direction: column; gap: 6px; margin-top: 16px; }
+    .trust-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+    .trust-item .ti-icon { color: var(--accent); }
+    .payment-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .payment-chip { background: var(--card); border: 1px solid var(--border); padding: 5px 10px; font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; border-radius: 3px; }
+    .upsell-section { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--border); display: none; }
+    .upsell-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+    .upsell-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 8px; }
+    .upsell-item:hover { border-color: rgba(0,200,255,.3); }
+    .upsell-icon { font-size: 28px; flex-shrink: 0; }
+    .upsell-info { flex: 1; min-width: 0; }
+    .upsell-name { font-size: 12px; color: var(--white); line-height: 1.3; }
+    .upsell-reason { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .upsell-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+    .upsell-price { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--accent); }
+    .upsell-add { background: var(--accent); color: var(--black); border: none; padding: 4px 12px; font-size: 10px; font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; cursor: pointer; border-radius: 3px; }
+    .upsell-add:hover { opacity: .85; }
+    .cart-toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--dark); border: 1px solid var(--accent); border-left: 3px solid var(--accent); color: var(--text); padding: 12px 24px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; z-index: 9999; opacity: 0; transition: all .3s; white-space: nowrap; pointer-events: none; }
+    .cart-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (max-width: 900px) { .cart-wrap { grid-template-columns: 1fr; padding: 24px 20px 60px; gap: 32px; } .summary-box { position: static; } }
+    @media (max-width: 480px) { .cart-wrap { padding: 16px 14px 60px; } .cart-item { grid-template-columns: 56px 1fr auto; gap: 12px; padding: 16px 0; } .cart-item-icon { width: 56px; height: 56px; font-size: 26px; } .cart-item-name { font-size: 13px; } .cart-item-price { font-size: 20px; } .summary-box { padding: 20px; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="gaming.html">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="guias.html">Guías</a>
+    <a href="outlet.html">Outlet</a>
+    <a href="soporte.html">Soporte</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div>
+      <div class="section-tag">// Cesta</div>
+      <h1 class="page-title">TU <span>CARRITO</span></h1>
+    </div>
+    <a href="productos.html" class="btn-ghost">← Seguir comprando</a>
+  </div>
+</div>
+
+<div class="cart-wrap page-transition">
+  <div class="cart-items-col">
+    <div class="cart-heading">// Productos seleccionados</div>
+    <div id="cartContent"></div>
+    <div id="upsellSection" class="upsell-section"></div>
+  </div>
+
+  <div>
+    <div class="summary-box">
+      <div class="summary-title">RESUMEN</div>
+      <div class="summary-row"><span>Subtotal</span><span id="sumSubtotal">0€</span></div>
+      <div class="summary-row" id="discountRow" style="display:none">
+        <span id="discountLabel" style="color:#22c55e;font-family:'JetBrains Mono',monospace;font-size:11px">—</span>
+        <span style="display:flex;align-items:center;gap:6px">
+          <span id="discountAmt" style="color:#22c55e;font-family:'JetBrains Mono',monospace;font-size:12px"></span>
+          <button class="discount-remove" onclick="removeDiscount()" title="Quitar">✕</button>
+        </span>
+      </div>
+      <div class="summary-row"><span>Envío</span><span id="sumShipping" style="color:var(--accent)">GRATIS</span></div>
+      <div class="summary-row"><span>IVA (21%)</span><span id="sumTax">0€</span></div>
+      <div class="summary-row total-row"><span>Total</span><span class="summary-total-num" id="sumTotal">0€</span></div>
+
+      <div class="promo-wrap">
+        <input class="promo-input" id="promoInput" type="text" placeholder="Código promocional" maxlength="20">
+        <button class="promo-btn" onclick="applyPromo()">Aplicar</button>
+      </div>
+
+      <button class="btn-checkout" id="checkoutBtn" onclick="goCheckout()">🔒 PROCEDER AL PAGO</button>
+
+      <div class="trust-list">
+        <div class="trust-item"><span class="ti-icon">✓</span><span>Pago seguro SSL 256 bits</span></div>
+        <div class="trust-item"><span class="ti-icon">✓</span><span>Envío gratis desde 99€</span></div>
+        <div class="trust-item"><span class="ti-icon">✓</span><span>Devolución gratuita 30 días</span></div>
+        <div class="trust-item"><span class="ti-icon">✓</span><span>Financiación <a href="financiacion.html" style="color:var(--accent)">0% hasta 12 meses</a></span></div>
+      </div>
+
+      <div class="payment-row">
+        <span class="payment-chip">VISA</span>
+        <span class="payment-chip">MASTERCARD</span>
+        <span class="payment-chip">PAYPAL</span>
+        <span class="payment-chip">BIZUM</span>
+        <span class="payment-chip">APPLE PAY</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cart-toast" id="cartToast"></div>
+
+<script src="./app.js"></script>
+<script src="./nexus-extras.js"></script>
+<script>
+// ── Utils ──────────────────────────────────────────────────────────
+function getIcon(name) {
+  if (!name) return '🔧';
+  var n = name.toLowerCase();
+  if (n.includes('rtx') || n.includes('geforce') || n.includes('radeon')) return '🎮';
+  if (n.includes('rx ') && (n.includes('xt') || n.includes('gb'))) return '🎮';
+  if (n.includes('nvme') || n.includes('ssd') || n.includes('sn850') || n.includes('t705') || n.includes('firecuda') || n.includes('rocket') || n.includes('990 pro') || n.includes('870 evo') || n.includes('red pro')) return '💾';
+  if (n.includes('ddr') || n.includes('dominator') || n.includes('trident') || n.includes('ripjaws') || n.includes('fury') || n.includes('vengeance') || n.includes('t-force')) return '🧠';
+  if (n.includes('ryzen') || n.includes('threadripper') || n.includes('core ultra') || n.includes('core i')) return '⚡';
+  if (n.includes('oled') || n.includes('ultragear') || n.includes('odyssey') || n.includes('predator') || n.includes('mobiuz') || n.includes('swift')) return '🖥️';
+  if (n.includes('blackwidow') || n.includes('k100') || n.includes('g915')) return '⌨️';
+  if (n.includes('superlight') || n.includes('deathadder') || n.includes('mx master') || n.includes('basilisk') || n.includes('scimitar')) return '🖱️';
+  if (n.includes('arctis') || n.includes('cloud alpha')) return '🎧';
+  if (n.includes('stream deck') || n.includes('nt-usb') || n.includes('rode')) return '🎙️';
+  if (n.includes('z890') || n.includes('b650') || n.includes('x870') || n.includes('maximus') || n.includes('meg') || n.includes('aorus') || n.includes('proart') || n.includes('tomahawk')) return '🔲';
+  if (n.includes('o11') || n.includes('torrent') || n.includes('h9') || n.includes('7000d') || n.includes('silent base') || n.includes('morpheus')) return '🖥';
+  if (n.includes('hx1500') || n.includes('dark power') || n.includes('thor') || n.includes('focus gx') || n.includes('rm850') || n.includes('pure power') || n.includes('s12iii')) return '🔌';
+  return '🔧';
+}
+
+function fmt(n) {
+  return Number(n).toLocaleString('es-ES') + '€';
+}
+
+// ── Cart data ──────────────────────────────────────────────────────
+function getCartRaw() {
+  try { return JSON.parse(localStorage.getItem('nexusCart') || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveCartRaw(flat) {
+  localStorage.setItem('nexusCart', JSON.stringify(flat));
+  if (typeof cart !== 'undefined') cart = flat;
+  updateCartCount();
+}
+
+function group(flat) {
+  var map = {};
+  flat.forEach(function(item) {
+    if (!item || !item.name) return;
+    var k = item.name;
+    if (map[k]) { map[k].qty++; }
+    else { map[k] = { name: item.name, price: Number(item.price) || 0, qty: 1 }; }
+  });
+  return Object.values(map);
+}
+
+function flatten(grouped) {
+  var out = [];
+  grouped.forEach(function(g) {
+    for (var i = 0; i < g.qty; i++) out.push({ name: g.name, price: g.price });
+  });
+  return out;
+}
+
+// ── State ──────────────────────────────────────────────────────────
+var activeDiscount = null;
+
+// ── Render ─────────────────────────────────────────────────────────
+function renderCart() {
+  var flat = getCartRaw();
+  // Sync global cart variable used by other functions
+  if (typeof cart !== 'undefined') cart = flat;
+  var grouped = group(flat);
+  var container = document.getElementById('cartContent');
+  var checkoutBtn = document.getElementById('checkoutBtn');
+  if (!container) return;
+
+  if (grouped.length === 0) {
+    container.innerHTML =
+      '<div class="cart-empty">' +
+        '<div class="cart-empty-icon">🛒</div>' +
+        '<div class="cart-empty-text">Tu carrito está vacío</div>' +
+        '<a href="productos.html" class="btn-primary" style="margin-top:24px;display:inline-block;padding:14px 32px">Explorar productos</a>' +
+      '</div>';
+    updateSummary([]);
+    document.getElementById('upsellSection').style.display = 'none';
+    if (checkoutBtn) checkoutBtn.disabled = true;
+    return;
+  }
+
+  if (checkoutBtn) checkoutBtn.disabled = false;
+
+  var html = '';
+  grouped.forEach(function(item, i) {
+    html +=
+      '<div class="cart-item" id="ci-' + i + '">' +
+        '<div class="cart-item-icon">' + getIcon(item.name) + '</div>' +
+        '<div>' +
+          '<div class="cart-item-name">' + item.name + '</div>' +
+          '<div class="cart-item-unit">' + fmt(item.price) + ' / unidad</div>' +
+          '<div class="qty-row">' +
+            '<button class="qty-btn" onclick="changeQty(' + i + ',-1)">−</button>' +
+            '<div class="qty-num">' + item.qty + '</div>' +
+            '<button class="qty-btn" onclick="changeQty(' + i + ',1)">+</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="cart-item-right">' +
+          '<div class="cart-item-price">' + fmt(item.price * item.qty) + '</div>' +
+          '<button class="cart-remove" onclick="removeItem(' + i + ')" title="Eliminar">✕</button>' +
+        '</div>' +
+      '</div>';
+  });
+  container.innerHTML = html;
+
+  updateSummary(grouped);
+  renderUpsell(grouped);
+}
+
+function updateSummary(grouped) {
+  var subtotal = grouped.reduce(function(s, g) { return s + g.price * g.qty; }, 0);
+  var shipping = (subtotal > 0 && subtotal < 99) ? 9.99 : 0;
+  var discount = 0;
+
+  if (activeDiscount) {
+    if (activeDiscount.type === 'pct')      discount = Math.round(subtotal * activeDiscount.value) / 100;
+    if (activeDiscount.type === 'fixed')    discount = Math.min(activeDiscount.value, subtotal);
+    if (activeDiscount.type === 'shipping') shipping = 0;
+  }
+
+  var afterDiscount = subtotal - discount;
+  var tax   = Math.round(afterDiscount * 0.21 * 100) / 100;
+  var total = afterDiscount + shipping;
+
+  document.getElementById('sumSubtotal').textContent = fmt(subtotal);
+  document.getElementById('sumTax').textContent = fmt(tax);
+  document.getElementById('sumTotal').textContent = fmt(total);
+  var shipEl = document.getElementById('sumShipping');
+  shipEl.textContent = shipping === 0 ? 'GRATIS' : fmt(shipping);
+  shipEl.style.color = shipping === 0 ? 'var(--accent)' : 'var(--text)';
+
+  var discRow = document.getElementById('discountRow');
+  if (activeDiscount && subtotal > 0) {
+    discRow.style.display = 'flex';
+    document.getElementById('discountLabel').textContent = activeDiscount.code;
+    document.getElementById('discountAmt').textContent =
+      activeDiscount.type === 'shipping' ? 'Envío gratis' : '−' + fmt(discount);
+  } else {
+    discRow.style.display = 'none';
+  }
+}
+
+// ── Qty / Remove ───────────────────────────────────────────────────
+function changeQty(idx, delta) {
+  var flat = getCartRaw();
+  var grouped = group(flat);
+  if (!grouped[idx]) return;
+  var newQty = grouped[idx].qty + delta;
+  if (newQty < 1) newQty = 1;
+  grouped[idx].qty = newQty;
+  saveCartRaw(flatten(grouped));
+  renderCart();
+}
+
+function removeItem(idx) {
+  var flat = getCartRaw();
+  var grouped = group(flat);
+  if (!grouped[idx]) return;
+  grouped.splice(idx, 1);
+  saveCartRaw(flatten(grouped));
+  showCartToast('Producto eliminado del carrito');
+  renderCart();
+}
+
+// ── Upsell ─────────────────────────────────────────────────────────
+var UPSELL = [
+  { name:'Corsair HX1500i Platinum',       price:329, icon:'🔌', reason:'Fuente perfecta para este setup' },
+  { name:'Samsung 990 Pro 2TB',            price:159, icon:'💾', reason:'Acelera los tiempos de carga' },
+  { name:'G Pro X Superlight 2',           price:159, icon:'🖱️', reason:'El ratón de los profesionales' },
+  { name:'Kingston Fury Beast DDR5 32GB',  price:149, icon:'🧠', reason:'Amplía tu memoria RAM' },
+  { name:'Elgato Stream Deck MK.2',        price:149, icon:'🎛️', reason:'Control total de tu setup' },
+];
+
+function renderUpsell(grouped) {
+  var el = document.getElementById('upsellSection');
+  if (!el) return;
+  var inCart = grouped.map(function(g) { return g.name.toLowerCase(); });
+  var picks = UPSELL.filter(function(u) {
+    return !inCart.includes(u.name.toLowerCase());
+  }).slice(0, 3);
+  if (!picks.length) { el.style.display = 'none'; return; }
+  var html = '<div class="upsell-title">// También te puede interesar</div>';
+  picks.forEach(function(p) {
+    html +=
+      '<div class="upsell-item">' +
+        '<div class="upsell-icon">' + p.icon + '</div>' +
+        '<div class="upsell-info">' +
+          '<div class="upsell-name">' + p.name + '</div>' +
+          '<div class="upsell-reason">' + p.reason + '</div>' +
+        '</div>' +
+        '<div class="upsell-right">' +
+          '<div class="upsell-price">' + p.price + '€</div>' +
+          '<button class="upsell-add" onclick="upsellAdd(\'' + p.name.replace(/'/g,"\\'") + '\',' + p.price + ')">+ AÑADIR</button>' +
+        '</div>' +
+      '</div>';
+  });
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+function upsellAdd(name, price) {
+  addToCart(name, price);
+  renderCart();
+}
+
+// ── Promo ──────────────────────────────────────────────────────────
+var PROMOS = {
+  'NEXUS10':    { type:'pct',      value:10, label:'10% de descuento' },
+  'NEXUS20':    { type:'pct',      value:20, label:'20% de descuento' },
+  'NEXUSVIP':   { type:'pct',      value:15, label:'15% descuento VIP' },
+  'BIENVENIDO': { type:'fixed',    value:15, label:'15€ de descuento' },
+  'GAMING':     { type:'shipping', value:0,  label:'Envío gratis' },
+};
+
+function applyPromo() {
+  var code = (document.getElementById('promoInput').value || '').toUpperCase().trim();
+  if (!code) return;
+  var promo = PROMOS[code];
+  if (!promo) { showCartToast('⚠ Código no válido'); return; }
+  activeDiscount = { code: code, type: promo.type, value: promo.value, label: promo.label };
+  document.getElementById('promoInput').value = '';
+  showCartToast('✓ Código aplicado: ' + promo.label);
+  renderCart();
+}
+
+function removeDiscount() {
+  activeDiscount = null;
+  renderCart();
+  showCartToast('Descuento eliminado');
+}
+
+// ── Checkout ───────────────────────────────────────────────────────
+function goCheckout() {
+  if (!getCartRaw().length) { showCartToast('⚠ Tu carrito está vacío'); return; }
+  window.location.href = 'checkout.html';
+}
+
+// ── Toast ──────────────────────────────────────────────────────────
+function showCartToast(msg) {
+  var t = document.getElementById('cartToast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(function() { t.classList.remove('show'); }, 2800);
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  renderCart();
+  updateCartCount();
+  renderNavAuth();
+  // Enter key on promo
+  var inp = document.getElementById('promoInput');
+  if (inp) inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') applyPromo(); });
+});
+</script>
+<script src="./nexus-ai-chat.js"></script>
+<script src="./nexus-pwa.js"></script>
+<footer>
+  <div class="footer-brand">
+    <span class="nav-logo" style="display:block;margin-bottom:16px">NEXUS</span>
+    <p class="footer-desc">Tu tienda de confianza para hardware, periféricos y componentes de alto rendimiento desde 2010. Más de 180.000 clientes satisfechos.</p>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">𝕏</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">📸</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">💬</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Tienda</div>
+    <div class="footer-links">
+      <a href="productos.html">Todos los productos</a>
+      <a href="gaming.html">Gaming Setup</a>
+      <a href="ofertas.html">Ofertas y chollos</a>
+      <a href="outlet.html">Outlet</a>
+      <a href="comparar.html">⚖ Comparador</a>
+      <a href="busqueda.html">Buscador</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Mi cuenta</div>
+    <div class="footer-links">
+      <a href="perfil.html">Mi perfil</a>
+      <a href="carrito.html">Mi carrito</a>
+      <a href="login.html">Iniciar sesión</a>
+      <a href="registro.html">Crear cuenta</a>
+      <a href="programa-puntos.html">⭐ Programa de puntos</a>
+      <a href="afiliados.html">Programa de afiliados</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Información</div>
+    <div class="footer-links">
+      <a href="soporte.html">Centro de ayuda</a>
+      <a href="garantia.html">Garantías</a>
+      <a href="financiacion.html">Financiación 0%</a>
+      <a href="guias.html">Guías de compra</a>
+      <a href="blog.html">Blog</a>
+      <a href="sobre-nosotros.html">Sobre nosotros</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

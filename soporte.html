@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00c8ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soporte — NEXUS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .support-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .support-card { background: var(--dark); padding: 40px 32px; cursor: pointer; transition: background 0.2s; }
+    .support-card:hover { background: var(--card); }
+    .support-icon { font-size: 40px; margin-bottom: 20px; }
+    .support-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--white); margin-bottom: 12px; }
+    .support-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .support-link { display: inline-block; margin-top: 16px; font-size: 12px; color: var(--accent); letter-spacing: 1px; font-family: 'JetBrains Mono', monospace; }
+    .faq-section { padding: 80px 40px; }
+    .faq-item { border-bottom: 1px solid var(--border); overflow: hidden; }
+    .faq-question { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; cursor: pointer; gap: 20px; transition: color 0.2s; }
+    .faq-question:hover { color: var(--accent); }
+    .faq-question-text { font-size: 16px; font-weight: 400; color: var(--white); }
+    .faq-question:hover .faq-question-text { color: var(--accent); }
+    .faq-icon { font-size: 20px; color: var(--muted); transition: transform 0.3s; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
+    .faq-answer { font-size: 14px; color: var(--muted); line-height: 1.8; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.2s; }
+    .faq-answer.open { max-height: 300px; padding-bottom: 24px; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); color: var(--accent); }
+    .contact-section { background: var(--dark); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 80px 40px; }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+    .contact-info-item { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 32px; }
+    .contact-info-icon { font-size: 24px; flex-shrink: 0; }
+    .contact-info-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; }
+    .contact-info-value { font-size: 15px; color: var(--white); }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; background: var(--black); border: 1px solid var(--border);
+      color: var(--text); padding: 12px 16px; font-family: 'DM Sans', sans-serif;
+      font-size: 14px; outline: none; border-radius: 4px; transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
+    .form-select option { background: var(--card); }
+    .form-textarea { resize: vertical; min-height: 120px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .status-tracker { background: var(--dark); border: 1px solid var(--border); padding: 48px; margin: 0 40px 80px; }
+    .tracker-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--white); margin-bottom: 28px; }
+    .tracker-input-row { display: flex; gap: 0; max-width: 500px; }
+    .tracker-result { margin-top: 32px; display: none; }
+    .tracker-steps { display: flex; gap: 0; margin-top: 24px; position: relative; }
+    .tracker-steps::before { content: ''; position: absolute; top: 12px; left: 12px; right: 12px; height: 2px; background: var(--border); z-index: 0; }
+    .tracker-step { flex: 1; text-align: center; position: relative; z-index: 1; }
+    .tracker-step-dot { width: 24px; height: 24px; border-radius: 50%; background: var(--card); border: 2px solid var(--border); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+    .tracker-step.done .tracker-step-dot { background: var(--accent); border-color: var(--accent); color: var(--black); }
+    .tracker-step.active .tracker-step-dot { background: var(--accent2); border-color: var(--accent2); color: var(--black); animation: pulse 1.5s infinite; }
+    .tracker-step-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+    @media(max-width:900px){ .support-grid{grid-template-columns:1fr;} .contact-grid{grid-template-columns:1fr;gap:40px;} .contact-section,.faq-section{padding:60px 20px;} .status-tracker{margin:0 20px 40px;padding:24px;} .tracker-steps{flex-direction:column;gap:16px;} .tracker-steps::before{display:none;} .form-row{grid-template-columns:1fr;} }
+  
+@media(max-width:900px){
+  .support-grid{grid-template-columns:1fr 1fr;}
+  .faq-section{padding:48px 20px;}
+  .contact-section{padding:48px 20px;}
+  .contact-grid{grid-template-columns:1fr;gap:40px;}
+  .tracker-section{padding:48px 20px;}
+}
+@media(max-width:480px){
+  .support-grid{grid-template-columns:1fr;}
+  .support-card{padding:28px 20px;}
+  .faq-section,.contact-section{padding:32px 16px;}
+  .contact-info-item{gap:14px;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="gaming.html">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="soporte.html" class="active">Soporte</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="busqueda.html" style="color:var(--muted);font-size:18px;display:flex;align-items:center;padding:0 4px" title="Buscar">🔍</a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-text">Carrito</span> <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div>
+      <div class="section-tag">// Ayuda</div>
+      <h1 class="page-title">CENTRO DE<br><span>SOPORTE</span></h1>
+    </div>
+    <p style="color:var(--muted);font-size:15px;max-width:320px;text-align:right">Estamos aquí para ayudarte. Tiempo de respuesta: menos de 4 horas.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="section-header">
+    <div class="section-tag">// ¿Cómo podemos ayudarte?</div>
+    <h2 class="section-title">SOPORTE RÁPIDO</h2>
+  </div>
+  <div class="support-grid">
+    <div class="support-card" id="envios">
+      <div class="support-icon">🚚</div>
+      <div class="support-title">Envíos</div>
+      <div class="support-desc">Información sobre plazos de entrega, seguimiento de pedidos y zonas de envío en España y Europa.</div>
+      <span class="support-link" onclick="scrollToSection('tracker')">Rastrear pedido →</span>
+    </div>
+    <div class="support-card" id="devoluciones">
+      <div class="support-icon">↩️</div>
+      <div class="support-title">Devoluciones</div>
+      <div class="support-desc">Política de devolución de 30 días sin preguntas. Proceso sencillo y reembolso en 3-5 días hábiles.</div>
+      <span class="support-link" onclick="scrollToFaq(3)">Leer política →</span>
+    </div>
+    <div class="support-card" id="garantia">
+      <div class="support-icon">🛡️</div>
+      <div class="support-title">Garantía</div>
+      <div class="support-desc">Todos los productos cuentan con garantía oficial del fabricante. Gestionamos las RMAs por ti.</div>
+      <span class="support-link" onclick="scrollToFaq(4)">Ver detalles →</span>
+    </div>
+    <div class="support-card">
+      <div class="support-icon">💬</div>
+      <div class="support-title">Chat en Vivo</div>
+      <div class="support-desc">Habla con un experto en tiempo real. Disponible de lunes a viernes de 9:00 a 20:00 CET.</div>
+      <span class="support-link" onclick="openChat()">Iniciar chat →</span>
+    </div>
+    <div class="support-card">
+      <div class="support-icon">📧</div>
+      <div class="support-title">Email</div>
+      <div class="support-desc">Respuesta garantizada en menos de 4 horas. Para consultas técnicas, incluye modelo del producto.</div>
+      <span class="support-link" onclick="scrollToContact()">Enviar email →</span>
+    </div>
+    <div class="support-card">
+      <div class="support-icon">📞</div>
+      <div class="support-title">Teléfono</div>
+      <div class="support-desc">Llámanos al 900 123 456 (gratuito). Horario: L-V 9:00–18:00 y Sábados 10:00–14:00.</div>
+      <a href="tel:900123456" class="support-link">Llamar ahora →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ORDER TRACKER -->
+<div class="status-tracker" id="tracker">
+  <div class="tracker-title">RASTREAR PEDIDO</div>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Introduce tu número de pedido para ver el estado de tu envío.</p>
+  <div class="tracker-input-row">
+    <input type="text" class="form-input" placeholder="ej. NEX-2026-98761" id="orderNum" style="border-radius:4px 0 0 4px;border-right:none">
+    <button class="btn-primary" style="border-radius:0 4px 4px 0" onclick="trackOrder()">Rastrear</button>
+  </div>
+  <div class="tracker-result" id="trackerResult">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)">Pedido <span id="trackedOrder" style="color:var(--accent)"></span></div>
+        <div style="font-size:15px;color:var(--white);margin-top:4px" id="trackedStatus">En tránsito</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)" id="trackedETA">Entrega estimada: mañana</div>
+    </div>
+    <div class="tracker-steps" id="trackerSteps"></div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+  <div class="section-header">
+    <div class="section-tag">// FAQ</div>
+    <h2 class="section-title">PREGUNTAS FRECUENTES</h2>
+  </div>
+  <div id="faqContainer"></div>
+</div>
+
+<!-- CONTACT FORM -->
+<div class="contact-section" id="contact">
+  <div class="section-header" style="margin-bottom:48px">
+    <div class="section-tag">// Contacto</div>
+    <h2 class="section-title">ESCRÍBENOS</h2>
+  </div>
+  <div class="contact-grid">
+    <div>
+      <div class="contact-info-item">
+        <div class="contact-info-icon">📍</div>
+        <div><div class="contact-info-label">Dirección</div><div class="contact-info-value">Calle Tecnología 42, 28001 Madrid, España</div></div>
+      </div>
+      <div class="contact-info-item">
+        <div class="contact-info-icon">📞</div>
+        <div><div class="contact-info-label">Teléfono</div><div class="contact-info-value">900 123 456 (gratuito)</div></div>
+      </div>
+      <div class="contact-info-item">
+        <div class="contact-info-icon">📧</div>
+        <div><div class="contact-info-label">Email</div><div class="contact-info-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="becdd1ced1cccadbfed0dbc6cbcdcadbddd690dbcd">[email&#160;protected]</a></div></div>
+      </div>
+      <div class="contact-info-item">
+        <div class="contact-info-icon">🕐</div>
+        <div><div class="contact-info-label">Horario</div><div class="contact-info-value">L-V: 9:00–20:00 · Sáb: 10:00–14:00</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-input" placeholder="Tu nombre" id="contactName">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="tu@email.com" id="contactEmail">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Asunto</label>
+        <select class="form-select" id="contactSubject">
+          <option value="">Selecciona un asunto</option>
+          <option>Estado de mi pedido</option>
+          <option>Consulta sobre producto</option>
+          <option>Devolución o cambio</option>
+          <option>Problema técnico</option>
+          <option>Facturación</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Número de pedido (opcional)</label>
+        <input type="text" class="form-input" placeholder="NEX-2026-XXXXX" id="contactOrder">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mensaje</label>
+        <textarea class="form-textarea" placeholder="Describe tu consulta con el máximo detalle posible..." id="contactMessage"></textarea>
+      </div>
+      <button class="btn-primary" onclick="sendContact()">Enviar Mensaje →</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer-bottom" style="border-top:1px solid var(--border)">
+  <span class="footer-copy">© 2026 NEXUS TECH</span>
+  <a href="index.html" style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">← Inicio</a>
+</div>
+
+<div class="toast" id="toast"></div>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="./app.js"></script>
+<script src="./nexus-extras.js"></script>
+<script>
+const faqs = [
+  { q: '¿Cuáles son los plazos de envío?', a: 'El envío estándar tarda entre 24 y 48 horas laborables. Para pedidos antes de las 14:00, el envío express llega al día siguiente. Envío gratuito en pedidos superiores a 49€.' },
+  { q: '¿Puedo cambiar o cancelar mi pedido?', a: 'Puedes cancelar o modificar tu pedido hasta 2 horas después de realizarlo, siempre que no haya sido procesado por almacén. Contáctanos inmediatamente en soporte@nexustech.es.' },
+  { q: '¿Cómo funciona el pago a plazos?', a: 'Ofrecemos financiación sin intereses en pedidos superiores a 300€ con Aplazame y Klarna. Puedes elegir entre 3, 6 o 12 cuotas mensuales directamente en el checkout.' },
+  { q: '¿Cuál es la política de devoluciones?', a: 'Tienes 30 días para devolver cualquier producto en su estado original. La recogida es gratuita. El reembolso se procesa en 3-5 días hábiles una vez recibido el artículo en nuestro almacén.' },
+  { q: '¿Cómo funciona la garantía?', a: 'Todos los productos incluyen la garantía oficial del fabricante (2-3 años según marca). En caso de avería, nos encargamos de gestionar la RMA por ti, sin coste adicional.' },
+  { q: '¿Hacéis montaje de PCs?', a: 'Sí, ofrecemos servicio de montaje personalizado. Puedes seleccionar componentes compatibles y añadir el servicio de montaje (+49€) en el carrito. El PC llega ensamblado, testeado y listo para usar.' },
+  { q: '¿Tienen tienda física?', a: 'Sí, nuestra tienda principal está en Madrid (Calle Tecnología 42). También contamos con puntos de recogida en Barcelona y Valencia. Consulta horarios en la web.' },
+];
+
+function renderFAQs() {
+  document.getElementById('faqContainer').innerHTML = faqs.map((f, i) => `
+    <div class="faq-item" id="faq-${i}">
+      <div class="faq-question" onclick="toggleFaq(${i})">
+        <span class="faq-question-text">${f.q}</span>
+        <span class="faq-icon">+</span>
+      </div>
+      <div class="faq-answer" id="faq-ans-${i}">${f.a}</div>
+    </div>
+  `).join('');
+}
+
+function toggleFaq(idx) {
+  const item = document.getElementById('faq-' + idx);
+  const ans = document.getElementById('faq-ans-' + idx);
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(el => { el.classList.remove('open'); document.querySelector(`#${el.id} .faq-answer`).classList.remove('open'); });
+  if (!isOpen) { item.classList.add('open'); ans.classList.add('open'); }
+}
+
+function scrollToFaq(idx) {
+  document.querySelector('.faq-section').scrollIntoView({ behavior: 'smooth' });
+  setTimeout(() => toggleFaq(idx), 500);
+}
+
+function scrollToContact() { document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }); }
+function scrollToSection(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
+
+function trackOrder() {
+  const num = document.getElementById('orderNum').value.trim();
+  if (!num) { showToast('⚠ Introduce un número de pedido'); return; }
+  document.getElementById('trackedOrder').textContent = num;
+  const statuses = ['Pedido confirmado', 'En preparación', 'En tránsito', 'En reparto', 'Entregado'];
+  const randomStatus = statuses[Math.floor(Math.random() * 3) + 1];
+  document.getElementById('trackedStatus').textContent = randomStatus;
+  const steps = ['Confirmado', 'Preparación', 'En tránsito', 'En reparto', 'Entregado'];
+  const activeIdx = statuses.indexOf(randomStatus);
+  document.getElementById('trackerSteps').innerHTML = steps.map((s, i) => `
+    <div class="tracker-step ${i < activeIdx ? 'done' : i === activeIdx ? 'active' : ''}">
+      <div class="tracker-step-dot">${i < activeIdx ? '✓' : i + 1}</div>
+      <div class="tracker-step-label">${s}</div>
+    </div>
+  `).join('');
+  document.getElementById('trackerResult').style.display = 'block';
+}
+
+function openChat() { showToast('💬 Conectando con un agente...'); }
+
+function sendContact() {
+  const name = document.getElementById('contactName').value;
+  const email = document.getElementById('contactEmail').value;
+  const msg = document.getElementById('contactMessage').value;
+  if (!name || !email || !msg) { showToast('⚠ Completa todos los campos obligatorios'); return; }
+  showToast('✓ Mensaje enviado. Te responderemos
+<footer>
+  <div class="footer-brand">
+    <span class="nav-logo" style="display:block;margin-bottom:16px">NEXUS</span>
+    <p class="footer-desc">Tu tienda de confianza para hardware, periféricos y componentes de alto rendimiento desde 2010. Más de 180.000 clientes satisfechos.</p>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">𝕏</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">📸</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">💬</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Tienda</div>
+    <div class="footer-links">
+      <a href="productos.html">Todos los productos</a>
+      <a href="gaming.html">Gaming Setup</a>
+      <a href="ofertas.html">Ofertas y chollos</a>
+      <a href="outlet.html">Outlet</a>
+      <a href="comparar.html">⚖ Comparador</a>
+      <a href="busqueda.html">Buscador</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Mi cuenta</div>
+    <div class="footer-links">
+      <a href="perfil.html">Mi perfil</a>
+      <a href="carrito.html">Mi carrito</a>
+      <a href="login.html">Iniciar sesión</a>
+      <a href="registro.html">Crear cuenta</a>
+      <a href="programa-puntos.html">⭐ Programa de puntos</a>
+      <a href="afiliados.html">Programa de afiliados</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Información</div>
+    <div class="footer-links">
+      <a href="soporte.html">Centro de ayuda</a>
+      <a href="garantia.html">Garantías</a>
+      <a href="financiacion.html">Financiación 0%</a>
+      <a href="guias.html">Guías de compra</a>
+      <a href="blog.html">Blog</a>
+      <a href="sobre-nosotros.html">Sobre nosotros</a>
+    </div>
+  </div>
+</footer>

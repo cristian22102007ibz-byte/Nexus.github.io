@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00c8ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — NEXUS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .checkout-layout { display: grid; grid-template-columns: 1fr 400px; min-height: calc(100vh - 64px); margin-top: 64px; }
+    .checkout-main { padding: 56px 56px 56px 56px; border-right: 1px solid var(--border); }
+    .checkout-sidebar { background: var(--dark); padding: 40px; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; }
+
+    /* Steps */
+    .checkout-steps-bar { display: flex; align-items: center; gap: 0; margin-bottom: 48px; }
+    .checkout-step-item { display: flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; color: var(--muted); position: relative; flex: 1; }
+    .checkout-step-item:not(:last-child)::after { content: ''; flex: 1; height: 1px; background: var(--border); margin-left: 10px; position: absolute; right: -10%; top: 11px; width: 80%; }
+    .checkout-step-num { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; transition: all 0.3s; }
+    .checkout-step-item.active { color: var(--accent); }
+    .checkout-step-item.active .checkout-step-num { background: var(--accent); border-color: var(--accent); color: var(--black); font-weight: 700; }
+    .checkout-step-item.done { color: #00ff94; }
+    .checkout-step-item.done .checkout-step-num { background: #00ff94; border-color: #00ff94; color: var(--black); }
+
+    /* Section title */
+    .checkout-section-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--white); margin-bottom: 8px; }
+    .checkout-section-sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
+    .checkout-panel { display: none; animation: fadeUp 0.3s ease; }
+    .checkout-panel.active { display: block; }
+
+    /* Form fields */
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .field-group { margin-bottom: 18px; }
+    .field-label { display: block; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 7px; }
+    .field-input, .field-select { width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--white); padding: 13px 16px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; border-radius: 4px; transition: border-color 0.2s, box-shadow 0.2s; }
+    .field-input:focus, .field-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,180,255,0.08); }
+    .field-input::placeholder { color: var(--muted); }
+    .field-select option { background: var(--card); }
+    .field-input.error { border-color: #ff5e5e; }
+
+    /* Shipping options */
+    .shipping-option { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border: 1.5px solid var(--border); border-radius: 4px; cursor: pointer; margin-bottom: 12px; transition: all 0.2s; }
+    .shipping-option:hover { border-color: var(--accent); background: rgba(0,180,255,0.03); }
+    .shipping-option.selected { border-color: var(--accent); background: rgba(0,180,255,0.06); }
+    .shipping-option input[type="radio"] { accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; }
+    .shipping-option-info { flex: 1; }
+    .shipping-option-name { font-size: 14px; color: var(--white); margin-bottom: 3px; }
+    .shipping-option-detail { font-size: 12px; color: var(--muted); }
+    .shipping-option-price { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--accent); }
+    .shipping-badge { font-size: 10px; background: rgba(0,255,148,0.1); color: #00ff94; border: 1px solid rgba(0,255,148,0.2); padding: 2px 8px; border-radius: 2px; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+
+    /* Payment */
+    .payment-method-tabs { display: flex; gap: 0; border: 1px solid var(--border); margin-bottom: 24px; border-radius: 4px; overflow: hidden; }
+    .payment-tab { flex: 1; padding: 14px; text-align: center; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; color: var(--muted); cursor: pointer; background: var(--card); border-right: 1px solid var(--border); transition: all 0.2s; }
+    .payment-tab:last-child { border-right: none; }
+    .payment-tab.active { background: rgba(0,180,255,0.1); color: var(--accent); }
+    .payment-tab:hover:not(.active) { color: var(--white); }
+    .payment-panel { display: none; }
+    .payment-panel.active { display: block; }
+    .card-number-wrap { position: relative; }
+    .card-type-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 20px; }
+
+    /* Order confirmation */
+    .confirm-success { text-align: center; padding: 40px 0 60px; }
+    .confirm-icon { font-size: 80px; margin-bottom: 24px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+    @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .confirm-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 3px; color: var(--white); }
+    .confirm-title span { color: #00ff94; }
+    .confirm-order-num { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); margin-top: 12px; letter-spacing: 2px; }
+    .confirm-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 40px 0; text-align: center; }
+    .confirm-step { background: var(--dark); padding: 24px 16px; }
+    .confirm-step-icon { font-size: 28px; margin-bottom: 10px; }
+    .confirm-step-label { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+    .confirm-step-detail { font-size: 14px; color: var(--white); margin-top: 4px; }
+
+    /* Navigation buttons */
+    .checkout-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--border); }
+    .checkout-btn-back { background: none; border: 1px solid var(--border); color: var(--muted); padding: 13px 24px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 4px; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .checkout-btn-back:hover { border-color: var(--accent); color: var(--accent); }
+    .checkout-btn-next { background: var(--accent); color: var(--black); border: none; padding: 14px 36px; font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border-radius: 4px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 0 20px rgba(0,180,255,0.35); font-family: 'DM Sans', sans-serif; position: relative; overflow: hidden; }
+    .checkout-btn-next:hover { transform: translateY(-2px); box-shadow: 0 0 36px rgba(0,180,255,0.55); }
+    .checkout-btn-next.loading::after { content: ''; position: absolute; inset: 0; background: var(--accent); display: flex; align-items: center; justify-content: center; }
+
+    /* Sidebar order summary */
+    .sidebar-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--white); margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .sidebar-item { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .sidebar-item-icon { font-size: 28px; background: var(--card); border: 1px solid var(--border); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 4px; position: relative; }
+    .sidebar-item-qty { position: absolute; top: -6px; right: -6px; background: var(--accent); color: var(--black); width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+    .sidebar-item-name { font-size: 13px; color: var(--text); flex: 1; line-height: 1.4; }
+    .sidebar-item-price { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--accent); white-space: nowrap; }
+    .sidebar-totals { padding-top: 16px; }
+    .sidebar-total-line { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); padding: 7px 0; }
+    .sidebar-total-line.main { color: var(--white); font-size: 15px; border-top: 1px solid var(--border); padding-top: 14px; margin-top: 4px; }
+    .sidebar-total-line.main .price { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); }
+    .sidebar-promo-applied { background: rgba(0,255,148,0.07); border: 1px solid rgba(0,255,148,0.2); padding: 8px 12px; border-radius: 4px; font-size: 12px; color: #00ff94; font-family: 'JetBrains Mono', monospace; margin: 10px 0; display: none; }
+    .sidebar-security { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .sidebar-security-item { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); padding: 5px 0; }
+
+    /* Saved address card */
+    .address-card { border: 1.5px solid var(--border); border-radius: 4px; padding: 18px 20px; cursor: pointer; margin-bottom: 12px; transition: all 0.2s; display: flex; gap: 14px; align-items: flex-start; }
+    .address-card:hover { border-color: var(--accent); }
+    .address-card.selected { border-color: var(--accent); background: rgba(0,180,255,0.04); }
+    .address-card input[type="radio"] { accent-color: var(--accent); margin-top: 3px; flex-shrink: 0; }
+    .address-card-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+    .address-card-name { font-size: 14px; color: var(--white); font-weight: 500; margin-bottom: 4px; }
+
+    @media(max-width:900px){ .checkout-layout{grid-template-columns:1fr;} .checkout-sidebar{position:static;height:auto;} .checkout-main{padding:32px 20px;} .field-row{grid-template-columns:1fr;} .confirm-steps{grid-template-columns:1fr 1fr;} }
+  
+@media(max-width:768px){
+  .checkout-layout{gap:0;}
+  .checkout-sidebar{margin-top:24px;}
+  .steps-bar{gap:0;overflow-x:auto;padding-bottom:4px;}
+  .step-item{flex-shrink:0;min-width:80px;}
+}
+@media(max-width:480px){
+  .checkout-main{padding:20px 16px;}
+  .checkout-sidebar{padding:20px 16px;}
+  .field-row{grid-template-columns:1fr;}
+  .payment-tabs{flex-wrap:nowrap;overflow-x:auto;}
+  .payment-tab{flex-shrink:0;}
+  .card-row{flex-direction:column;}
+  .confirm-steps{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="carrito.html">← Volver al carrito</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="busqueda.html" style="color:var(--muted);font-size:18px;display:flex;align-items:center;padding:0 4px" title="Buscar">🔍</a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="checkout-layout">
+  <!-- MAIN -->
+  <div class="checkout-main">
+    <!-- Step indicators -->
+    <div class="checkout-steps-bar">
+      <div class="checkout-step-item active" id="step-ind-1"><div class="checkout-step-num" id="step-num-1">1</div> Dirección</div>
+      <div class="checkout-step-item" id="step-ind-2"><div class="checkout-step-num" id="step-num-2">2</div> Envío</div>
+      <div class="checkout-step-item" id="step-ind-3"><div class="checkout-step-num" id="step-num-3">3</div> Pago</div>
+      <div class="checkout-step-item" id="step-ind-4"><div class="checkout-step-num" id="step-num-4">4</div> Confirmación</div>
+    </div>
+
+    <!-- STEP 1: Address -->
+    <div class="checkout-panel active" id="panel-1">
+      <div class="checkout-section-title">DIRECCIÓN DE ENTREGA</div>
+      <div class="checkout-section-sub">¿Dónde enviamos tu pedido?</div>
+
+      <div id="savedAddresses" style="margin-bottom:24px"></div>
+      <div id="newAddressForm">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;cursor:pointer" id="newAddrToggle" onclick="toggleNewAddress()">
+          <span style="font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px">+ USAR OTRA DIRECCIÓN</span>
+        </div>
+        <div id="addressFields">
+          <div class="field-row">
+            <div class="field-group"><label class="field-label">Nombre</label><input type="text" class="field-input" id="fname" placeholder="Juan"></div>
+            <div class="field-group"><label class="field-label">Apellidos</label><input type="text" class="field-input" id="lname" placeholder="García López"></div>
+          </div>
+          <div class="field-group"><label class="field-label">Dirección</label><input type="text" class="field-input" id="addr" placeholder="Calle Mayor 42, 3ºB"></div>
+          <div class="field-row">
+            <div class="field-group"><label class="field-label">Ciudad</label><input type="text" class="field-input" id="city" placeholder="Madrid"></div>
+            <div class="field-group"><label class="field-label">Código Postal</label><input type="text" class="field-input" id="zip" placeholder="28001" maxlength="5"></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label class="field-label">Provincia</label><select class="field-select" id="province"><option>Madrid</option><option>Barcelona</option><option>Valencia</option><option>Sevilla</option><option>Bilbao</option><option>Zaragoza</option><option>Málaga</option><option>Otras</option></select></div>
+            <div class="field-group"><label class="field-label">Teléfono</label><input type="tel" class="field-input" id="phone" placeholder="+34 600 000 000"></div>
+          </div>
+          <div class="field-group"><label class="field-label">Instrucciones especiales <span style="color:var(--muted);font-size:10px">(opcional)</span></label><input type="text" class="field-input" id="notes" placeholder="Timbre 3B, dejar en portería..."></div>
+          <label style="display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);cursor:pointer;margin-top:8px"><input type="checkbox" id="saveAddress" checked style="accent-color:var(--accent)"> Guardar esta dirección para futuros pedidos</label>
+        </div>
+      </div>
+      <div class="checkout-nav"><div></div><button class="checkout-btn-next" onclick="goStep(2)">Continuar →</button></div>
+    </div>
+
+    <!-- STEP 2: Shipping -->
+    <div class="checkout-panel" id="panel-2">
+      <div class="checkout-section-title">MÉTODO DE ENVÍO</div>
+      <div class="checkout-section-sub">Elige cómo quieres recibir tu pedido</div>
+
+      <label class="shipping-option selected" id="ship-0" onclick="selectShipping(0,0,'Estándar 3–5 días')">
+        <input type="radio" name="shipping" checked>
+        <div class="shipping-option-info">
+          <div class="shipping-option-name">Envío estándar <span class="shipping-badge">GRATIS</span></div>
+          <div class="shipping-option-detail">3–5 días laborables · Correos Express</div>
+        </div>
+        <div class="shipping-option-price" style="color:#00ff94">GRATIS</div>
+      </label>
+
+      <label class="shipping-option" id="ship-1" onclick="selectShipping(1,5.99,'Express 24–48h')">
+        <input type="radio" name="shipping">
+        <div class="shipping-option-info">
+          <div class="shipping-option-name">Express 24–48h ⚡</div>
+          <div class="shipping-option-detail">Mañana o pasado mañana · DHL</div>
+        </div>
+        <div class="shipping-option-price">5.99€</div>
+      </label>
+
+      <label class="shipping-option" id="ship-2" onclick="selectShipping(2,12.99,'Mismo día (antes 18h)')">
+        <input type="radio" name="shipping">
+        <div class="shipping-option-info">
+          <div class="shipping-option-name">Mismo día 🚀</div>
+          <div class="shipping-option-detail">Solo Madrid capital · Pedido antes de las 13h · Glovo</div>
+        </div>
+        <div class="shipping-option-price">12.99€</div>
+      </label>
+
+      <label class="shipping-option" id="ship-3" onclick="selectShipping(3,0,'Recogida en tienda (gratis)')">
+        <input type="radio" name="shipping">
+        <div class="shipping-option-info">
+          <div class="shipping-option-name">Recogida en tienda 🏪</div>
+          <div class="shipping-option-detail">C/ Gran Vía 42, Madrid · Lun–Sáb 10–21h</div>
+        </div>
+        <div class="shipping-option-price" style="color:#00ff94">GRATIS</div>
+      </label>
+
+      <div class="checkout-nav">
+        <button class="checkout-btn-back" onclick="goStep(1)">← Atrás</button>
+        <button class="checkout-btn-next" onclick="goStep(3)">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Payment -->
+    <div class="checkout-panel" id="panel-3">
+      <div class="checkout-section-title">MÉTODO DE PAGO</div>
+      <div class="checkout-section-sub">Tu pago está protegido con cifrado SSL de 256 bits 🔒</div>
+
+      <div class="payment-method-tabs">
+        <div class="payment-tab active" onclick="selectPayTab('card',this)">💳 Tarjeta</div>
+        <div class="payment-tab" onclick="selectPayTab('paypal',this)">🅿 PayPal</div>
+        <div class="payment-tab" onclick="selectPayTab('bizum',this)">📱 Bizum</div>
+        <div class="payment-tab" onclick="selectPayTab('transfer',this)">🏦 Transferencia</div>
+      </div>
+
+      <!-- Card payment -->
+      <div class="payment-panel active" id="pay-card">
+        <div class="field-group">
+          <label class="field-label">Número de tarjeta</label>
+          <div class="card-number-wrap">
+            <input type="text" class="field-input" id="cardNum" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)">
+            <span class="card-type-icon" id="cardIcon">💳</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group"><label class="field-label">Caducidad</label><input type="text" class="field-input" id="cardExp" placeholder="MM/AA" maxlength="5" oninput="formatExpiry(this)"></div>
+          <div class="field-group"><label class="field-label">CVV</label><input type="text" class="field-input" id="cardCvv" placeholder="123" maxlength="4" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+        </div>
+        <div class="field-group"><label class="field-label">Nombre en la tarjeta</label><input type="text" class="field-input" id="cardName" placeholder="JUAN GARCIA LOPEZ"></div>
+        <label style="display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);cursor:pointer;margin-top:4px"><input type="checkbox" style="accent-color:var(--accent)"> Guardar tarjeta para futuros pagos (encriptada)</label>
+      </div>
+
+      <!-- PayPal -->
+      <div class="payment-panel" id="pay-paypal">
+        <div style="text-align:center;padding:48px 24px;background:var(--card);border:1px solid var(--border);border-radius:4px">
+          <div style="font-size:56px;margin-bottom:16px">🅿</div>
+          <div style="font-size:16px;color:var(--white);margin-bottom:8px">Pagar con PayPal</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:24px">Serás redirigido a PayPal para completar el pago de forma segura</div>
+          <div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="adc5c2c1ccedd9d8e8c0ccc4c183cec2c0">[email&#160;protected]</a></div>
+        </div>
+      </div>
+
+      <!-- Bizum -->
+      <div class="payment-panel" id="pay-bizum">
+        <div style="text-align:center;padding:32px 24px;background:var(--card);border:1px solid var(--border);border-radius:4px">
+          <div style="font-size:56px;margin-bottom:16px">📱</div>
+          <div style="font-size:16px;color:var(--white);margin-bottom:8px">Pagar con Bizum</div>
+          <div class="field-group" style="max-width:280px;margin:20px auto 0"><label class="field-label">Tu número de teléfono</label><input type="tel" class="field-input" placeholder="+34 600 000 000"></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:12px">Recibirás una notificación en tu app bancaria</div>
+        </div>
+      </div>
+
+      <!-- Transferencia -->
+      <div class="payment-panel" id="pay-transfer">
+        <div style="background:var(--card);border:1px solid var(--border);padding:28px;border-radius:4px">
+          <div style="font-size:14px;color:var(--white);margin-bottom:16px">Datos para la transferencia bancaria:</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);line-height:2">
+            <div style="color:var(--muted);font-size:11px;letter-spacing:1px">BENEFICIARIO</div>NEXUS TECH S.L.
+            <div style="color:var(--muted);font-size:11px;letter-spacing:1px;margin-top:10px">IBAN</div>ES91 2100 0418 4502 0005 1332
+            <div style="color:var(--muted);font-size:11px;letter-spacing:1px;margin-top:10px">CONCEPTO</div><span id="transferRef" style="color:var(--accent)">NEX-2026-00001</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">⚠ El pedido se procesará cuando recibamos el pago (1–2 días hábiles)</div>
+        </div>
+      </div>
+
+      <div class="checkout-nav">
+        <button class="checkout-btn-back" onclick="goStep(2)">← Atrás</button>
+        <button class="checkout-btn-next" id="payBtn" onclick="processPayment()">🔒 Pagar ahora</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Confirmation -->
+    <div class="checkout-panel" id="panel-4">
+      <div class="confirm-success">
+        <div class="confirm-icon">🎉</div>
+        <div class="confirm-title">¡PEDIDO<br><span>CONFIRMADO</span>!</div>
+        <div class="confirm-order-num" id="confirmOrderNum">Nº PEDIDO: NEX-2026-XXXXX</div>
+        <div style="font-size:14px;color:var(--muted);margin-top:12px">Hemos enviado la confirmación a <span id="confirmEmail" style="color:var(--accent)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3c48497c59515d5550125f5351">[email&#160;protected]</a></span></div>
+
+        <div class="confirm-steps">
+          <div class="confirm-step"><div class="confirm-step-icon">✅</div><div class="confirm-step-label">Pedido</div><div class="confirm-step-detail">Confirmado</div></div>
+          <div class="confirm-step"><div class="confirm-step-icon">📦</div><div class="confirm-step-label">Preparación</div><div class="confirm-step-detail" id="prepTime">Hoy</div></div>
+          <div class="confirm-step"><div class="confirm-step-icon">🚚</div><div class="confirm-step-label">Envío</div><div class="confirm-step-detail" id="shipTime">Mañana</div></div>
+          <div class="confirm-step"><div class="confirm-step-icon">🏠</div><div class="confirm-step-label">Entrega</div><div class="confirm-step-detail" id="delivTime">En 3–5 días</div></div>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+          <a href="perfil.html" class="btn-primary">Ver mis pedidos</a>
+          <a href="index.html" class="btn-ghost">Seguir comprando</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="checkout-sidebar">
+    <div class="sidebar-title">TU PEDIDO</div>
+    <div id="sidebarItems"></div>
+    <div class="sidebar-totals">
+      <div class="sidebar-total-line"><span>Subtotal</span><span id="sb-subtotal">0€</span></div>
+      <div class="sidebar-total-line"><span>Envío</span><span id="sb-shipping" style="color:#00ff94">GRATIS</span></div>
+      <div class="sidebar-total-line"><span>Descuento</span><span id="sb-discount" style="color:#00ff94;display:none">0€</span></div>
+      <div class="sidebar-total-line"><span>IVA (21% incl.)</span><span id="sb-tax">0€</span></div>
+      <div class="sidebar-promo-applied" id="sb-promo">✓ Código NEXUS10 aplicado: −10%</div>
+      <div class="sidebar-total-line main"><span>Total</span><span class="price" id="sb-total">0€</span></div>
+    </div>
+    <div class="sidebar-security">
+      <div class="sidebar-security-item">🔒 Conexión SSL 256-bit encriptada</div>
+      <div class="sidebar-security-item">↩ 30 días de devolución gratuita</div>
+      <div class="sidebar-security-item">🛡 Garantía oficial de fabricante</div>
+      <div class="sidebar-security-item">📦 Seguimiento en tiempo real</div>
+    </div>
+  </aside>
+</div>
+
+<div class="toast" id="toast"></div>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="./app.js"></script>
+<script src="./nexus-extras.js"></script>
+<script>
+let currentStep = 1;
+let selectedShipping = { cost: 0, label: 'Estándar 3–5 días' };
+
+// Render sidebar items
+function renderSidebar() {
+  const grouped = groupCart(cart);
+  const itemsEl = document.getElementById('sidebarItems');
+  if (!grouped.length) {
+    itemsEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted);font-size:13px">No hay productos en el carrito</div>';
+    return;
+  }
+  itemsEl.innerHTML = grouped.map(item => `
+    <div class="sidebar-item">
+      <div class="sidebar-item-icon">
+        ${getIcon(item.name)}
+        <span class="sidebar-item-qty">${item.qty}</span>
+      </div>
+      <div class="sidebar-item-name">${item.name}</div>
+      <div class="sidebar-item-price">${(item.price * item.qty).toLocaleString('es-ES')}€</div>
+    </div>
+  `).join('');
+  updateSidebarTotals();
+}
+
+function getIcon(name) {
+  if (name.includes('RTX')||name.includes('RX')||name.includes('GPU')) return '🎮';
+  if (name.includes('DDR')||name.includes('RAM')) return '🧠';
+  if (name.includes('SSD')||name.includes('NVMe')||name.includes('HDD')) return '💾';
+  if (name.includes('Ryzen')||name.includes('Core')||name.includes('Intel')) return '⚡';
+  if (name.includes('Monitor')||name.includes('OLED')) return '🖥️';
+  if (name.includes('Pack')) return '📦';
+  return '🔧';
+}
+
+function groupCart(items) {
+  const map = {};
+  items.forEach(item => { if (map[item.name]) map[item.name].qty++; else map[item.name] = {...item, qty:1}; });
+  return Object.values(map);
+}
+
+let promoDiscount = 0;
+function updateSidebarTotals() {
+  const grouped = groupCart(cart);
+  const subtotal = grouped.reduce((s,i) => s + i.price * i.qty, 0);
+  const discount = Math.round(subtotal * promoDiscount);
+  const shipping = selectedShipping.cost;
+  const total = subtotal - discount + shipping;
+  const tax = Math.round(total * 0.21 / 1.21);
+  document.getElementById('sb-subtotal').textContent = subtotal.toLocaleString('es-ES') + '€';
+  document.getElementById('sb-shipping').textContent = shipping === 0 ? 'GRATIS' : shipping.toFixed(2) + '€';
+  document.getElementById('sb-tax').textContent = tax.toLocaleString('es-ES') + '€';
+  document.getElementById('sb-total').textContent = total.toLocaleString('es-ES') + '€';
+  if (discount > 0) { document.getElementById('sb-discount').style.display = ''; document.getElementById('sb-discount').textContent = '−' + discount.toLocaleString('es-ES') + '€'; }
+}
+
+// Check promo from carrito
+const appliedPromo = localStorage.getItem('nexusPromo');
+if (appliedPromo === 'NEXUS10') { promoDiscount = 0.10; document.getElementById('sb-promo').style.display = 'block'; }
+
+function goStep(step) {
+  // Validate step 1
+  if (step === 2 && currentStep === 1) {
+    const required = ['fname','lname','addr','city','zip','phone'];
+    let ok = true;
+    required.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) { el.classList.add('error'); ok = false; }
+      else el.classList.remove('error');
+    });
+    if (!ok) { showToast('⚠ Rellena todos los campos obligatorios'); return; }
+  }
+  // Validate payment
+  if (step === 4 && currentStep === 3) { processPayment(); return; }
+
+  document.getElementById('panel-' + currentStep).classList.remove('active');
+  document.getElementById('panel-' + step).classList.add('active');
+  const prevStep = currentStep;
+  currentStep = step;
+
+  // Update step indicators
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById('step-ind-' + i);
+    const num = document.getElementById('step-num-' + i);
+    el.classList.remove('active','done');
+    if (i < step) { el.classList.add('done'); num.textContent = '✓'; }
+    else if (i === step) { el.classList.add('active'); num.textContent = i; }
+    else num.textContent = i;
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectShipping(idx, cost, label) {
+  for (let i = 0; i < 4; i++) document.getElementById('ship-' + i).classList.remove('selected');
+  document.getElementById('ship-' + idx).classList.add('selected');
+  selectedShipping = { cost, label };
+  updateSidebarTotals();
+}
+
+function selectPayTab(type, el) {
+  document.querySelectorAll('.payment-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.payment-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pay-' + type).classList.add('active');
+}
+
+function formatCard(input) {
+  let v = input.value.replace(/\D/g,'').substring(0,16);
+  input.value = v.replace(/(.{4})/g,'$1 ').trim();
+  const icon = document.getElementById('cardIcon');
+  if (v.startsWith('4')) icon.textContent = '💙';
+  else if (v.startsWith('5')) icon.textContent = '🔴';
+  else if (v.startsWith('3')) icon.textContent = '🟢';
+  else icon.textContent = '💳';
+}
+function formatExpiry(input) {
+  let v = input.value.replace(/\D/g,'').substring(0,4);
+  if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2);
+  input.value = v;
+}
+
+function processPayment() {
+  const btn = document.getElementById('payBtn');
+  btn.textContent = '⏳ Procesando...';
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+  setTimeout(() => {
+    const orderNum = 'NEX-2026-' + String(Math.floor(Math.random()*90000+10000));
+    document.getElementById('confirmOrderNum').textContent = 'Nº PEDIDO: ' + orderNum;
+    const user = JSON.parse(localStorage.getItem('nexusUser')||'{}');
+    document.getElementById('confirmEmail').textContent = user.email || 'tu@email.com';
+    document.getElementById('transferRef').textContent = orderNum;
+    // Set delivery times
+    const today = new Date();
+    const addDays = d => new Date(today.getTime() + d*86400000).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+    document.getElementById('prepTime').textContent = 'Hoy';
+    document.getElementById('shipTime').textContent = addDays(1);
+    document.getElementById('delivTime').textContent = addDays(selectedShipping.cost===12.99?0:selectedShipping.cost===5.99?2:4);
+
+    // Save order to history
+    var cartItems = JSON.parse(localStorage.getItem('nexusCart') || '[]');
+    var grouped = {};
+    cartItems.forEach(function(item) {
+      if (!grouped[item.name]) grouped[item.name] = { name: item.name, price: item.price, qty: 0 };
+      grouped[item.name].qty++;
+    });
+    var orderItems = Object.values(grouped);
+    var subtotal = orderItems.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
+    var order = {
+      id: orderNum,
+      date: new Date().toLocaleDateString('es-ES'),
+      dateISO: new Date().toISOString(),
+      items: orderItems,
+      subtotal: subtotal,
+      total: subtotal + (selectedShipping ? selectedShipping.cost : 0),
+      shipping: selectedShipping ? selectedShipping.label : 'Estándar',
+      status: 'processing',
+      email: user.email || ''
+    };
+    saveOrder(order);
+
+    // Clear cart
+    cart = []; localStorage.setItem('nexusCart', JSON.stringify(cart)); updateCartCount();
+    // Award points
+    if (user.email) { user.points = (user.points||500) + Math.round(subtotal * 0.05); localStorage.setItem('nexusUser', JSON.stringify(user)); }
+
+    goStep(4);
+    btn.textContent = '🔒 Pagar ahora';
+    btn.disabled = false;
+    btn.style.opacity = '';
+  }, 2200);
+}
+
+// Load saved address if user logged in
+const user = JSON.parse(localStorage.getItem('nexusUser')||'null');
+if (user && user.loggedIn) {
+  document.getElementById('savedAddresses').innerHTML = `
+    <div style="margin-bottom:16px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace">Direcciones guardadas</div>
+    <label class="address-card selected">
+      <input type="radio" name="savedAddr" checked style="accent-color:var(--accent)">
+      <div><div class="address-card-name">${user.name||'Tu nombre'}</div>
+      <div class="address-card-text">C/ Gran Vía 42, 3ºB<br>28013 Madrid, España<br>+34 612 345 678</div></div>
+    </label>`;
+  document.getElementById('addressFields').style.display = 'none';
+  document.getElementById('newAddrToggle').querySelector('span').textContent = '+ USAR OTRA DIRECCIÓN';
+  let showingNew = false;
+  document.getElementById('newAddrToggle').onclick = () => {
+    showingNew = !showingNew;
+    document.getElementById('addressFields').style.display = showingNew ? 'block' : 'none';
+    document.getElementById('newAddrToggle').querySelector('span').textContent = showingNew ? '− CAN
+<footer>
+  <div class="footer-brand">
+    <span class="nav-logo" style="display:block;margin-bottom:16px">NEXUS</span>
+    <p class="footer-desc">Tu tienda de confianza para hardware, periféricos y componentes de alto rendimiento desde 2010. Más de 180.000 clientes satisfechos.</p>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">𝕏</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">📸</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">💬</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Tienda</div>
+    <div class="footer-links">
+      <a href="productos.html">Todos los productos</a>
+      <a href="gaming.html">Gaming Setup</a>
+      <a href="ofertas.html">Ofertas y chollos</a>
+      <a href="outlet.html">Outlet</a>
+      <a href="comparar.html">⚖ Comparador</a>
+      <a href="busqueda.html">Buscador</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Mi cuenta</div>
+    <div class="footer-links">
+      <a href="perfil.html">Mi perfil</a>
+      <a href="carrito.html">Mi carrito</a>
+      <a href="login.html">Iniciar sesión</a>
+      <a href="registro.html">Crear cuenta</a>
+      <a href="programa-puntos.html">⭐ Programa de puntos</a>
+      <a href="afiliados.html">Programa de afiliados</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Información</div>
+    <div class="footer-links">
+      <a href="soporte.html">Centro de ayuda</a>
+      <a href="garantia.html">Garantías</a>
+      <a href="financiacion.html">Financiación 0%</a>
+      <a href="guias.html">Guías de compra</a>
+      <a href="blog.html">Blog</a>
+      <a href="sobre-nosotros.html">Sobre nosotros</a>
+    </div>
+  </div>
+</footer>

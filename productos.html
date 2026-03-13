@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00c8ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productos — NEXUS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .shop-layout { display: grid; grid-template-columns: 280px 1fr; gap: 0; padding: 80px 40px 100px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+    .sidebar { padding-right: 40px; border-right: 1px solid var(--border); padding-top: 40px; }
+    .sidebar-section { margin-bottom: 40px; }
+    .sidebar-title { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 3px; color: var(--white); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .sidebar-option { display: flex; align-items: center; gap: 10px; padding: 8px 0; cursor: pointer; font-size: 14px; color: var(--muted); transition: color 0.2s; }
+    .sidebar-option:hover { color: var(--white); }
+    .sidebar-option input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+    .sidebar-option.active { color: var(--white); }
+    .price-range { width: 100%; }
+    .range-slider { width: 100%; accent-color: var(--accent); margin-top: 8px; }
+    .price-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 8px; font-family: 'JetBrains Mono', monospace; }
+    .products-area { padding-left: 40px; padding-top: 40px; }
+    .products-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+    .results-count { font-size: 14px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+    .sort-select { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; border-radius: 4px; cursor: pointer; }
+    .sort-select option { background: var(--card); }
+    .view-toggles { display: flex; gap: 4px; }
+    .view-toggle { background: var(--dark); border: 1px solid var(--border); color: var(--muted); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; font-size: 16px; transition: all 0.2s; }
+    .view-toggle.active { background: var(--accent); border-color: var(--accent); color: var(--black); }
+    .pagination { display: flex; gap: 8px; margin-top: 48px; justify-content: center; }
+    .page-btn { background: var(--dark); border: 1px solid var(--border); color: var(--muted); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s; font-family: 'JetBrains Mono', monospace; }
+    .page-btn.active, .page-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--black); }
+    .product-rating { display: flex; gap: 2px; margin-top: 8px; }
+    .star { color: var(--accent); font-size: 12px; }
+    .star.empty { color: var(--border); }
+    @media(max-width:900px){ .shop-layout{grid-template-columns:1fr;padding:20px;} .sidebar{border-right:none;border-bottom:1px solid var(--border);padding-right:0;padding-bottom:32px;} .products-area{padding-left:0;} }
+  
+@media(max-width:768px){
+  .shop-layout{grid-template-columns:1fr;padding:20px 16px;}
+  .sidebar{border-right:none;border-bottom:1px solid var(--border);padding-right:0;padding-bottom:24px;}
+  .products-area{padding-left:0;padding-top:24px;}
+  .products-grid{grid-template-columns:repeat(2,1fr);}
+  .products-topbar{flex-direction:column;align-items:flex-start;gap:12px;}
+}
+@media(max-width:480px){
+  .shop-layout{padding:16px;}
+  .products-grid{grid-template-columns:1fr;}
+  .products-topbar{gap:10px;}
+  .sort-select{width:100%;}
+  .view-toggles{display:none;}
+  .sidebar-option{font-size:13px;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html" class="active">Productos</a>
+    <a href="gaming.html">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+    <a href="guias.html">Guías</a>
+    <a href="outlet.html">Outlet</a>
+    <a href="soporte.html">Soporte</a>
+    <a href="comparar.html">⚖ Comparar</a>
+    <a href="blog.html">Blog</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="busqueda.html" style="color:var(--muted);font-size:18px;display:flex;align-items:center;padding:0 4px" title="Buscar">🔍</a>
+    <input type="text" class="nav-search" placeholder="Buscar..." id="searchInput">
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-text">Carrito</span> <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div>
+      <div class="section-tag">// Catálogo Completo</div>
+      <h1 class="page-title">TODOS LOS<br><span>PRODUCTOS</span></h1>
+    </div>
+    <p style="color:var(--muted);font-size:15px;max-width:320px;text-align:right">Más de 4.200 productos de las mejores marcas del mercado.</p>
+  </div>
+</div>
+
+<div class="shop-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Categoría</div>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="cpu"> Procesadores <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">124</span></label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="gpu"> Tarjetas Gráficas <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">89</span></label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="motherboard"> Placas Base <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">7</span></label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="ram"> Memoria RAM <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">210</span></label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="storage"> Almacenamiento <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">156</span></label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="case"> Cajas <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">7</span></label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="psu"> Fuentes de Ali. <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">7</span></label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="monitor"> Monitores <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">78</span></label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="peripheral"> Periféricos <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">340</span></label>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Marca</div>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="Intel"> Intel</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="AMD"> AMD</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="NVIDIA"> NVIDIA</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="ASUS"> ASUS</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="MSI"> MSI</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="Gigabyte"> Gigabyte</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="Corsair"> Corsair</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="be quiet!"> be quiet!</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="Lian Li"> Lian Li</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="Seasonic"> Seasonic</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="Samsung"> Samsung</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="Fractal"> Fractal</label>
+      <label class="sidebar-option"><input type="checkbox" onchange="applyFilters()" value="NZXT"> NZXT</label>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Precio Máximo</div>
+      <input type="range" class="range-slider" min="0" max="2500" value="2500" id="priceRange" oninput="updatePrice(this.value)">
+      <div class="price-labels"><span>0€</span><span id="priceVal">2.500€</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Disponibilidad</div>
+      <label class="sidebar-option"><input type="checkbox" checked> En stock</label>
+      <label class="sidebar-option"><input type="checkbox"> Pre-orden</label>
+    </div>
+    <button class="btn-primary" style="width:100%;margin-top:8px;text-align:center" onclick="resetFilters()">Limpiar Filtros</button>
+  </aside>
+
+  <!-- PRODUCTS -->
+  <div class="products-area">
+    <div class="products-topbar">
+      <span class="results-count" id="resultsCount">Mostrando 48 de 4.200 productos</span>
+      <div style="display:flex;gap:12px;align-items:center">
+        <select class="sort-select" onchange="sortProducts(this.value)">
+          <option value="popular">Más populares</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+          <option value="new">Más recientes</option>
+          <option value="rating">Mejor valorados</option>
+        </select>
+        <div class="view-toggles">
+          <button class="view-toggle active" onclick="setView('grid', this)" title="Cuadrícula">⊞</button>
+          <button class="view-toggle" onclick="setView('list', this)" title="Lista">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="products-grid" id="productsGrid">
+      <!-- Products will be rendered by JS -->
+    </div>
+
+    <div class="pagination" id="paginationEl"></div>
+  </div>
+</div>
+
+<div class="footer-bottom">
+  <span class="footer-copy">© 2026 NEXUS TECH</span>
+  <div style="display:flex;gap:24px">
+    <a href="index.html" style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">← Inicio</a>
+    <a href="carrito.html" style="font-size:12px;color:var(--accent);font-family:'JetBrains Mono',monospace">Carrito →</a>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="./app.js"></script>
+<script>
+window.NEXUS_SLUGS={"Core Ultra 9 285K":"core-ultra-9-285k","Ryzen 9 9950X":"ryzen-9-9950x","Core i9-14900KS":"core-i9-14900ks","Ryzen 7 9700X":"ryzen-7-9700x","Core Ultra 7 265K":"core-ultra-7-265k","Ryzen 5 9600X":"ryzen-5-9600x","Core i7-14700K":"core-i7-14700k","Ryzen Threadripper 7970X":"threadripper-7970x","GeForce RTX 5090 32GB":"rtx-5090","GeForce RTX 5080 16GB":"rtx-5080","GeForce RTX 4090 24GB":"rtx-4090","RTX 4070 Ti Super 16GB":"rtx-4070-ti-super","RTX 4060 Ti 16GB":"rtx-4060-ti","Radeon RX 9070 XT 16GB":"rx-9070-xt","Radeon RX 7900 XTX 24GB":"rx-7900-xtx","Radeon RX 7600 XT 16GB":"rx-7600-xt","Dominator Titanium DDR5 32GB":"dominator-titanium-ddr5","Trident Z5 RGB 64GB":"trident-z5-64gb","Fury Beast DDR5 32GB":"fury-beast-ddr5","Ripjaws S5 96GB":"ripjaws-s5-96gb","Vengeance DDR5 16GB":"vengeance-ddr5","T-Force Delta RGB 32GB":"t-force-delta-32gb","Fury Renegade DDR5 128GB":"fury-renegade-128gb","990 Pro NVMe SSD 2TB":"samsung-990-pro-2tb","Black SN850X 4TB":"wd-sn850x-4tb","T705 2TB PCIe 5.0":"crucial-t705-2tb","FireCuda 530 4TB":"firecuda-530-4tb","870 EVO SATA SSD 4TB":"870-evo-4tb","Red Pro NAS HDD 20TB":"red-pro-nas-20tb","Rocket 5 Plus 8TB":"rocket-5-plus-8tb","ROG Swift OLED 27\" 240Hz":"rog-swift-oled","UltraGear 4K 144Hz 32\"":"ultragear-4k-32","Odyssey G9 49\" OLED":"odyssey-g9","Predator X34X 34\" 175Hz":"predator-x34x","Mobiuz EX321UX 32\" 4K":"mobiuz-ex321ux","MPG 321URX QD-OLED 4K":"mpg-qd-oled","G Pro X Superlight 2":"g-pro-x-superlight-2","K100 Air Wireless":"k100-air","DeathAdder V3 HyperSpeed":"deathadder-v3","Arctis Nova Pro Wireless":"arctis-nova-pro","BlackWidow V4 Pro 75%":"blackwidow-v4-pro","G915 TKL Lightspeed":"g915-tkl","Cloud Alpha Wireless":"cloud-alpha-wireless","Scimitar Elite Wireless":"scimitar-elite","Stream Deck MK.2":"stream-deck","NT-USB+ Microphone":"nt-usb-plus","MX Master 3S":"mx-master-3s","Basilisk V3 Pro 35K":"basilisk-v3-pro","ROG Maximus Z890 Apex":"rog-maximus-z890","MEG Z890 ACE":"meg-z890-ace","Z890 Aorus Master":"z890-aorus-master","ProArt X870E-Creator WiFi":"proart-x870e","MAG X870E Tomahawk WiFi":"mag-x870e-tomahawk","B650E Aorus Pro X":"b650e-aorus-pro","B650M Pro RS WiFi":"b650m-pro-rs","PC-O11 Dynamic EVO XL":"pc-o11-evo-xl","Torrent RGB Black":"torrent-rgb","H9 Flow Black":"h9-flow","7000D Airflow Full Tower":"corsair-7000d","Silent Base 802 Window":"silent-base-802","O11 Dynamic Mini":"o11-dynamic-mini","Morpheus CC560 Digital":"morpheus-cc560","HX1500i Platinum":"hx1500i-platinum","Dark Power Pro 13 1300W":"dark-power-pro-1300w","ROG THOR 1000P2 Gaming":"rog-thor-1000w","Focus GX-850 Gold":"focus-gx-850","RM850e Fully Modular":"rm850e-modular","Pure Power 12 M 750W":"pure-power-750w","S12III 650W Bronze":"s12iii-650w"};
+</script>
+<script src="./nexus-extras.js"></script>
+<script>
+const allProducts = [
+  // ── CPUs ──
+  { id:1,  cat:'cpu', brand:'Intel',   name:'Core Ultra 9 285K',        specs:['24 Cores','5.7 GHz','LGA1851','125W TDP'],   price:589,  oldPrice:699, icon:'⚡', badge:'−15%',  rating:5 },
+  { id:2,  cat:'cpu', brand:'AMD',     name:'Ryzen 9 9950X',             specs:['16 Cores','5.7 GHz','AM5','170W TDP'],       price:649,  icon:'⚡',                              rating:5 },
+  { id:3,  cat:'cpu', brand:'Intel',   name:'Core i9-14900KS',           specs:['24 Cores','6.2 GHz','LGA1700','150W'],       price:499,  oldPrice:569, icon:'⚡', badge:'−12%',  rating:4 },
+  { id:4,  cat:'cpu', brand:'AMD',     name:'Ryzen 7 9700X',             specs:['8 Cores','5.5 GHz','AM5','65W TDP'],         price:329,  icon:'⚡',                              rating:4 },
+  { id:5,  cat:'cpu', brand:'Intel',   name:'Core Ultra 7 265K',         specs:['20 Cores','5.5 GHz','LGA1851','125W'],       price:389,  oldPrice:429, icon:'⚡', badge:'−9%',   rating:4 },
+  { id:6,  cat:'cpu', brand:'AMD',     name:'Ryzen 5 9600X',             specs:['6 Cores','5.4 GHz','AM5','65W TDP'],         price:249,  icon:'⚡',                              rating:4 },
+  { id:7,  cat:'cpu', brand:'Intel',   name:'Core i7-14700K',            specs:['20 Cores','5.6 GHz','LGA1700','125W'],       price:349,  oldPrice:419, icon:'⚡', badge:'−17%',  rating:5 },
+  { id:8,  cat:'cpu', brand:'AMD',     name:'Ryzen Threadripper 7970X',  specs:['32 Cores','5.3 GHz','sTR5','350W'],         price:2499, icon:'⚡', badge:'PRO',                 rating:5 },
+
+  // ── GPUs ──
+  { id:9,  cat:'gpu', brand:'NVIDIA',  name:'GeForce RTX 5090 32GB',     specs:['32 GB GDDR7','DLSS 4','PCIe 5.0','575W'],   price:1999, icon:'🎮', badge:'Nuevo', badgeNew:true, rating:5 },
+  { id:10, cat:'gpu', brand:'NVIDIA',  name:'GeForce RTX 5080 16GB',     specs:['16 GB GDDR7','DLSS 4','PCIe 5.0','360W'],   price:1199, icon:'🎮', badge:'Nuevo', badgeNew:true, rating:5 },
+  { id:11, cat:'gpu', brand:'AMD',     name:'Radeon RX 9070 XT 16GB',    specs:['16 GB GDDR6','FSR 4','PCIe 4.0','304W'],    price:699,  icon:'🎮',                              rating:4 },
+  { id:12, cat:'gpu', brand:'NVIDIA',  name:'GeForce RTX 4090 24GB',     specs:['24 GB GDDR6X','DLSS 3','PCIe 4.0','450W'],  price:1549, oldPrice:1799,icon:'🎮', badge:'−14%',  rating:5 },
+  { id:13, cat:'gpu', brand:'NVIDIA',  name:'RTX 4070 Ti Super 16GB',    specs:['16 GB GDDR6X','DLSS 3.5','285W'],           price:799,  oldPrice:899, icon:'🎮', badge:'−11%',  rating:4 },
+  { id:14, cat:'gpu', brand:'AMD',     name:'Radeon RX 7900 XTX 24GB',   specs:['24 GB GDDR6','FSR 3','PCIe 4.0','355W'],    price:799,  oldPrice:999, icon:'🎮', badge:'−20%',  rating:4 },
+  { id:15, cat:'gpu', brand:'NVIDIA',  name:'RTX 4060 Ti 16GB',          specs:['16 GB GDDR6','DLSS 3','165W'],              price:449,  icon:'🎮',                              rating:4 },
+  { id:16, cat:'gpu', brand:'AMD',     name:'Radeon RX 7600 XT 16GB',    specs:['16 GB GDDR6','FSR 3','165W'],               price:329,  icon:'🎮', badge:'Nuevo', badgeNew:true, rating:4 },
+
+  // ── RAM ──
+  { id:17, cat:'ram', brand:'Corsair', name:'Dominator Titanium DDR5 32GB', specs:['DDR5-6400','2×16GB','CL32'],            price:219,  icon:'🧠',                              rating:4 },
+  { id:18, cat:'ram', brand:'G.Skill', name:'Trident Z5 RGB 64GB',          specs:['DDR5-7200','2×32GB','CL36'],            price:349,  icon:'🧠',                              rating:4 },
+  { id:19, cat:'ram', brand:'Kingston',name:'Fury Beast DDR5 32GB',         specs:['DDR5-6000','2×16GB','CL36'],            price:149,  oldPrice:179, icon:'🧠', badge:'−17%',  rating:4 },
+  { id:20, cat:'ram', brand:'G.Skill', name:'Ripjaws S5 96GB',              specs:['DDR5-6800','2×48GB','CL34'],            price:489,  icon:'🧠', badge:'Nuevo', badgeNew:true, rating:5 },
+  { id:21, cat:'ram', brand:'Corsair', name:'Vengeance DDR5 16GB',          specs:['DDR5-5200','2×8GB','CL40'],             price:79,   icon:'🧠',                              rating:3 },
+  { id:22, cat:'ram', brand:'TeamGroup',name:'T-Force Delta RGB 32GB',      specs:['DDR5-7600','2×16GB','CL36'],            price:189,  icon:'🧠',                              rating:4 },
+  { id:23, cat:'ram', brand:'Kingston',name:'Fury Renegade DDR5 128GB',     specs:['DDR5-6400','4×32GB','CL32'],            price:699,  icon:'🧠', badge:'PRO',                 rating:5 },
+
+  // ── Storage ──
+  { id:24, cat:'storage', brand:'Samsung', name:'990 Pro NVMe SSD 2TB',   specs:['7450 MB/s','PCIe 4.0','M.2'],             price:159,  oldPrice:199, icon:'💾', badge:'−20%',  rating:5 },
+  { id:25, cat:'storage', brand:'WD',      name:'Black SN850X 4TB',        specs:['7300 MB/s','PCIe 4.0','M.2'],             price:299,  icon:'💾',                              rating:4 },
+  { id:26, cat:'storage', brand:'Crucial', name:'T705 2TB PCIe 5.0',       specs:['14500 MB/s','Gen5','M.2'],                price:249,  icon:'💾', badge:'Nuevo', badgeNew:true, rating:5 },
+  { id:27, cat:'storage', brand:'Seagate', name:'FireCuda 530 4TB',         specs:['7300 MB/s','PCIe 4.0','M.2'],             price:319,  oldPrice:399, icon:'💾', badge:'−20%',  rating:4 },
+  { id:28, cat:'storage', brand:'Samsung', name:'870 EVO SATA SSD 4TB',    specs:['560 MB/s','SATA','2.5"'],                 price:249,  icon:'💾',                              rating:4 },
+  { id:29, cat:'storage', brand:'WD',      name:'Red Pro NAS HDD 20TB',     specs:['20 TB','7200 RPM','CMR'],                 price:399,  icon:'💾', badge:'NAS',                 rating:4 },
+  { id:30, cat:'storage', brand:'Sabrent', name:'Rocket 5 Plus 8TB',        specs:['14000 MB/s','Gen5','M.2'],                price:799,  icon:'💾', badge:'Nuevo', badgeNew:true, rating:5 },
+
+  // ── Monitors ──
+  { id:31, cat:'monitor', brand:'ASUS',    name:'ROG Swift OLED 27" 240Hz',  specs:['2560×1440','OLED','1ms','240Hz'],        price:799,  icon:'🖥️', badge:'Nuevo', badgeNew:true, rating:5 },
+  { id:32, cat:'monitor', brand:'LG',      name:'UltraGear 4K 144Hz 32"',    specs:['3840×2160','IPS','1ms','144Hz'],         price:649,  oldPrice:799, icon:'🖥️', badge:'−19%',  rating:5 },
+  { id:33, cat:'monitor', brand:'Samsung', name:'Odyssey G9 49" OLED',        specs:['5120×1440','OLED','240Hz','1ms'],        price:1299, icon:'🖥️', badge:'Nuevo', badgeNew:true, rating:5 },
+  { id:34, cat:'monitor', brand:'Acer',    name:'Predator X34X 34" 175Hz',    specs:['3440×1440','IPS','0.5ms','175Hz'],       price:549,  oldPrice:649, icon:'🖥️', badge:'−15%',  rating:4 },
+  { id:35, cat:'monitor', brand:'BenQ',    name:'Mobiuz EX321UX 32" 4K',     specs:['3840×2160','IPS','1ms','144Hz'],         price:499,  icon:'🖥️',                              rating:4 },
+  { id:36, cat:'monitor', brand:'MSI',     name:'MPG 321URX QD-OLED 4K',     specs:['3840×2160','QD-OLED','240Hz'],           price:899,  icon:'🖥️', badge:'Nuevo', badgeNew:true, rating:5 },
+
+  // ── Periféricos ──
+  { id:37, cat:'peripheral', brand:'Logitech',   name:'G Pro X Superlight 2',     specs:['60g','HERO 25K','Wireless'],          price:159,  icon:'🖱️',                              rating:5 },
+  { id:38, cat:'peripheral', brand:'Corsair',    name:'K100 Air Wireless',         specs:['MX Ultra Low','RGB','BT 5.0'],        price:229,  icon:'⌨️',                              rating:4 },
+  { id:39, cat:'peripheral', brand:'Razer',      name:'DeathAdder V3 HyperSpeed',  specs:['59g','Focus Pro 30K','Wireless'],     price:99,   oldPrice:129, icon:'🖱️', badge:'−23%',  rating:5 },
+  { id:40, cat:'peripheral', brand:'SteelSeries',name:'Arctis Nova Pro Wireless',  specs:['Hi-Res Audio','ANC','40h Bat.'],      price:249,  oldPrice:329, icon:'🎧', badge:'−24%',  rating:5 },
+  { id:41, cat:'peripheral', brand:'Razer',      name:'BlackWidow V4 Pro 75%',     specs:['Yellow Switch','RGB','BT+USB'],       price:199,  icon:'⌨️', badge:'Nuevo', badgeNew:true, rating:4 },
+  { id:42, cat:'peripheral', brand:'Logitech',   name:'G915 TKL Lightspeed',       specs:['GL Tactile','RGB','Wireless'],        price:189,  oldPrice:219, icon:'⌨️', badge:'−14%',  rating:4 },
+  { id:43, cat:'peripheral', brand:'HyperX',     name:'Cloud Alpha Wireless',       specs:['50mm Driver','300h Bat.','7.1'],      price:149,  icon:'🎧',                              rating:4 },
+  { id:44, cat:'peripheral', brand:'Corsair',    name:'Scimitar Elite Wireless',   specs:['17 Botones','26K DPI','Wireless'],    price:119,  icon:'🖱️',                              rating:4 },
+  { id:45, cat:'peripheral', brand:'Elgato',     name:'Stream Deck MK.2',          specs:['15 Teclas LCD','USB-C','Plugin SDK'], price:149,  icon:'🎛️', badge:'Streaming',            rating:5 },
+  { id:46, cat:'peripheral', brand:'Rode',       name:'NT-USB+ Microphone',        specs:['Cardioide','192kHz/32bit','USB-C'],   price:189,  icon:'🎙️', badge:'Streaming',            rating:5 },
+  { id:47, cat:'peripheral', brand:'Logitech',   name:'MX Master 3S',              specs:['8K DPI','Electromagn.','Silence'],    price:99,   icon:'🖱️',                              rating:5 },
+  { id:48, cat:'peripheral', brand:'Razer',      name:'Basilisk V3 Pro 35K',       specs:['35K DPI','11 Botones','Wireless'],    price:139,  icon:'🖱️', badge:'Nuevo', badgeNew:true, rating:5 },
+  // ── Placas Base ──
+  { id:49, cat:'motherboard', brand:'ASUS',    name:'ROG Maximus Z890 Apex',        specs:['LGA1851','DDR5','PCIe 5.0','Wi-Fi 7'],       price:699,  icon:'🔲', badge:'Nuevo', badgeNew:true, rating:5 },
+  { id:50, cat:'motherboard', brand:'MSI',     name:'MEG Z890 ACE',                  specs:['LGA1851','DDR5','4×M.2','10G LAN'],          price:549,  icon:'🔲', badge:'Nuevo', badgeNew:true, rating:5 },
+  { id:51, cat:'motherboard', brand:'Gigabyte',name:'Z890 Aorus Master',             specs:['LGA1851','DDR5','AI OC','Wi-Fi 7'],           price:479,  icon:'🔲',                              rating:4 },
+  { id:52, cat:'motherboard', brand:'ASUS',    name:'ProArt X870E-Creator WiFi',     specs:['AM5','DDR5','Thunderbolt 4','10G LAN'],       price:449,  oldPrice:519, icon:'🔲', badge:'−13%', rating:5 },
+  { id:53, cat:'motherboard', brand:'MSI',     name:'MAG X870E Tomahawk WiFi',       specs:['AM5','DDR5','PCIe 5.0','2.5G LAN'],          price:279,  icon:'🔲',                              rating:4 },
+  { id:54, cat:'motherboard', brand:'Gigabyte',name:'B650E Aorus Pro X',             specs:['AM5','DDR5','PCIe 5.0 M.2','Wi-Fi 6E'],      price:219,  oldPrice:259, icon:'🔲', badge:'−15%', rating:4 },
+  { id:55, cat:'motherboard', brand:'ASRock',  name:'B650M Pro RS WiFi',             specs:['AM5','DDR5','Micro-ATX','Wi-Fi 6'],           price:149,  icon:'🔲',                              rating:3 },
+
+  // ── Cajas ──
+  { id:56, cat:'case', brand:'Lian Li',   name:'PC-O11 Dynamic EVO XL',      specs:['Full Tower','E-ATX','Dual Chamber','USB-C'],  price:199,  icon:'🖥', badge:'Popular',                rating:5 },
+  { id:57, cat:'case', brand:'Fractal',   name:'Torrent RGB Black',           specs:['Mid Tower','ATX','2×180mm Fan','Mesh'],       price:169,  oldPrice:199, icon:'🖥', badge:'−15%',      rating:5 },
+  { id:58, cat:'case', brand:'be quiet!', name:'Silent Base 802 Window',      specs:['Mid Tower','ATX','Silenciosa','USB-C'],       price:149,  icon:'🖥',                                  rating:4 },
+  { id:59, cat:'case', brand:'NZXT',      name:'H9 Flow Black',               specs:['Mid Tower','ATX','Dual Chamber','Panoramic'],  price:179,  icon:'🖥', badge:'Nuevo', badgeNew:true,    rating:5 },
+  { id:60, cat:'case', brand:'Corsair',   name:'7000D Airflow Full Tower',    specs:['Full Tower','E-ATX','Alta Airflow','USB-C'],  price:219,  oldPrice:259, icon:'🖥', badge:'−16%',      rating:4 },
+  { id:61, cat:'case', brand:'Lian Li',   name:'O11 Dynamic Mini',            specs:['Mini Tower','ITX/mATX','Dual Chamber'],       price:99,   icon:'🖥',                                  rating:4 },
+  { id:62, cat:'case', brand:'DeepCool',  name:'Morpheus CC560 Digital',      specs:['Mid Tower','ATX','LCD Panel','4 Fans'],       price:79,   icon:'🖥', badge:'Oferta',                   rating:3 },
+
+  // ── Fuentes de Alimentación ──
+  { id:63, cat:'psu', brand:'Corsair',  name:'HX1500i Platinum',           specs:['1500W','80+ Platinum','ATX 3.1','Modular'],    price:329,  icon:'⚡🔌', badge:'Nuevo', badgeNew:true,  rating:5 },
+  { id:64, cat:'psu', brand:'be quiet!',name:'Dark Power Pro 13 1300W',   specs:['1300W','80+ Titanium','ATX 3.1','Modular'],    price:299,  icon:'⚡🔌',                                 rating:5 },
+  { id:65, cat:'psu', brand:'ASUS',     name:'ROG THOR 1000P2 Gaming',    specs:['1000W','80+ Platinum','OLED','Full Modular'],   price:249,  oldPrice:299, icon:'⚡🔌', badge:'−17%',   rating:5 },
+  { id:66, cat:'psu', brand:'Seasonic', name:'Focus GX-850 Gold',          specs:['850W','80+ Gold','Full Modular','10 Años'],    price:129,  oldPrice:159, icon:'⚡🔌', badge:'−19%',   rating:5 },
+  { id:67, cat:'psu', brand:'Corsair',  name:'RM850e Fully Modular',       specs:['850W','80+ Gold','ATX 3.0','Modular'],         price:109,  icon:'⚡🔌',                                 rating:4 },
+  { id:68, cat:'psu', brand:'be quiet!',name:'Pure Power 12 M 750W',      specs:['750W','80+ Gold','Semi-Modular','ATX 3.0'],    price:89,   icon:'⚡🔌',                                 rating:4 },
+  { id:69, cat:'psu', brand:'Seasonic', name:'S12III 650W Bronze',         specs:['650W','80+ Bronze','Semi-Modular'],            price:59,   icon:'⚡🔌',                                 rating:3 },
+];
+
+let currentProducts = [...allProducts];
+let currentPage = 1;
+const PER_PAGE = 12;
+
+
+function nexusSlug(n){return n.toLowerCase().replace(/[áàä]/g,'a').replace(/[éèë]/g,'e').replace(/[íìï]/g,'i').replace(/[óòö]/g,'o').replace(/[úùü]/g,'u').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+function renderProducts(products, page = 1) {
+  currentPage = page;
+  const start = (page - 1) * PER_PAGE;
+  const paged = products.slice(start, start + PER_PAGE);
+  const grid = document.getElementById('productsGrid');
+  document.getElementById('resultsCount').textContent = `Mostrando ${start + 1}–${Math.min(start + paged.length, products.length)} de ${products.length} productos`;
+  grid.innerHTML = paged.map(p => `
+    <div class="product-card" data-cat="${p.cat}" data-price="${p.price}" data-brand="${p.brand}" data-name="${p.name.replace(/"/g,'&quot;')}" data-slug="${nexusSlug(p.name)}" onclick="if(!event.target.closest('.add-btn')){var s=this.dataset.slug;if(s)window.location.href='producto-' +s+'.html';}" style="cursor:pointer">
+      ${p.badge ? `<div class="product-badge${p.badgeNew?' new':''}">${p.badge}</div>` : ''}
+      <div class="product-img">${p.icon}</div>
+      <div class="product-info">
+        <div class="product-brand">${p.brand}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-specs">${p.specs.map(s=>`<span class="spec-tag">${s}</span>`).join('')}</div>
+        <div class="product-rating">${'★'.repeat(p.rating).split('').map(()=>'<span class="star">★</span>').join('')}${'★'.repeat(5-p.rating).split('').map(()=>'<span class="star empty">★</span>').join('')}</div>
+        <div class="product-footer">
+          <div class="product-footer-prices">
+            <span class="product-price">${p.price}€</span>
+            ${p.oldPrice ? `<span class="product-price-old">${p.oldPrice}€</span>` : ''}
+          </div>
+          <div class="product-footer-btns">
+            <button class="add-btn cart-add" data-name="${p.name.replace(/"/g,'&quot;')}" data-slug="${nexusSlug(p.name)}" data-price="${p.price}" title="Añadir al carrito">+</button>
+            <button class="add-btn compare-add-btn" data-name="${p.name.replace(/"/g,'&quot;')}" data-slug="${nexusSlug(p.name)}" data-price="${p.price}" title="Comparar">⚖</button>
+            <button class="wishlist-btn" data-name="${p.name.replace(/"/g,'&quot;')}" data-price="${p.price}" data-icon="${p.icon}" title="Lista de deseos" onclick="event.stopPropagation();toggleWishlist(this.dataset.name,parseFloat(this.dataset.price),this.dataset.icon,this)">❤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  // Event delegation for add buttons
+  grid.querySelectorAll('.cart-add').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      addToCart(btn.dataset.name, parseFloat(btn.dataset.price));
+      btn.textContent = '✓';
+      btn.style.background = 'var(--accent)';
+      btn.style.color = 'var(--black)';
+      btn.style.borderColor = 'var(--accent)';
+      setTimeout(() => { btn.textContent = '+'; btn.style.background = ''; btn.style.color = ''; btn.style.borderColor = ''; }, 1200);
+    });
+  });
+  renderPagination(products, page);
+  grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderPagination(products, page) {
+  const totalPages = Math.ceil(products.length / PER_PAGE);
+  const el = document.getElementById('paginationEl');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  let btns = '';
+  if (page > 1) btns += `<button class="page-btn" onclick="goPage(${page-1})">←</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || Math.abs(i - page) <= 1) {
+      btns += `<button class="page-btn${i===page?' active':''}" onclick="goPage(${i})">${i}</button>`;
+    } else if (Math.abs(i - page) === 2) {
+      btns += `<span style="color:var(--muted);padding:0 4px;align-self:center">…</span>`;
+    }
+  }
+  if (page < totalPages) btns += `<button class="page-btn" onclick="goPage(${page+1})">→</button>`;
+  el.innerHTML = btns;
+}
+
+function goPage(p) { renderProducts(currentProducts, p); }
+
+function applyFilters() {
+  const checkedCats = [...document.querySelectorAll('input[type=checkbox]')].filter(c => c.checked && ['cpu','gpu','ram','storage','monitor','peripheral','motherboard','case','psu'].includes(c.value)).map(c => c.value);
+  const checkedBrands = [...document.querySelectorAll('input[type=checkbox]')].filter(c => c.checked && ['Intel','AMD','NVIDIA','ASUS','MSI','Gigabyte','Corsair','be quiet!','Lian Li','Seasonic','Samsung','Fractal','NZXT','ASRock','DeepCool','G.Skill','Kingston','WD','Seagate','Sabrent','Crucial','TeamGroup','SteelSeries','HyperX','Logitech','Razer','Elgato','Rode','LG','Acer','BenQ'].includes(c.value)).map(c => c.value);
+  const maxPrice = parseInt(document.getElementById('priceRange').value);
+  currentProducts = allProducts.filter(p => {
+    const catOk = !checkedCats.length || checkedCats.includes(p.cat);
+    const brandOk = !checkedBrands.length || checkedBrands.includes(p.brand);
+    const priceOk = p.price <= maxPrice;
+    return catOk && brandOk && priceOk;
+  });
+  renderProducts(currentProducts, 1);
+}
+
+function sortProducts(val) {
+  let sorted = [...currentProducts];
+  if (val === 'price-asc') sorted.sort((a,b) => a.price - b.price);
+  else if (val === 'price-desc') sorted.sort((a,b) => b.price - a.price);
+  else if (val === 'rating') sorted.sort((a,b) => b.rating - a.rating);
+  currentProducts = sorted;
+  renderProducts(currentProducts, 1);
+}
+
+function setView(type, btn) {
+  document.querySelectorAll('.view-toggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const grid = document.getElementById('productsGrid');
+  if (type === 'list') {
+    grid.style.gridTemplateColumns = '1fr';
+  } else {
+    grid.style.gridTemplateColumns = '';
+  }
+}
+
+function updatePrice(val) {
+  document.getElementById('priceVal').textContent = parseInt(val).toLocaleString('es-ES') + '€';
+  applyFilters();
+}
+
+function resetFilters() {
+  document.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false);
+  document.getElementById('priceRange').value = 2000;
+  document.getElementById('priceVal').textContent = '2.000€';
+  currentProducts = [...allProducts];
+  renderProducts(currentProducts, 1);
+}
+
+// Check URL params
+const urlParams = new URLSearchParams(window.location.search);
+const catParam = urlParams.get('cat');
+
+// Init
+renderProducts(allProducts, 1);
+
+if (catParam) {
+  const map = { procesadores:'cpu', gpus:'gpu', ram:'ram', almacenamiento:'storage', monitores:'monitor', perifericos:'peripheral', placas:'motherboard', cajas:'case', fuentes:'psu' };
+  const catKey = map[catParam];
+  if (catKey) {
+    const cb = document.querySelector(`input[value="${catKey}"]`);
+    if (cb) { cb.checked = true; applyFilters(); }
+  }
+}
+</script>
+<script src="./nexus-ai-chat.js"></script>
+<script src="./nexus-pwa.js"></script>
+<footer>
+  <div class="footer-brand">
+    <span class="nav-logo" style="display:block;margin-bottom:16px">NEXUS</span>
+    <p class="footer-desc">Tu tienda de confianza para hardware, periféricos y componentes de alto rendimiento desde 2010. Más de 180.000 clientes satisfechos.</p>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">𝕏</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">📸</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">💬</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Tienda</div>
+    <div class="footer-links">
+      <a href="productos.html">Todos los productos</a>
+      <a href="gaming.html">Gaming Setup</a>
+      <a href="ofertas.html">Ofertas y chollos</a>
+      <a href="outlet.html">Outlet</a>
+      <a href="comparar.html">⚖ Comparador</a>
+      <a href="busqueda.html">Buscador</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Mi cuenta</div>
+    <div class="footer-links">
+      <a href="perfil.html">Mi perfil</a>
+      <a href="carrito.html">Mi carrito</a>
+      <a href="login.html">Iniciar sesión</a>
+      <a href="registro.html">Crear cuenta</a>
+      <a href="programa-puntos.html">⭐ Programa de puntos</a>
+      <a href="afiliados.html">Programa de afiliados</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Información</div>
+    <div class="footer-links">
+      <a href="soporte.html">Centro de ayuda</a>
+      <a href="garantia.html">Garantías</a>
+      <a href="financiacion.html">Financiación 0%</a>
+      <a href="guias.html">Guías de compra</a>
+      <a href="blog.html">Blog</a>
+      <a href="sobre-nosotros.html">Sobre nosotros</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

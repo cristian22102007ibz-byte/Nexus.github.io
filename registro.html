@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00c8ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear Cuenta — NEXUS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { min-height: 100vh; display: flex; flex-direction: column; }
+
+    .auth-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 70% at 85% 50%, rgba(123,47,255,0.07) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 50% at 15% 30%, rgba(0,180,255,0.06) 0%, transparent 60%);
+    }
+    .auth-grid {
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px; opacity: 0.25;
+      mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+    }
+
+    .auth-wrapper {
+      flex: 1; display: flex; align-items: stretch;
+      position: relative; z-index: 1; padding-top: 64px;
+    }
+
+    /* ── Form panel (left for register) ── */
+    .auth-form-panel {
+      width: 560px; flex-shrink: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 60px 60px;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+    .auth-form-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 36px;
+      letter-spacing: 2px; color: var(--white); margin-bottom: 8px;
+    }
+    .auth-form-sub { font-size: 14px; color: var(--muted); margin-bottom: 36px; }
+    .auth-form-sub a { color: var(--accent); transition: opacity 0.2s; }
+    .auth-form-sub a:hover { opacity: 0.8; }
+
+    /* ── Fields ── */
+    .field-group { margin-bottom: 18px; }
+    .field-label {
+      display: block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 7px;
+    }
+    .field-wrap { position: relative; }
+    .field-input {
+      width: 100%; background: var(--card); border: 1px solid var(--border);
+      color: var(--white); padding: 12px 16px 12px 44px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      outline: none; border-radius: 4px; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,180,255,0.1);
+    }
+    .field-input::placeholder { color: var(--muted); }
+    .field-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 15px; color: var(--muted); pointer-events: none; transition: color 0.2s;
+    }
+    .field-wrap:focus-within .field-icon { color: var(--accent); }
+    .field-toggle {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: 12px; padding: 4px; font-family: 'JetBrains Mono', monospace;
+      transition: color 0.2s; letter-spacing: 1px;
+    }
+    .field-toggle:hover { color: var(--accent); }
+    .field-input.has-toggle { padding-right: 52px; }
+    .field-error {
+      font-size: 11px; color: #ff5e5e; font-family: 'JetBrains Mono', monospace;
+      margin-top: 5px; display: none; letter-spacing: 0.5px;
+    }
+    .field-group.has-error .field-input { border-color: #ff5e5e; box-shadow: 0 0 0 3px rgba(255,94,94,0.08); }
+    .field-group.has-error .field-error { display: block; }
+    .field-group.is-valid .field-input { border-color: #00ff94; }
+    .field-hint {
+      font-size: 11px; color: var(--muted); margin-top: 5px;
+      font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3px;
+    }
+
+    /* ── Two-col row ── */
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ── Password strength ── */
+    .pwd-strength { margin-top: 8px; }
+    .pwd-bars { display: flex; gap: 4px; margin-bottom: 5px; }
+    .pwd-bar {
+      height: 3px; flex: 1; border-radius: 2px;
+      background: var(--border); transition: background 0.3s;
+    }
+    .pwd-bar.weak   { background: #ff5e5e; }
+    .pwd-bar.medium { background: #ffb347; }
+    .pwd-bar.strong { background: #00ff94; }
+    .pwd-label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--muted); }
+
+    /* ── Terms checkbox ── */
+    .terms-wrap {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin: 20px 0; cursor: pointer;
+    }
+    .terms-wrap input[type="checkbox"] { accent-color: var(--accent); width: 15px; height: 15px; flex-shrink: 0; margin-top: 2px; }
+    .terms-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .terms-text a { color: var(--accent); }
+
+    /* ── Submit ── */
+    .auth-submit {
+      width: 100%; background: var(--accent); color: var(--black);
+      border: none; padding: 15px; font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+      cursor: pointer; border-radius: 4px; transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 20px rgba(0,180,255,0.35); position: relative; overflow: hidden;
+    }
+    .auth-submit:hover { transform: translateY(-2px); box-shadow: 0 0 36px rgba(0,180,255,0.55); }
+    .auth-submit .btn-loader {
+      display: none; position: absolute; inset: 0; background: var(--accent);
+      align-items: center; justify-content: center;
+    }
+    .auth-submit.loading .btn-text { opacity: 0; }
+    .auth-submit.loading .btn-loader { display: flex; }
+    .spinner { width: 20px; height: 20px; border: 2px solid rgba(0,0,0,0.3); border-top-color: var(--black); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Divider & Social ── */
+    .auth-divider {
+      display: flex; align-items: center; gap: 16px; margin: 24px 0;
+      color: var(--muted); font-size: 12px;
+      font-family: 'JetBrains Mono', monospace; letter-spacing: 1px;
+    }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .social-btns { display: flex; gap: 10px; }
+    .social-btn {
+      flex: 1; background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: 11px; border-radius: 4px; font-size: 13px;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .social-btn:hover { border-color: var(--accent); background: rgba(0,180,255,0.05); }
+
+    /* ── Alert ── */
+    .auth-alert {
+      background: rgba(255,94,94,0.1); border: 1px solid rgba(255,94,94,0.3);
+      color: #ff5e5e; padding: 12px 16px; border-radius: 4px;
+      font-size: 13px; margin-bottom: 16px; display: none;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .auth-alert.show { display: block; animation: fadeUp 0.3s ease; }
+    .auth-success {
+      background: rgba(0,255,148,0.08); border: 1px solid rgba(0,255,148,0.3);
+      color: #00ff94; padding: 14px 16px; border-radius: 4px;
+      font-size: 13px; margin-bottom: 16px; display: none;
+      font-family: 'JetBrains Mono', monospace; line-height: 1.6;
+    }
+    .auth-success.show { display: block; animation: fadeUp 0.3s ease; }
+
+    /* ── Right benefits panel ── */
+    .auth-brand {
+      flex: 1; display: flex; flex-direction: column;
+      justify-content: center; padding: 80px 60px;
+    }
+    .auth-brand-logo {
+      font-family: 'Bebas Neue', sans-serif; font-size: 52px;
+      letter-spacing: 6px; color: var(--accent);
+      text-shadow: 0 0 32px rgba(0,180,255,0.5); margin-bottom: 32px;
+    }
+    .auth-brand-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 5vw, 68px);
+      line-height: 0.95; letter-spacing: 2px;
+      color: var(--white); margin-bottom: 24px;
+    }
+    .auth-brand-title span { color: var(--accent2); }
+    .auth-brand-desc { font-size: 15px; color: var(--muted); line-height: 1.7; max-width: 360px; }
+
+    /* ── Steps ── */
+    .steps { margin-top: 48px; display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex; gap: 20px; padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--border);
+      line-height: 1; flex-shrink: 0; width: 32px;
+      transition: color 0.3s;
+    }
+    .step:hover .step-num { color: var(--accent); }
+    .step-title { font-size: 14px; color: var(--white); font-weight: 400; margin-bottom: 4px; }
+    .step-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* ── Promo code reveal ── */
+    .promo-reveal {
+      margin-top: 40px; background: rgba(0,180,255,0.05);
+      border: 1px solid rgba(0,180,255,0.2); padding: 20px 24px; border-radius: 4px;
+    }
+    .promo-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; }
+    .promo-code {
+      font-family: 'Bebas Neue', sans-serif; font-size: 28px;
+      letter-spacing: 4px; color: var(--accent);
+      text-shadow: 0 0 12px rgba(0,180,255,0.4);
+    }
+    .promo-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    @media (max-width: 900px) {
+      .auth-brand { display: none; }
+      .auth-form-panel { width: 100%; padding: 40px 24px; border-right: none; }
+    }
+  
+@media(max-width:768px){
+  .register-wrap{padding:80px 20px 40px;grid-template-columns:1fr;}
+  .register-visual{display:none;}
+}
+@media(max-width:480px){
+  .register-wrap{padding:68px 16px 32px;}
+  .register-box{padding:28px 20px;}
+  .name-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="auth-bg"></div>
+<div class="auth-grid"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">NEXUS</a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="gaming.html">Gaming</a>
+    <a href="ofertas.html">Ofertas</a>
+  </div>
+  <div class="nav-actions" id="navActions">
+    <a href="busqueda.html" style="color:var(--muted);font-size:18px;display:flex;align-items:center;padding:0 4px" title="Buscar">🔍</a>
+    <a href="carrito.html" class="cart-btn">🛒 <span class="cart-count" id="cartCount">0</span></a>
+  </div>
+</nav>
+
+<div class="auth-wrapper">
+
+  <!-- FORM PANEL -->
+  <div class="auth-form-panel">
+    <div class="auth-form-title">CREAR CUENTA</div>
+    <p class="auth-form-sub">¿Ya tienes cuenta? <a href="login.html">Inicia sesión →</a></p>
+
+    <div class="auth-alert" id="regAlert"></div>
+    <div class="auth-success" id="regSuccess"></div>
+
+    <div class="field-row">
+      <div class="field-group" id="fg-nombre">
+        <label class="field-label" for="regNombre">Nombre</label>
+        <div class="field-wrap">
+          <span class="field-icon">👤</span>
+          <input type="text" id="regNombre" class="field-input" placeholder="Tu nombre" autocomplete="given-name">
+        </div>
+        <div class="field-error">El nombre es obligatorio</div>
+      </div>
+      <div class="field-group" id="fg-apellido">
+        <label class="field-label" for="regApellido">Apellido</label>
+        <div class="field-wrap">
+          <span class="field-icon">👤</span>
+          <input type="text" id="regApellido" class="field-input" placeholder="Tu apellido" autocomplete="family-name">
+        </div>
+        <div class="field-error">El apellido es obligatorio</div>
+      </div>
+    </div>
+
+    <div class="field-group" id="fg-regemail">
+      <label class="field-label" for="regEmail">Email</label>
+      <div class="field-wrap">
+        <span class="field-icon">✉</span>
+        <input type="email" id="regEmail" class="field-input" placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <div class="field-error" id="err-regemail">Introduce un email válido</div>
+    </div>
+
+    <div class="field-group" id="fg-telefono">
+      <label class="field-label" for="regTel">Teléfono <span style="color:var(--muted);font-size:10px">(opcional)</span></label>
+      <div class="field-wrap">
+        <span class="field-icon">📱</span>
+        <input type="tel" id="regTel" class="field-input" placeholder="+34 600 000 000" autocomplete="tel">
+      </div>
+    </div>
+
+    <div class="field-group" id="fg-regpass">
+      <label class="field-label" for="regPass">Contraseña</label>
+      <div class="field-wrap">
+        <span class="field-icon">🔒</span>
+        <input type="password" id="regPass" class="field-input has-toggle" placeholder="Mín. 8 caracteres" autocomplete="new-password" oninput="checkStrength(this.value)">
+        <button class="field-toggle" onclick="togglePwd('regPass', this)" type="button">VER</button>
+      </div>
+      <div class="pwd-strength">
+        <div class="pwd-bars">
+          <div class="pwd-bar" id="bar1"></div>
+          <div class="pwd-bar" id="bar2"></div>
+          <div class="pwd-bar" id="bar3"></div>
+          <div class="pwd-bar" id="bar4"></div>
+        </div>
+        <div class="pwd-label" id="pwdLabel">Introduce una contraseña</div>
+      </div>
+      <div class="field-error">La contraseña debe tener al menos 8 caracteres</div>
+    </div>
+
+    <div class="field-group" id="fg-regpass2">
+      <label class="field-label" for="regPass2">Confirmar contraseña</label>
+      <div class="field-wrap">
+        <span class="field-icon">🔒</span>
+        <input type="password" id="regPass2" class="field-input has-toggle" placeholder="Repite la contraseña" autocomplete="new-password">
+        <button class="field-toggle" onclick="togglePwd('regPass2', this)" type="button">VER</button>
+      </div>
+      <div class="field-error">Las contraseñas no coinciden</div>
+    </div>
+
+    <label class="terms-wrap" id="termsWrap">
+      <input type="checkbox" id="termsCheck">
+      <span class="terms-text">
+        Acepto los <a href="#">Términos y condiciones</a> y la
+        <a href="#">Política de privacidad</a>. Acepto recibir comunicaciones sobre ofertas y novedades.
+      </span>
+    </label>
+
+    <button class="auth-submit" id="regBtn" onclick="handleRegister()">
+      <span class="btn-text">Crear mi cuenta gratis</span>
+      <span class="btn-loader"><div class="spinner"></div></span>
+    </button>
+
+    <div class="auth-divider">o regístrate con</div>
+
+    <div class="social-btns">
+      <button class="social-btn" onclick="socialLogin('Google')"><span style="font-size:16px">G</span> Google</button>
+      <button class="social-btn" onclick="socialLogin('Apple')"><span style="font-size:16px">🍎</span> Apple</button>
+      <button class="social-btn" onclick="socialLogin('GitHub')"><span style="font-size:16px">⌥</span> GitHub</button>
+    </div>
+  </div>
+
+  <!-- BRAND / BENEFITS PANEL -->
+  <div class="auth-brand">
+    <div class="auth-brand-logo">NEXUS</div>
+    <h1 class="auth-brand-title">ÚNETE A LA<br><span>COMUNIDAD</span></h1>
+    <p class="auth-brand-desc">Más de 180.000 entusiastas de la tecnología ya forman parte de NEXUS. Crea tu cuenta y accede a beneficios exclusivos.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div>
+          <div class="step-title">Crea tu cuenta en 30 segundos</div>
+          <div class="step-desc">Solo necesitas email y contraseña. Sin tarjeta de crédito.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div>
+          <div class="step-title">Recibe 500 puntos de bienvenida</div>
+          <div class="step-desc">Equivalentes a 5€ de descuento en tu primer pedido.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div>
+          <div class="step-title">Guarda setups y lista de deseos</div>
+          <div class="step-desc">Sincroniza tu configuración de PC y productos favoritos.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div>
+          <div class="step-title">Accede a precios exclusivos</div>
+          <div class="step-desc">Miembros registrados obtienen hasta un 5% extra en todas las compras.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="promo-reveal">
+      <div class="promo-label">Código de bienvenida</div>
+      <div class="promo-code">NEXUS10</div>
+      <div class="promo-sub">10% de descuento en tu primer pedido — válido 30 días</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="./app.js"></script>
+<script src="./nexus-extras.js"></script>
+<script>
+  function togglePwd(id, btn) {
+    const inp = document.getElementById(id);
+    const hide = inp.type === 'password';
+    inp.type = hide ? 'text' : 'password';
+    btn.textContent = hide ? 'OC.' : 'VER';
+  }
+
+  function validateEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  function setFieldState(groupId, state, msg) {
+    const g = document.getElementById(groupId);
+    if (!g) return;
+    g.classList.remove('has-error', 'is-valid');
+    if (state === 'error') {
+      g.classList.add('has-error');
+      if (msg) { const e = g.querySelector('.field-error'); if (e) e.textContent = msg; }
+    } else if (state === 'valid') {
+      g.classList.add('is-valid');
+    }
+  }
+
+  function checkStrength(pwd) {
+    const bars = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3'), document.getElementById('bar4')];
+    const label = document.getElementById('pwdLabel');
+    bars.forEach(b => b.className = 'pwd-bar');
+    if (!pwd) { label.textContent = 'Introduce una contraseña'; label.style.color = ''; return; }
+
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (pwd.length >= 12) score++;
+    if (/[A-Z]/.test(pwd) && /[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+    const levels = [
+      { cls: 'weak',   label: 'Muy débil',  color: '#ff5e5e' },
+      { cls: 'weak',   label: 'Débil',      color: '#ff5e5e' },
+      { cls: 'medium', label: 'Media',      color: '#ffb347' },
+      { cls: 'strong', label: 'Fuerte',     color: '#00ff94' },
+      { cls: 'strong', label: 'Muy fuerte', color: '#00ff94' },
+    ];
+    const lv = levels[score];
+    for (let i = 0; i < score + 1 && i < 4; i++) bars[i].classList.add(lv.cls);
+    label.textContent = lv.label;
+    label.style.color = lv.color;
+  }
+
+  // Live validations
+  document.getElementById('regEmail').addEventListener('blur', function() {
+    if (!this.value) setFieldState('fg-regemail', 'error', 'El email es obligatorio');
+    else if (!validateEmail(this.value)) setFieldState('fg-regemail', 'error', 'Introduce un email válido');
+    else setFieldState('fg-regemail', 'valid');
+  });
+  document.getElementById('regPass2').addEventListener('input', function() {
+    const p1 = document.getElementById('regPass').value;
+    if (this.value && this.value !== p1) setFieldState('fg-regpass2', 'error', 'Las contraseñas no coinciden');
+    else if (this.value === p1 && p1) setFieldState('fg-regpass2', 'valid');
+  });
+  document.getElementById('regNombre').addEventListener('blur', function() {
+    if (!this.value.trim()) setFieldState('fg-nombre', 'error'); else setFieldState('fg-nombre', 'valid');
+  });
+  document.getElementById('regApellido').addEventListener('blur', function() {
+    if (!this.value.trim()) setFieldState('fg-apellido', 'error'); else setFieldState('fg-apellido', 'valid');
+  });
+
+  function handleRegister() {
+    const nombre   = document.getElementById('regNombre').value.trim();
+    const apellido = document.getElementById('regApellido').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const pass     = document.getElementById('regPass').value;
+    const pass2    = document.getElementById('regPass2').value;
+    const terms    = document.getElementById('termsCheck').checked;
+    const alert    = document.getElementById('regAlert');
+    const success  = document.getElementById('regSuccess');
+    let valid = true;
+
+    alert.classList.remove('show');
+    success.classList.remove('show');
+
+    if (!nombre)  { setFieldState('fg-nombre',   'error', 'El nombre es obligatorio');    valid = false; }
+    else            setFieldState('fg-nombre',   'valid');
+    if (!apellido){ setFieldState('fg-apellido', 'error', 'El apellido es obligatorio');  valid = false; }
+    else            setFieldState('fg-apellido', 'valid');
+    if (!email || !validateEmail(email)) { setFieldState('fg-regemail', 'error', 'Introduce un email válido'); valid = false; }
+    else setFieldState('fg-regemail', 'valid');
+    if (pass.length < 8) { setFieldState('fg-regpass', 'error', 'Mínimo 8 caracteres'); valid = false; }
+    else setFieldState('fg-regpass', 'valid');
+    if (!pass2 || pass2 !== pass) { setFieldState('fg-regpass2', 'error', 'Las contraseñas no coinciden'); valid = false; }
+    else setFieldState('fg-regpass2', 'valid');
+    if (!terms) {
+      alert.textContent = '✕ Debes aceptar los términos y condiciones para continuar';
+      alert.classList.add('show');
+      valid = false;
+    }
+    if (!valid) return;
+
+    const btn = document.getElementById('regBtn');
+    btn.classList.add('loading'); btn.disabled = true;
+
+    setTimeout(function() {
+      btn.classList.remove('loading'); btn.disabled = false;
+
+      var result = registerUser(nombre, apellido, email, pass);
+      if (!result.ok) {
+        alert.textContent = '✕ ' + result.error + ' ¿Quieres <a href="login.html">iniciar sesión</a>?';
+        alert.innerHTML = '✕ ' + result.error + ' <a href="login.html" style="color:var(--accent)">Inicia sesión aquí</a>';
+        alert.classList.add('show');
+        return;
+      }
+
+      success.innerHTML = '✓ ¡Cuenta creada con éxito, ' + nombre + '!<br>500 puntos de bienvenida añadidos · Código NEXUS10 activo<br>Redirigiendo...';
+      success.classList.add('show');
+      setTimeout(function() { window.location.href = 'index.html'; }, 2000);
+    }, 1000);
+  }
+
+  function socialLogin(provider) {
+    showToast('🔗 Conectando con ' + provider + '...');
+    setTimeout(() => showToast('⚠ Login social no disponible en demo'), 1200);
+  }
+</script>
+<script src="./nexus-ai-chat.js"></script>
+<script src="./nexus-pwa.js"></script>
+<footer>
+  <div class="footer-brand">
+    <span class="nav-logo" style="display:block;margin-bottom:16px">NEXUS</span>
+    <p class="footer-desc">Tu tienda de confianza para hardware, periféricos y componentes de alto rendimiento desde 2010. Más de 180.000 clientes satisfechos.</p>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">𝕏</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">📸</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶</a>
+      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">💬</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Tienda</div>
+    <div class="footer-links">
+      <a href="productos.html">Todos los productos</a>
+      <a href="gaming.html">Gaming Setup</a>
+      <a href="ofertas.html">Ofertas y chollos</a>
+      <a href="outlet.html">Outlet</a>
+      <a href="comparar.html">⚖ Comparador</a>
+      <a href="busqueda.html">Buscador</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Mi cuenta</div>
+    <div class="footer-links">
+      <a href="perfil.html">Mi perfil</a>
+      <a href="carrito.html">Mi carrito</a>
+      <a href="login.html">Iniciar sesión</a>
+      <a href="registro.html">Crear cuenta</a>
+      <a href="programa-puntos.html">⭐ Programa de puntos</a>
+      <a href="afiliados.html">Programa de afiliados</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Información</div>
+    <div class="footer-links">
+      <a href="soporte.html">Centro de ayuda</a>
+      <a href="garantia.html">Garantías</a>
+      <a href="financiacion.html">Financiación 0%</a>
+      <a href="guias.html">Guías de compra</a>
+      <a href="blog.html">Blog</a>
+      <a href="sobre-nosotros.html">Sobre nosotros</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
