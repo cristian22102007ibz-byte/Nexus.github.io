@@ -390,6 +390,14 @@ REGLAS:
     btn.classList.toggle('open', isOpen);
     document.getElementById('nexusAIBadge').style.display = 'none';
     if (isOpen) setTimeout(() => document.getElementById('aiInput').focus(), 300);
+    // Hide/show other floating buttons to avoid overlap
+    var otherBtns = ['wishlistFloating', 'floatHelp', 'backToTop'];
+    otherBtns.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.opacity = isOpen ? '0' : '';
+      if (el) el.style.pointerEvents = isOpen ? 'none' : '';
+      if (el) el.style.transition = 'opacity .3s';
+    });
   });
 
   document.getElementById('aiClose').addEventListener('click', () => {

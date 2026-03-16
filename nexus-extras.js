@@ -1519,7 +1519,7 @@ function initWishlist() {
     .wishlist-btn.active { border-color: #ff6b9d; color: #ff6b9d; background: rgba(255,107,157,0.1); }
     .wishlist-btn.active::after { content: ''; }
     #wishlistFloating {
-      position: fixed; bottom: 90px; right: 24px; z-index: 10001;
+      position: fixed; bottom: 156px; right: 24px; z-index: 10001;
       background: var(--card); border: 1px solid var(--border);
       border-radius: 50%; width: 48px; height: 48px;
       display: flex; align-items: center; justify-content: center;
@@ -2708,7 +2708,7 @@ function initFloatHelp() {
   bubble.id = 'floatBubble';
   bubble.className = 'float-help-bubble';
   bubble.innerHTML = '<strong>💬 ¿Necesitas ayuda?</strong>Chatea con nosotros ahora';
-  bubble.style.cssText = 'position:fixed;bottom:28px;right:90px;z-index:10002;';
+  bubble.style.cssText = 'position:fixed;bottom:90px;right:90px;z-index:10002;';
   document.body.appendChild(bubble);
 
   // Show bubble after 5s

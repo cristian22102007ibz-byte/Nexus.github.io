@@ -1113,24 +1113,33 @@ img:not(.loaded) { opacity: 0; }
 }
 #nexusCursor {
   position: fixed; pointer-events: none; z-index: 99997;
-  mix-blend-mode: difference;
+  mix-blend-mode: normal;
   transition: transform .15s ease;
 }
 #nexusCursorDot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent); position: absolute;
+  background: #00c8ff; position: absolute;
   top: 50%; left: 50%; transform: translate(-50%,-50%);
   transition: width .2s, height .2s, opacity .2s;
+  box-shadow: 0 0 6px rgba(0,200,255,.6);
 }
 #nexusCursorRing {
-  width: 28px; height: 28px; border: 1px solid var(--accent);
+  width: 28px; height: 28px; border: 1px solid #00c8ff;
   border-radius: 50%; position: absolute;
   top: 50%; left: 50%; transform: translate(-50%,-50%);
-  opacity: .5; transition: width .25s, height .25s, opacity .25s, border-color .25s;
+  opacity: .4; transition: width .25s, height .25s, opacity .25s, border-color .25s;
 }
-body.cursor-hover #nexusCursorDot { width: 12px; height: 12px; }
-body.cursor-hover #nexusCursorRing { width: 44px; height: 44px; opacity: .8; border-color: var(--accent2); }
-body.cursor-click #nexusCursorRing { width: 18px; height: 18px; opacity: 1; }
+body.cursor-hover #nexusCursorDot { width: 12px; height: 12px; background: #8b5cf6; box-shadow: 0 0 10px rgba(139,92,246,.7); }
+body.cursor-hover #nexusCursorRing { width: 44px; height: 44px; opacity: .7; border-color: #8b5cf6; }
+body.cursor-click #nexusCursorRing { width: 18px; height: 18px; opacity: 1; border-color: #00c8ff; }
+
+/* Cursor en modo claro */
+body.light-mode #nexusCursor { mix-blend-mode: normal; }
+body.light-mode #nexusCursorDot { background: #0f172a; }
+body.light-mode #nexusCursorRing { border-color: #0f172a; opacity: .35; }
+body.light-mode.cursor-hover #nexusCursorDot { background: #0ea5e9; }
+body.light-mode.cursor-hover #nexusCursorRing { border-color: #0ea5e9; opacity: .7; }
+body.light-mode.cursor-click #nexusCursorRing { border-color: #0f172a; opacity: .9; }
 
 /* ═══════════════════════════════════════════════════════════
    SOCIAL PROOF NOTIFICATION
@@ -1184,7 +1193,7 @@ body.cursor-click #nexusCursorRing { width: 18px; height: 18px; opacity: 1; }
    FLOATING WHATSAPP / HELP BUTTON
 ═══════════════════════════════════════════════════════════ */
 #floatHelp {
-  position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+  position: fixed; bottom: 90px; right: 24px; z-index: 9999;
   display: flex; align-items: center;
 }
 #floatHelpBtn {
