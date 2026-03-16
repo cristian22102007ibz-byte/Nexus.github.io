@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <meta name="theme-color" content="#00c8ff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -92,6 +93,12 @@
   <span class="filter-chip" onclick="filterOutlet('peripheral',this)">Periféricos</span>
   <span class="filter-chip" onclick="filterOutlet('grade-a',this)">Grado A</span>
   <span class="filter-chip" onclick="filterOutlet('grade-b',this)">Grado B</span>
+  <select onchange="sortOutlet(this.value)" style="margin-left:auto;background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;border-radius:20px;cursor:pointer;outline:none">
+    <option value="">Ordenar por</option>
+    <option value="price-asc">Precio: menor primero</option>
+    <option value="price-desc">Precio: mayor primero</option>
+    <option value="discount">Mayor descuento</option>
+  </select>
 </div>
 
 <div class="outlet-grid" id="outletGrid">
@@ -251,6 +258,23 @@
 <script src="./app.js"></script>
 <script src="./nexus-extras.js"></script>
 <script>
+function sortOutlet(val) {
+  var grid = document.getElementById('outletGrid');
+  var cards = Array.from(grid.querySelectorAll('.outlet-card'));
+  if (!val) return;
+  cards.sort(function(a, b) {
+    var priceA = parseInt((a.querySelector('.outlet-price')||{textContent:'0'}).textContent) || 0;
+    var priceB = parseInt((b.querySelector('.outlet-price')||{textContent:'0'}).textContent) || 0;
+    var discA = parseInt((a.querySelector('.outlet-save')||{textContent:'0'}).textContent) || 0;
+    var discB = parseInt((b.querySelector('.outlet-save')||{textContent:'0'}).textContent) || 0;
+    if (val === 'price-asc')  return priceA - priceB;
+    if (val === 'price-desc') return priceB - priceA;
+    if (val === 'discount')   return discB - discA;
+    return 0;
+  });
+  cards.forEach(function(card) { grid.appendChild(card); });
+}
+
 function filterOutlet(type, chip) {
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   chip.classList.add('active');

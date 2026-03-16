@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <meta name="theme-color" content="#00c8ff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -174,7 +175,7 @@
           </div>
           <div class="field-row">
             <div class="field-group"><label class="field-label">Provincia</label><select class="field-select" id="province"><option>Madrid</option><option>Barcelona</option><option>Valencia</option><option>Sevilla</option><option>Bilbao</option><option>Zaragoza</option><option>Málaga</option><option>Otras</option></select></div>
-            <div class="field-group"><label class="field-label">Teléfono</label><input type="tel" class="field-input" id="phone" placeholder="+34 600 000 000"></div>
+            <div class="field-group"><label class="field-label">Teléfono</label><input type="tel" class="field-input" id="phone" placeholder="+34 600 000 000" oninput="validateField(this,/^[\d\s\+\-]{7,15}$/)"></div>
           </div>
           <div class="field-group"><label class="field-label">Instrucciones especiales <span style="color:var(--muted);font-size:10px">(opcional)</span></label><input type="text" class="field-input" id="notes" placeholder="Timbre 3B, dejar en portería..."></div>
           <label style="display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);cursor:pointer;margin-top:8px"><input type="checkbox" id="saveAddress" checked style="accent-color:var(--accent)"> Guardar esta dirección para futuros pedidos</label>
@@ -404,6 +405,12 @@ function updateSidebarTotals() {
 // Check promo from carrito
 const appliedPromo = localStorage.getItem('nexusPromo');
 if (appliedPromo === 'NEXUS10') { promoDiscount = 0.10; document.getElementById('sb-promo').style.display = 'block'; }
+
+function validateField(el, pattern) {
+  var ok = pattern.test(el.value.trim());
+  el.style.borderColor = el.value.trim() ? (ok ? 'var(--accent)' : '#ef4444') : '';
+  el.style.boxShadow  = el.value.trim() ? (ok ? '0 0 0 3px rgba(0,200,255,.1)' : '0 0 0 3px rgba(239,68,68,.1)') : '';
+}
 
 function goStep(step) {
   // Validate step 1

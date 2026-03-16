@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <meta name="theme-color" content="#00c8ff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -232,7 +233,7 @@
         <label class="form-label">Mensaje</label>
         <textarea class="form-textarea" placeholder="Describe tu consulta con el máximo detalle posible..." id="contactMessage"></textarea>
       </div>
-      <button class="btn-primary" onclick="sendContact()">Enviar Mensaje →</button>
+      <button class="btn-primary" id="sendContactBtn" onclick="sendContact()">Enviar Mensaje →</button>
     </div>
   </div>
 </div>
@@ -243,8 +244,8 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="./app.js"></script>
-<script src="./nexus-extras.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="app.js"></script>
+<script src="nexus-extras.js"></script>
 <script>
 const faqs = [
   { q: '¿Cuáles son los plazos de envío?', a: 'El envío estándar tarda entre 24 y 48 horas laborables. Para pedidos antes de las 14:00, el envío express llega al día siguiente. Envío gratuito en pedidos superiores a 49€.' },
@@ -310,48 +311,3 @@ function sendContact() {
   const msg = document.getElementById('contactMessage').value;
   if (!name || !email || !msg) { showToast('⚠ Completa todos los campos obligatorios'); return; }
   showToast('✓ Mensaje enviado. Te responderemos
-<footer>
-  <div class="footer-brand">
-    <span class="nav-logo" style="display:block;margin-bottom:16px">NEXUS</span>
-    <p class="footer-desc">Tu tienda de confianza para hardware, periféricos y componentes de alto rendimiento desde 2010. Más de 180.000 clientes satisfechos.</p>
-    <div style="display:flex;gap:10px;margin-top:20px">
-      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">𝕏</a>
-      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">📸</a>
-      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">▶</a>
-      <a href="#" style="width:36px;height:36px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;border-radius:4px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">💬</a>
-    </div>
-  </div>
-  <div>
-    <div class="footer-col-title">Tienda</div>
-    <div class="footer-links">
-      <a href="productos.html">Todos los productos</a>
-      <a href="gaming.html">Gaming Setup</a>
-      <a href="ofertas.html">Ofertas y chollos</a>
-      <a href="outlet.html">Outlet</a>
-      <a href="comparar.html">⚖ Comparador</a>
-      <a href="busqueda.html">Buscador</a>
-    </div>
-  </div>
-  <div>
-    <div class="footer-col-title">Mi cuenta</div>
-    <div class="footer-links">
-      <a href="perfil.html">Mi perfil</a>
-      <a href="carrito.html">Mi carrito</a>
-      <a href="login.html">Iniciar sesión</a>
-      <a href="registro.html">Crear cuenta</a>
-      <a href="programa-puntos.html">⭐ Programa de puntos</a>
-      <a href="afiliados.html">Programa de afiliados</a>
-    </div>
-  </div>
-  <div>
-    <div class="footer-col-title">Información</div>
-    <div class="footer-links">
-      <a href="soporte.html">Centro de ayuda</a>
-      <a href="garantia.html">Garantías</a>
-      <a href="financiacion.html">Financiación 0%</a>
-      <a href="guias.html">Guías de compra</a>
-      <a href="blog.html">Blog</a>
-      <a href="sobre-nosotros.html">Sobre nosotros</a>
-    </div>
-  </div>
-</footer>

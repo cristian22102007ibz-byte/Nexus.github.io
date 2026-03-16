@@ -48,7 +48,8 @@ function initAnnouncementBar() {
       background: linear-gradient(90deg, var(--accent2), var(--accent));
       color: var(--black); text-align: center; padding: 10px 48px;
       font-size: 12px; font-weight: 500; letter-spacing: 1.5px;
-      text-transform: uppercase; position: relative; z-index: 200;
+      text-transform: uppercase; position: fixed; top: 0; left: 0; right: 0;
+      z-index: 10100;
       font-family: 'JetBrains Mono', monospace;
       animation: fadeDown 0.5s ease;
     }
@@ -58,11 +59,6 @@ function initAnnouncementBar() {
       position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
       background: none; border: none; cursor: pointer; font-size: 16px;
       color: rgba(0,0,0,0.6); line-height: 1; padding: 4px;
-    }
-    body { padding-top: 0; }
-    nav { top: var(--ann-height, 0px); transition: top 0.3s; }
-    .hero, .auth-wrapper, .profile-layout, .page-header {
-      margin-top: var(--ann-height, 0px);
     }
     #announcementBar .ann-countdown { display: inline; font-weight: 700; }
   `;
@@ -83,10 +79,14 @@ function initAnnouncementBar() {
   `;
   document.body.prepend(bar);
 
-  // Adjust nav top
-  const h = bar.offsetHeight;
-  document.documentElement.style.setProperty('--ann-height', h + 'px');
-  document.querySelectorAll('nav').forEach(n => n.style.top = h + 'px');
+  // Push nav down below the fixed announcement bar
+  requestAnimationFrame(function() {
+    var h = bar.offsetHeight;
+    document.documentElement.style.setProperty('--ann-height', h + 'px');
+    document.querySelectorAll('nav').forEach(function(n) { n.style.top = h + 'px'; });
+    // Compensate body scroll start so content isn't hidden under both bars
+    document.body.style.paddingTop = (h + 64) + 'px';
+  });
 
   // Rotate messages
   setInterval(() => {
@@ -98,10 +98,11 @@ function initAnnouncementBar() {
     bar.style.opacity = '0';
     bar.style.transform = 'translateY(-100%)';
     bar.style.transition = 'all 0.3s';
-    setTimeout(() => {
+    setTimeout(function() {
       bar.remove();
       document.documentElement.style.setProperty('--ann-height', '0px');
-      document.querySelectorAll('nav').forEach(n => n.style.top = '0');
+      document.querySelectorAll('nav').forEach(function(n) { n.style.top = '0'; });
+      document.body.style.paddingTop = '64px';
     }, 300);
     localStorage.setItem('nexusAnnouncementClosed', '1');
   };
@@ -111,7 +112,7 @@ function initAnnouncementBar() {
    2. COOKIE BANNER (GDPR)
    ───────────────────────────────────────── */
 function initCookieBanner() {
-  // Always show until accepted
+  if (localStorage.getItem('nexusCookies')) return;
 
   const style = document.createElement('style');
   style.textContent = `

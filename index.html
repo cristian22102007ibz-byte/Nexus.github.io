@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <meta name="theme-color" content="#00c8ff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -493,11 +494,39 @@ const searchData = [
 ];
 
 function liveSearch(q) {
-  const dd = document.getElementById('searchDropdown');
-  if (!q) { dd.style.display = 'none'; return; }
-  const res = searchData.filter(p => p.name.toLowerCase().includes(q.toLowerCase()));
-  if (!res.length) { dd.style.display = 'none'; return; }
-  dd.innerHTML = res.map(p => `<a href="${p.url}" class="search-result-item"><span>${p.name}</span><span class="search-price">${p.price}€</span></a>`).join('');
+  var dd = document.getElementById('searchDropdown');
+  if (!q || q.length < 2) { dd.style.display = 'none'; return; }
+  var ql = q.toLowerCase();
+  var res = searchData.filter(function(p) {
+    return p.name.toLowerCase().includes(ql) || (p.cat && p.cat.toLowerCase().includes(ql));
+  }).slice(0, 7);
+  if (!res.length) {
+    dd.innerHTML = '<div style="padding:14px 16px;font-size:13px;color:var(--muted)">Sin resultados para "' + q + '"</div>';
+    dd.style.display = 'block';
+    return;
+  }
+  dd.innerHTML = '';
+  res.forEach(function(p) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)';
+    row.onmouseenter = function(){ this.style.background = 'rgba(0,200,255,.05)'; };
+    row.onmouseleave = function(){ this.style.background = ''; };
+    row.innerHTML =
+      '<span style="font-size:26px;flex-shrink:0">' + (p.icon || '🔧') + '</span>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:13px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + p.name + '</div>' +
+        '<div style="font-size:11px;color:var(--muted)">' + (p.cat || '') + '</div>' +
+      '</div>' +
+      '<div style="font-family:Bebas Neue,sans-serif;font-size:18px;color:var(--accent);flex-shrink:0">' + p.price + '€</div>';
+    row.onclick = function() { window.location.href = p.url; };
+    dd.appendChild(row);
+  });
+  // Footer link
+  var footer = document.createElement('a');
+  footer.href = 'busqueda.html?q=' + encodeURIComponent(q);
+  footer.style.cssText = 'display:block;padding:10px 16px;font-size:12px;color:var(--accent);text-align:center;font-family:JetBrains Mono,monospace;letter-spacing:1px;border-top:1px solid var(--border);text-decoration:none';
+  footer.textContent = 'Ver todos los resultados →';
+  dd.appendChild(footer);
   dd.style.display = 'block';
 }
 document.addEventListener('click', e => {

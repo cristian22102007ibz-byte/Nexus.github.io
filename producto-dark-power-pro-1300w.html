@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dark Power Pro 13 1300W — NEXUS Tech Store</title>
 <meta name="description" content="1300W 80+ Titanium — la máxima eficiencia disponible. be quiet! silencioso, modular y con OCK (Overclocking Key) para modes de alta precisión. La fuen">
@@ -152,7 +153,8 @@
     <div class="product-info-panel">
       <div class="product-cat-tag">// Fuente de Alimentación · be quiet!</div>
       <h1 class="product-title">Dark Power Pro 13 1300W</h1>
-      <div class="product-stars"><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span style="font-size:12px;color:var(--muted);margin-left:8px;font-family:'JetBrains Mono',monospace">5.0 / 5</span></div>
+      <div id="viewersCount" style="display:flex;align-items:center;gap:6px;margin-bottom:12px;font-size:12px;color:var(--muted);font-family:JetBrains Mono,monospace"><span style="width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;animation:onlinePulse 2s ease-in-out infinite;flex-shrink:0"></span><span id="viewersNum">24</span> personas mirando esto ahora</div>
+    <div class="product-stars"><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span style="font-size:12px;color:var(--muted);margin-left:8px;font-family:'JetBrains Mono',monospace">5.0 / 5</span></div>
       <p class="product-desc">1300W 80+ Titanium — la máxima eficiencia disponible. be quiet! silencioso, modular y con OCK (Overclocking Key) para modes de alta precisión. La fuente más silenciosa.</p>
 
       <div class="price-block">
@@ -162,6 +164,7 @@
 
       <div class="btn-group">
         <button class="btn-primary" onclick="addToCartPage('Dark Power Pro 13 1300W',299,this)">🛒 Añadir al carrito</button>
+        <button class="btn-ghost" style="flex:1;min-width:140px" onclick="addToCartPage(this.closest('.btn-group').querySelector('.btn-primary').textContent,parseInt(this.dataset.p),this);window.location.href='checkout.html'" data-p="299">⚡ Comprar ahora</button>
         <button class="btn-secondary" onclick="window.location.href='comparar.html'">⚖ Comparar</button>
         <div class="stock-indicator" style="display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:10px 14px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:4px"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0"></span><span style="font-size:12px;color:#f59e0b;font-family:'JetBrains Mono',monospace;letter-spacing:1px">STOCK LIMITADO — 8 UNIDADES</span></div><button class="btn-secondary wishlist-btn" data-name="Dark Power Pro 13 1300W" data-price="299" data-icon="📦" onclick="toggleWishlist(this.dataset.name,parseFloat(this.dataset.price),this.dataset.icon,this)" style="border-color:#ff6b9d;color:#ff6b9d" title="Añadir a deseados">❤ Deseados</button>
       </div>
@@ -413,6 +416,10 @@ function clearRecentlyViewed() {
   if (sec) sec.style.display = 'none';
 }
 
+function buyNow(name, price) {
+  addToCart(name, price);
+  window.location.href = 'checkout.html';
+}
 function addToCartPage(name, price, btn) {
   addToCart(name, price);
   const orig = btn.innerHTML;
@@ -424,6 +431,18 @@ function addToCartPage(name, price, btn) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+
+// Social proof: fluctuating viewer count
+(function() {
+  var base = 24;
+  var el = document.getElementById('viewersNum');
+  if (!el) return;
+  setInterval(function() {
+    var delta = Math.floor(Math.random() * 3) - 1; // -1, 0, or +1
+    base = Math.max(2, Math.min(base + delta, 32));
+    el.textContent = base;
+  }, 4000);
+})();
 document.addEventListener('DOMContentLoaded', () => { updateCartCount(); renderNavAuth(); renderRecentlyViewed(); if (typeof addToRecentlyViewed !== 'undefined') addToRecentlyViewed('dark-power-pro-1300w','Dark Power Pro 13 1300W',299,'⚡🔌'); });
 </script>
 <footer>

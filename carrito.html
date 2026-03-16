@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Carrito — NEXUS</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <meta name="theme-color" content="#00c8ff">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -97,7 +98,10 @@
 
 <div class="cart-wrap page-transition">
   <div class="cart-items-col">
-    <div class="cart-heading">// Productos seleccionados</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="cart-heading">// Productos seleccionados</div>
+      <button id="clearCartBtn" onclick="clearCart()" style="display:none;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:1px;transition:color .2s;padding:4px 0" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--muted)'">✕ Vaciar</button>
+    </div>
     <div id="cartContent"></div>
     <div id="upsellSection" class="upsell-section"></div>
   </div>
@@ -165,6 +169,13 @@ function getIcon(name) {
   if (n.includes('o11') || n.includes('torrent') || n.includes('h9') || n.includes('7000d') || n.includes('silent base') || n.includes('morpheus')) return '🖥';
   if (n.includes('hx1500') || n.includes('dark power') || n.includes('thor') || n.includes('focus gx') || n.includes('rm850') || n.includes('pure power') || n.includes('s12iii')) return '🔌';
   return '🔧';
+}
+
+function clearCart() {
+  if (!confirm('¿Vaciar el carrito?')) return;
+  saveCartRaw([]);
+  renderCart();
+  showCartToast('🗑 Carrito vaciado');
 }
 
 function fmt(n) {

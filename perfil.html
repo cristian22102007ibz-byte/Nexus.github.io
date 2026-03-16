@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <meta name="theme-color" content="#00c8ff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -197,45 +198,19 @@
     <div class="profile-section active page-transition" id="tab-dashboard">
       <div class="profile-section-title">DASHBOARD</div>
       <div class="profile-section-sub">Resumen de tu actividad en NEXUS</div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-card-num">3</div><div class="stat-card-label">Pedidos totales</div></div>
-        <div class="stat-card"><div class="stat-card-num">500</div><div class="stat-card-label">Puntos acumulados</div></div>
-        <div class="stat-card"><div class="stat-card-num">4</div><div class="stat-card-label">En lista de deseos</div></div>
-        <div class="stat-card"><div class="stat-card-num">2</div><div class="stat-card-label">Setups guardados</div></div>
+      <div class="stats-grid" id="dashStats">
+        <div class="stat-card"><div class="stat-card-num" id="dsPedidos">—</div><div class="stat-card-label">Pedidos totales</div></div>
+        <div class="stat-card"><div class="stat-card-num" id="dsPuntos">—</div><div class="stat-card-label">Puntos acumulados</div></div>
+        <div class="stat-card"><div class="stat-card-num" id="dsWish">—</div><div class="stat-card-label">En lista de deseos</div></div>
+        <div class="stat-card"><div class="stat-card-num" id="dsGasto">—</div><div class="stat-card-label">Gasto total</div></div>
       </div>
       <div style="margin-bottom:32px">
         <div class="section-tag" style="margin-bottom:16px">// Último pedido</div>
-        <div style="background:var(--dark);border:1px solid var(--border);padding:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
-          <div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">PEDIDO #NEX-2026-00312</div>
-            <div style="font-size:16px;color:var(--white);margin-top:6px">RTX 5080 16GB + Corsair DDR5 32GB</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:4px">Realizado el 4 de marzo, 2026</div>
-          </div>
-          <div style="text-align:right">
-            <div class="order-status transito">🚚 En tránsito</div>
-            <div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--accent);margin-top:8px">1.418€</div>
-          </div>
-        </div>
+        <div id="dashLastOrder"></div>
       </div>
       <div>
         <div class="section-tag" style="margin-bottom:16px">// Actividad reciente</div>
-        <div style="display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border)">
-          <div style="background:var(--dark);padding:16px 20px;display:flex;align-items:center;gap:14px">
-            <span style="font-size:20px">🛒</span>
-            <div style="flex:1"><div style="font-size:13px;color:var(--white)">Pedido #NEX-2026-00312 realizado</div><div style="font-size:11px;color:var(--muted);margin-top:2px">hace 2 días</div></div>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)">1.418€</span>
-          </div>
-          <div style="background:var(--dark);padding:16px 20px;display:flex;align-items:center;gap:14px">
-            <span style="font-size:20px">⭐</span>
-            <div style="flex:1"><div style="font-size:13px;color:var(--white)">500 puntos de bienvenida añadidos</div><div style="font-size:11px;color:var(--muted);margin-top:2px">hace 3 días</div></div>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#00ff94">+500 pts</span>
-          </div>
-          <div style="background:var(--dark);padding:16px 20px;display:flex;align-items:center;gap:14px">
-            <span style="font-size:20px">👤</span>
-            <div style="flex:1"><div style="font-size:13px;color:var(--white)">Cuenta creada correctamente</div><div style="font-size:11px;color:var(--muted);margin-top:2px">hace 3 días</div></div>
-            <span class="order-status entregado">Activo</span>
-          </div>
-        </div>
+        <div id="dashActivity"></div>
       </div>
     </div>
 
@@ -388,6 +363,69 @@
     document.querySelectorAll('.profile-nav-item').forEach(i => i.classList.remove('active'));
     document.getElementById('tab-' + id).classList.add('active');
     el.classList.add('active');
+  }
+
+  function renderDashboard() {
+    var user = getUser() || {};
+    var orders = getOrders();
+    var wl = JSON.parse(localStorage.getItem('nexusWishlist') || '[]');
+    var totalSpent = orders.reduce(function(s,o){ return s+(o.total||0); }, 0);
+
+    // Stats
+    var el = function(id){ return document.getElementById(id); };
+    if (el('dsPedidos')) el('dsPedidos').textContent = orders.length;
+    if (el('dsPuntos'))  el('dsPuntos').textContent  = (user.points || 500).toLocaleString('es-ES');
+    if (el('dsWish'))    el('dsWish').textContent    = wl.length;
+    if (el('dsGasto'))   el('dsGasto').textContent   = totalSpent.toLocaleString('es-ES') + '€';
+
+    // Last order
+    var lastOrderEl = el('dashLastOrder');
+    if (lastOrderEl) {
+      if (!orders.length) {
+        lastOrderEl.innerHTML = '<div style="padding:24px;color:var(--muted);font-size:14px;text-align:center">Sin pedidos aún. <a href="productos.html" style="color:var(--accent)">Explorar productos →</a></div>';
+      } else {
+        var o = orders[0];
+        var days = (Date.now() - new Date(o.dateISO||Date.now()).getTime())/86400000;
+        var status = days>=4?'Entregado':days>=1?'En tránsito':'Procesando';
+        var statusColor = days>=4?'#22c55e':days>=1?'#00c8ff':'#f59e0b';
+        var items = (o.items||[]).map(function(i){return i.qty+'× '+i.name.split(' ').slice(0,3).join(' ');}).join(', ');
+        lastOrderEl.innerHTML =
+          '<div style="background:var(--dark);border:1px solid var(--border);padding:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;border-radius:4px">' +
+            '<div>' +
+              '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted)">PEDIDO '+o.id+'</div>' +
+              '<div style="font-size:15px;color:var(--white);margin-top:6px;max-width:380px">'+items+'</div>' +
+              '<div style="font-size:12px;color:var(--muted);margin-top:4px">'+o.date+'</div>' +
+            '</div>' +
+            '<div style="text-align:right">' +
+              '<div style="font-size:12px;color:'+statusColor+';font-family:JetBrains Mono,monospace;letter-spacing:1px">'+status.toUpperCase()+'</div>' +
+              '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--accent);margin-top:6px">'+((o.total||0).toLocaleString('es-ES'))+'€</div>' +
+              '<a href="perfil.html" style="font-size:11px;color:var(--accent);font-family:JetBrains Mono,monospace">Ver pedidos →</a>' +
+            '</div>' +
+          '</div>';
+      }
+    }
+
+    // Activity feed
+    var actEl = el('dashActivity');
+    if (actEl) {
+      var rows = [];
+      orders.slice(0,3).forEach(function(o) {
+        var days = Math.floor((Date.now()-new Date(o.dateISO||Date.now()).getTime())/86400000);
+        var ago = days===0?'hoy':days===1?'ayer':('hace '+days+' días');
+        rows.push({icon:'🛒', text:'Pedido '+o.id+' — '+((o.total||0).toLocaleString('es-ES'))+'€', sub:ago, badge:null, badgeColor:''});
+      });
+      rows.push({icon:'⭐', text:'Puntos disponibles: '+(user.points||500), sub:'saldo actual', badge:'+pts', badgeColor:'#00ff94'});
+      rows.push({icon:'👤', text:'Cuenta activa', sub:'miembro desde '+(user.joinDate||'2026'), badge:'Activo', badgeColor:'#22c55e'});
+      actEl.innerHTML = '<div style="display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden">' +
+        rows.map(function(r){
+          return '<div style="background:var(--dark);padding:14px 20px;display:flex;align-items:center;gap:14px">' +
+            '<span style="font-size:20px;flex-shrink:0">'+r.icon+'</span>' +
+            '<div style="flex:1;min-width:0"><div style="font-size:13px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+r.text+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+r.sub+'</div></div>' +
+            (r.badge?'<span style="font-size:11px;color:'+r.badgeColor+';font-family:JetBrains Mono,monospace;letter-spacing:.5px;flex-shrink:0">'+r.badge+'</span>':'') +
+          '</div>';
+        }).join('') +
+      '</div>';
+    }
   }
 
   function loadUserData() {
@@ -607,6 +645,7 @@
   }
 
   loadUserData();
+  renderDashboard();
   renderOrders();
   renderWishlist();
   renderLogros();

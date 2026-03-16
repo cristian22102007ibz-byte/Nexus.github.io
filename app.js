@@ -7,10 +7,14 @@ let cart = JSON.parse(localStorage.getItem('nexusCart') || '[]');
 
 function addToCart(name, price) {
   cart = JSON.parse(localStorage.getItem('nexusCart') || '[]');
+  var countBefore = cart.filter(function(i){ return i.name === name; }).length;
   cart.push({ name: name, price: Number(price) });
   localStorage.setItem('nexusCart', JSON.stringify(cart));
   updateCartCount();
-  showToast('✓ ' + name.split(' ').slice(0,3).join(' ') + ' añadido al carrito');
+  var shortName = name.split(' ').slice(0,3).join(' ');
+  var msg = shortName + ' añadido';
+  if (countBefore >= 1) msg += ' (' + (countBefore+1) + ' uds. en carrito)';
+  showToast(msg);
 }
 
 function updateCartCount() {
@@ -321,3 +325,28 @@ function addToRecentlyViewed(slug, name, price, icon) {
   localStorage.setItem('nexusRecentlyViewed', JSON.stringify(rv));
 }
 
+
+// ── Keyboard shortcuts ───────────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+  // "/" opens search (unless already in an input)
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    var searchInput = document.getElementById('searchInput') || document.getElementById('bigSearch');
+    if (searchInput) { searchInput.focus(); searchInput.select(); }
+  }
+  // Escape closes dropdowns / modals
+  if (e.key === 'Escape') {
+    var dd = document.getElementById('searchDropdown');
+    if (dd) dd.style.display = 'none';
+    var suggest = document.getElementById('suggestBox');
+    if (suggest) suggest.style.display = 'none';
+    var modal = document.getElementById('selectorModal');
+    if (modal && modal.style.display !== 'none') modal.style.display = 'none';
+    var aiPanel = document.getElementById('nexusAIPanel');
+    if (aiPanel && aiPanel.classList.contains('open')) {
+      aiPanel.classList.remove('open');
+      var aiBtn = document.getElementById('nexusAIBtn');
+      if (aiBtn) aiBtn.classList.remove('open');
+    }
+  }
+});

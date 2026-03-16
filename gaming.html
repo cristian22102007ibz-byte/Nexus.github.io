@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <meta name="theme-color" content="#00c8ff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -311,7 +312,8 @@
       </div>
       <div style="text-align:right">
         <div class="total-price" id="totalPrice">0€</div>
-        <button class="btn-primary" style="margin-top:16px" onclick="addSetupToCart()">Añadir todo al carrito</button>
+        <button class="btn-primary" style="margin-top:16px" onclick="addSetupToCart()">🛒 Añadir al carrito</button>
+        <button class="btn-ghost" style="margin-top:8px" onclick="buySetupNow()">⚡ Comprar ahora</button>
       </div>
     </div>
   </div>
@@ -1059,6 +1061,15 @@ function updateTotal() {
   const count = Object.keys(setup).length;
   document.getElementById('totalPrice').textContent = total.toLocaleString('es-ES') + '€';
   document.getElementById('componentCount').textContent = count + ' componente' + (count !== 1 ? 's' : '') + ' seleccionado' + (count !== 1 ? 's' : '');
+}
+
+function buySetupNow() {
+  var items = Object.values(setup);
+  if (!items.length) { showToast('⚠ Selecciona al menos un componente'); return; }
+  items.forEach(function(i) { cart.push({ name: i.name, price: i.price }); });
+  localStorage.setItem('nexusCart', JSON.stringify(cart));
+  updateCartCount();
+  window.location.href = 'checkout.html';
 }
 
 function addSetupToCart() {

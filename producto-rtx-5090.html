@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GeForce RTX 5090 32GB — NEXUS Tech Store</title>
 <meta name="description" content="La GPU más potente del mundo. Arquitectura Blackwell con 21.760 CUDA Cores, 32 GB GDDR7 y bus de 512-bit. DLSS 4 con Multi Frame Generation. Para quie">
@@ -153,7 +154,8 @@
     <div class="product-info-panel">
       <div class="product-cat-tag">// Tarjeta Gráfica · NVIDIA</div>
       <h1 class="product-title">GeForce RTX 5090 32GB</h1>
-      <div class="product-stars"><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span style="font-size:12px;color:var(--muted);margin-left:8px;font-family:'JetBrains Mono',monospace">5.0 / 5</span></div>
+      <div id="viewersCount" style="display:flex;align-items:center;gap:6px;margin-bottom:12px;font-size:12px;color:var(--muted);font-family:JetBrains Mono,monospace"><span style="width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;animation:onlinePulse 2s ease-in-out infinite;flex-shrink:0"></span><span id="viewersNum">10</span> personas mirando esto ahora</div>
+    <div class="product-stars"><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span style="font-size:12px;color:var(--muted);margin-left:8px;font-family:'JetBrains Mono',monospace">5.0 / 5</span></div>
       <p class="product-desc">La GPU más potente del mundo. Arquitectura Blackwell con 21.760 CUDA Cores, 32 GB GDDR7 y bus de 512-bit. DLSS 4 con Multi Frame Generation. Para quienes no aceptan compromisos.</p>
 
       <div class="price-block">
@@ -163,6 +165,7 @@
 
       <div class="btn-group">
         <button class="btn-primary" onclick="addToCartPage('GeForce RTX 5090 32GB',1999,this)">🛒 Añadir al carrito</button>
+        <button class="btn-ghost" style="flex:1;min-width:140px" onclick="addToCartPage(this.closest('.btn-group').querySelector('.btn-primary').textContent,parseInt(this.dataset.p),this);window.location.href='checkout.html'" data-p="1999">⚡ Comprar ahora</button>
         <button class="btn-secondary" onclick="window.location.href='comparar.html'">⚖ Comparar</button>
         <div class="stock-indicator" style="display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:10px 14px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:4px"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0"></span><span style="font-size:12px;color:#f59e0b;font-family:'JetBrains Mono',monospace;letter-spacing:1px">STOCK LIMITADO — 4 UNIDADES</span></div><button class="btn-secondary wishlist-btn" data-name="GeForce RTX 5090 32GB" data-price="1999" data-icon="📦" onclick="toggleWishlist(this.dataset.name,parseFloat(this.dataset.price),this.dataset.icon,this)" style="border-color:#ff6b9d;color:#ff6b9d" title="Añadir a deseados">❤ Deseados</button>
       </div>
@@ -414,6 +417,10 @@ function clearRecentlyViewed() {
   if (sec) sec.style.display = 'none';
 }
 
+function buyNow(name, price) {
+  addToCart(name, price);
+  window.location.href = 'checkout.html';
+}
 function addToCartPage(name, price, btn) {
   addToCart(name, price);
   const orig = btn.innerHTML;
@@ -425,6 +432,18 @@ function addToCartPage(name, price, btn) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+
+// Social proof: fluctuating viewer count
+(function() {
+  var base = 10;
+  var el = document.getElementById('viewersNum');
+  if (!el) return;
+  setInterval(function() {
+    var delta = Math.floor(Math.random() * 3) - 1; // -1, 0, or +1
+    base = Math.max(2, Math.min(base + delta, 18));
+    el.textContent = base;
+  }, 4000);
+})();
 document.addEventListener('DOMContentLoaded', () => { updateCartCount(); renderNavAuth(); renderRecentlyViewed(); if (typeof addToRecentlyViewed !== 'undefined') addToRecentlyViewed('rtx-5090','GeForce RTX 5090 32GB',1999,'🎮'); });
 </script>
 <footer>
