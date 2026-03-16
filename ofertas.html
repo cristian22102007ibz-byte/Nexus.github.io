@@ -95,9 +95,11 @@
 <div class="flash-banner">
   <div class="flash-text">⚡ FLASH SALE — Solo hasta agotar stock</div>
   <div class="countdown">
-    <div class="countdown-unit"><div class="countdown-num" id="cdHours">08</div><div class="countdown-label">Horas</div></div>
+    <div class="countdown-unit"><div class="countdown-num" id="cdHours">--</div><div class="countdown-label">Horas</div></div>
     <div class="countdown-sep">:</div>
-    <div class="countdown-unit"><div class="countdown-num" id="cdMins">42</div><div class="countdown-label">Min</div></div>
+    <div class="countdown-unit"><div class="countdown-num" id="cdMins">--</div><div class="countdown-label">Min</div></div>
+    <div class="countdown-sep">:</div>
+    <div class="countdown-unit"><div class="countdown-num" id="cdSecs">00</div><div class="countdown-label">Seg</div></div>
     <div class="countdown-sep">:</div>
     <div class="countdown-unit"><div class="countdown-num" id="cdSecs">17</div><div class="countdown-label">Seg</div></div>
   </div>
@@ -212,6 +214,26 @@ function showTab(tab, el) {
 renderDeals(deals);
 
 // Hero deal button
+// Real countdown — resets daily at midnight
+(function startCountdown() {
+  function tick() {
+    var now = new Date();
+    var end = new Date(now);
+    end.setHours(23,59,59,0);
+    var diff = Math.max(0, end - now);
+    var h = Math.floor(diff / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    var pad = function(n){return n<10?'0'+n:n};
+    var hEl=document.getElementById('cdHours'), mEl=document.getElementById('cdMins'), sEl=document.getElementById('cdSecs');
+    if (hEl) hEl.textContent = pad(h);
+    if (mEl) mEl.textContent = pad(m);
+    if (sEl) sEl.textContent = pad(s);
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
 document.getElementById('heroDealBtn').addEventListener('click', function() {
   addToCart(this.dataset.name, parseFloat(this.dataset.price));
   this.textContent = '✓ Añadido';

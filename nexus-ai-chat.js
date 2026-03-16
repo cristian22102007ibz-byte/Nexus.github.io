@@ -12,7 +12,7 @@ function initAIChat() {
   style.textContent = `
     /* Button */
     #nexusAIBtn {
-      position: fixed; bottom: 24px; right: 24px; z-index: 9998;
+      position: fixed; bottom: 24px; right: 24px; z-index: 10001;
       width: 56px; height: 56px; border-radius: 50%;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       border: none; cursor: pointer; font-size: 22px;
@@ -38,7 +38,7 @@ function initAIChat() {
 
     /* Panel */
     #nexusAIPanel {
-      position: fixed; bottom: 92px; right: 24px; z-index: 9997;
+      position: fixed; bottom: 92px; right: 24px; z-index: 10000;
       width: 390px; max-width: calc(100vw - 32px);
       height: 560px; max-height: calc(100vh - 120px);
       background: var(--dark); border: 1px solid var(--border);
@@ -407,6 +407,30 @@ REGLAS:
   document.getElementById('aiInput').addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(e.target.value); }
   });
+
+  // Adjust position dynamically when compareBar / cookieBanner appear
+  function adjustForBars() {
+    var compareBar = document.getElementById('compareBar');
+    var cookieBanner = document.getElementById('cookieBanner');
+    var barH = 0;
+    if (compareBar && compareBar.classList.contains('show')) {
+      barH = Math.max(barH, compareBar.getBoundingClientRect().height || 64);
+    }
+    if (cookieBanner && getComputedStyle(cookieBanner).display !== 'none') {
+      barH = Math.max(barH, cookieBanner.getBoundingClientRect().height || 0);
+    }
+    var base = barH > 0 ? barH + 16 : 24;
+    btn.style.bottom = base + 'px';
+    panel.style.bottom = (base + 68) + 'px';
+  }
+
+  // Use MutationObserver for instant reaction, fallback to interval
+  try {
+    var mo = new MutationObserver(adjustForBars);
+    mo.observe(document.body, { childList: true, subtree: false, attributes: true, attributeFilter: ['class', 'style'] });
+  } catch(e) {}
+  setInterval(adjustForBars, 800);
+  setTimeout(adjustForBars, 300);
 
   // Close on click outside
   document.addEventListener('click', e => {

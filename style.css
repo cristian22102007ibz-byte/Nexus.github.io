@@ -26,8 +26,8 @@
 .cat-card::after { background: var(--accent); box-shadow: 0 0 8px rgba(0,180,255,0.6); }
 .hero-title span { text-shadow: 0 0 40px rgba(0,180,255,0.4); }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { background: var(--black); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; overflow-x: hidden; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body { background: var(--black); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100%; }
 a { text-decoration: none; color: inherit; }
 
 /* NAV */
@@ -498,8 +498,7 @@ footer { padding: 60px 40px 32px; display: grid; grid-template-columns: 2fr 1fr 
    ================================================================ */
 
 /* ── 0. BASE GLOBAL ─────────────────────────────────────────── */
-html { overflow-x: hidden; }
-body { overflow-x: hidden; }
+/* overflow-x handled in base html/body rules */
 *, *::before, *::after { box-sizing: border-box; }
 img, svg, video, iframe, embed { max-width: 100%; height: auto; }
 
@@ -905,8 +904,8 @@ img, svg, video, iframe, embed { max-width: 100%; height: auto; }
   #wishlistPanel { width: 100% !important; right: 0 !important; }
   #nexusAIPanel { right: 8px !important; left: 8px !important; width: auto !important; bottom: 80px !important; }
   #nexusAIBtn { right: 16px !important; bottom: 16px !important; width: 50px !important; height: 50px !important; font-size: 20px !important; }
-  #newsletterPopup { left: 12px !important; right: 12px !important; width: auto !important; bottom: 16px !important; transform: translateY(150%) !important; }
-  #newsletterPopup.show { transform: translateY(0) !important; }
+  #newsletterPopup { left: 16px !important; right: 16px !important; width: auto !important; top: 50% !important; transform: translate(0, -50%) scale(0.95) !important; }
+  #newsletterPopup.show { transform: translate(0, -50%) scale(1) !important; }
   /* PWA install banner — gestionado en nexus-pwa.js */
   #backToTop { bottom: 80px !important; left: 14px !important; }
 }
@@ -1011,11 +1010,11 @@ input:focus, select:focus, textarea:focus {
 
 /* Page transition fade */
 .page-transition {
-  animation: pageIn .35s ease both;
+  animation: pageIn .4s ease both;
 }
 @keyframes pageIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* Smooth image load */

@@ -560,7 +560,7 @@ function renderReviews(){
     <div class="review-card">
       <div class="review-header">
         <div>
-          <div class="review-author">${r.author} ${r.verified ? '<span style="font-size:10px;color:var(--accent);font-family:'JetBrains Mono',monospace;letter-spacing:1px">✓ VERIFICADA</span>' : ''}</div>
+          <div class="review-author">${r.author} ${r.verified ? '<span style="font-size:10px;color:var(--accent);font-family:JetBrains Mono,monospace;letter-spacing:1px">✓ VERIFICADA</span>' : ''}</div>
           <div class="review-date">${r.date}</div>
         </div>
         <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>

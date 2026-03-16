@@ -111,76 +111,79 @@ function initAnnouncementBar() {
    2. COOKIE BANNER (GDPR)
    ───────────────────────────────────────── */
 function initCookieBanner() {
-  if (localStorage.getItem('nexusCookies')) return;
+  // Always show until accepted
 
   const style = document.createElement('style');
   style.textContent = `
     #cookieBanner {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
-      background: var(--dark); border-top: 1px solid var(--border);
-      padding: 20px 40px; display: flex; align-items: center;
-      justify-content: space-between; gap: 24px; flex-wrap: wrap;
-      animation: slideUp 0.4s ease;
-      box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+      background: var(--dark); border-top: 2px solid var(--accent);
+      padding: 16px 40px; display: flex; align-items: center;
+      justify-content: space-between; gap: 20px; flex-wrap: wrap;
+      transform: translateY(100%);
+      animation: cookieSlideUp 0.5s 0.3s cubic-bezier(.22,1,.36,1) forwards;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
     }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    #cookieBanner .cookie-text { font-size: 13px; color: var(--muted); flex: 1; min-width: 260px; line-height: 1.6; }
-    #cookieBanner .cookie-text a { color: var(--accent); }
-    #cookieBanner .cookie-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    @keyframes cookieSlideUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+    #cookieBanner .cookie-text {
+      font-size: 13px; color: var(--muted); flex: 1;
+      min-width: 220px; line-height: 1.6;
+    }
+    #cookieBanner .cookie-text strong { color: var(--text); }
+    #cookieBanner .cookie-text a { color: var(--accent); text-decoration: none; }
+    #cookieBanner .cookie-actions { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+    #cookieBanner .cookie-reject {
+      background: none; color: var(--muted); border: none;
+      font-size: 12px; cursor: pointer; padding: 8px 4px;
+      font-family: 'DM Sans', sans-serif; transition: color 0.2s;
+      text-decoration: underline; white-space: nowrap;
+    }
+    #cookieBanner .cookie-reject:hover { color: var(--text); }
     #cookieBanner .cookie-accept {
       background: var(--accent); color: var(--black); border: none;
-      padding: 10px 24px; font-size: 12px; font-weight: 600;
+      padding: 10px 28px; font-size: 13px; font-weight: 600;
       letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
       border-radius: 4px; font-family: 'DM Sans', sans-serif;
-      transition: opacity 0.2s; white-space: nowrap;
+      transition: opacity 0.2s, transform 0.15s; white-space: nowrap;
     }
-    #cookieBanner .cookie-accept:hover { opacity: 0.85; }
-    #cookieBanner .cookie-reject {
-      background: none; color: var(--muted); border: 1px solid var(--border);
-      padding: 10px 20px; font-size: 12px; letter-spacing: 1px;
-      text-transform: uppercase; cursor: pointer; border-radius: 4px;
-      font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap;
+    #cookieBanner .cookie-accept:hover { opacity: 0.88; transform: scale(1.02); }
+    #cookieBanner .cookie-accept:active { transform: scale(0.97); }
+    @media(max-width:600px) {
+      #cookieBanner { padding: 14px 16px; }
+      #cookieBanner .cookie-actions { width: 100%; justify-content: flex-end; }
     }
-    #cookieBanner .cookie-reject:hover { border-color: var(--accent); color: var(--accent); }
-    #cookieBanner .cookie-settings {
-      background: none; color: var(--muted); border: none;
-      font-size: 12px; cursor: pointer; letter-spacing: 1px;
-      text-transform: uppercase; font-family: 'DM Sans', sans-serif;
-      transition: color 0.2s; white-space: nowrap; padding: 10px 0;
-    }
-    #cookieBanner .cookie-settings:hover { color: var(--white); }
   `;
   document.head.appendChild(style);
 
   const banner = document.createElement('div');
   banner.id = 'cookieBanner';
-  banner.innerHTML = `
-    <div class="cookie-text">
-      🍪 Usamos cookies propias y de terceros para mejorar tu experiencia, analizar el tráfico
-      y mostrarte publicidad personalizada. Puedes aceptar todas o gestionar tus preferencias.
-      <a href="#">Más información →</a>
-    </div>
-    <div class="cookie-actions">
-      <button class="cookie-settings" onclick="cookieSettings()">Configurar</button>
-      <button class="cookie-reject" onclick="cookieDismiss('rejected')">Solo esenciales</button>
-      <button class="cookie-accept" onclick="cookieDismiss('accepted')">Aceptar todas</button>
-    </div>
-  `;
+  var inner = document.createElement('div');
+  inner.className = 'cookie-text';
+  inner.innerHTML = '<strong>🍪 Usamos cookies</strong> para mejorar tu experiencia y analizar el tráfico. Al continuar aceptas su uso. <a href="#">Más info</a>';
+  var actions = document.createElement('div');
+  actions.className = 'cookie-actions';
+  var btnReject = document.createElement('button');
+  btnReject.className = 'cookie-reject';
+  btnReject.textContent = 'Solo esenciales';
+  btnReject.onclick = function() { cookieDismiss('rejected'); };
+  var btnAccept = document.createElement('button');
+  btnAccept.className = 'cookie-accept';
+  btnAccept.textContent = '✓ Aceptar cookies';
+  btnAccept.onclick = function() { cookieDismiss('accepted'); };
+  actions.appendChild(btnReject);
+  actions.appendChild(btnAccept);
+  banner.appendChild(inner);
+  banner.appendChild(actions);
   document.body.appendChild(banner);
 
-  window.cookieDismiss = function (choice) {
+  window.cookieDismiss = function(choice) {
     localStorage.setItem('nexusCookies', choice);
+    banner.style.transition = 'transform 0.35s ease';
     banner.style.transform = 'translateY(100%)';
-    banner.style.transition = 'transform 0.4s ease';
-    setTimeout(() => banner.remove(), 400);
-    if (typeof showToast === 'function') {
-      showToast(choice === 'accepted' ? '🍪 Preferencias de cookies guardadas' : '✓ Solo cookies esenciales activadas');
-    }
-  };
-
-  window.cookieSettings = function () {
-    // Simple inline settings expand
-    cookieDismiss('custom');
+    setTimeout(function() { if (banner.parentNode) banner.remove(); }, 380);
   };
 }
 
@@ -2318,7 +2321,7 @@ function initQuickView() {
           <div class="qv-price">${price}€</div>
           ${oldPrice ? `<div class="qv-old">${oldPrice}</div>` : ''}
           <div class="qv-actions">
-            <button class="qv-btn-cart" onclick="addToCart('${name.replace(/'/g,'\\'')}',${parseFloat(price)||0});this.textContent='✓ Añadido';setTimeout(()=>this.textContent='🛒 Añadir al carrito',1400)">🛒 Añadir al carrito</button>
+            <button class="qv-btn-cart" onclick="addToCart(this.dataset.n, parseFloat(this.dataset.p));this.textContent='✓ Añadido';setTimeout(()=>this.textContent='🛒 Añadir al carrito',1400)" data-n="${name.replace(/"/g,'&amp;quot;')}" data-p="${parseFloat(price)||0}">🛒 Añadir al carrito</button>
             <button class="qv-btn-more" onclick="closeQuickView();window.location.href='producto-${slug}.html'">Ver más →</button>
           </div>
         </div>
@@ -2378,18 +2381,38 @@ function initAnimatedCounters() {
 // 26. NEWSLETTER POPUP + FLOATING BANNER
 // ─────────────────────────────────────────────────────────────
 function initNewsletter() {
-  if (localStorage.getItem('nexusNewsletter') === '1') return;
+  // Show again after 7 days
+  var nlSeen = localStorage.getItem('nexusNewsletter');
+  if (nlSeen) {
+    var seenDate = parseInt(nlSeen);
+    if (!isNaN(seenDate) && (Date.now() - seenDate) < 7 * 24 * 3600 * 1000) return;
+    if (nlSeen === '1') return; // legacy: never show again if manually dismissed
+  }
 
   const style = document.createElement('style');
   style.textContent = `
     #newsletterPopup {
-      position: fixed; bottom: 24px; left: 24px; z-index: 19000;
-      width: 340px; background: var(--dark); border: 1px solid var(--border);
-      border-left: 3px solid var(--accent2); border-radius: 4px; padding: 24px;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
-      transform: translateY(120%); transition: transform 0.5s cubic-bezier(.22,1,.36,1);
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -40%) scale(0.95);
+      opacity: 0; pointer-events: none;
+      z-index: 19000;
+      width: 360px; max-width: calc(100vw - 32px);
+      background: var(--dark); border: 1px solid var(--border);
+      border-top: 3px solid var(--accent2); border-radius: 8px; padding: 28px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+      transition: transform 0.4s cubic-bezier(.22,1,.36,1), opacity 0.35s ease;
     }
-    #newsletterPopup.show { transform: translateY(0); }
+    #newsletterPopup.show {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1; pointer-events: auto;
+    }
+    #newsletterPopup-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 18999; opacity: 0; pointer-events: none;
+      transition: opacity 0.35s;
+    }
+    #newsletterPopup-overlay.show { opacity: 1; pointer-events: auto; }
     #newsletterPopup .nl-close { position:absolute; top:12px; right:12px; background:none; border:none; color:var(--muted); cursor:pointer; font-size:18px; }
     #newsletterPopup .nl-title { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1px; color:var(--white); margin-bottom:4px; }
     #newsletterPopup .nl-sub { font-size:12px; color:var(--muted); margin-bottom:16px; line-height:1.5; }
@@ -2419,10 +2442,20 @@ function initNewsletter() {
   `;
   document.body.appendChild(popup);
 
-  setTimeout(() => popup.classList.add('show'), 8000);
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'newsletterPopup-overlay';
+  overlay.onclick = function() { window.closeNewsletter(); };
+  document.body.appendChild(overlay);
+
+  setTimeout(() => {
+    popup.classList.add('show');
+    overlay.classList.add('show');
+  }, 3000);
 
   window.closeNewsletter = function() {
     popup.classList.remove('show');
+    overlay.classList.remove('show');
     localStorage.setItem('nexusNewsletter', '1');
   };
 

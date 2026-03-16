@@ -68,9 +68,10 @@
 <div class="search-page">
   <div class="search-hero">
     <div class="section-tag">// Búsqueda</div>
-    <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,72px);letter-spacing:2px;color:var(--white);margin-bottom:24px">BUSCA TU <span style="color:var(--accent)">COMPONENTE</span></h1>
+    <h1 style="font-family:Bebas Neue,sans-serif;font-size:clamp(40px,6vw,72px);letter-spacing:2px;color:var(--white);margin-bottom:24px">BUSCA TU <span style="color:var(--accent)">COMPONENTE</span></h1>
     <div class="big-search-wrap">
       <input id="bigSearch" type="text" placeholder="RTX 5090, Ryzen 9, DDR5..." autocomplete="off" oninput="doSearch(this.value)" onkeydown="if(event.key==='Enter')doSearch(this.value)">
+      <button id="voiceBtn" title="Buscar por voz" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:22px;padding:0 12px;transition:color .2s;flex-shrink:0" onclick="startVoiceSearch()">🎙</button>
       <button id="bigSearchBtn" onclick="doSearch(document.getElementById('bigSearch').value)">BUSCAR</button>
     </div>
     <div class="search-chips" id="searchChips">
@@ -194,56 +195,228 @@ function quickSearch(q) {
 }
 function doSearch(q) {
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => runSearch(q), 150);
+  debounceTimer = setTimeout(() => runSearch(q), 180);
+  // Live autocomplete
+  showSuggestions(q);
 }
+
+function highlight(text, q) {
+  if (!q) return text;
+  var re = new RegExp('(' + q.replace(/[.*+?^${}()|\[\]\\]/g,'\$&') + ')', 'gi');
+  return text.replace(re, '<mark style="background:rgba(0,200,255,.25);color:var(--white);border-radius:2px;padding:0 2px">$1</mark>');
+}
+
+function saveRecentSearch(q) {
+  var recent = JSON.parse(localStorage.getItem('nexusRecentSearches') || '[]');
+  recent = recent.filter(function(r){ return r !== q; });
+  recent.unshift(q);
+  recent = recent.slice(0, 6);
+  localStorage.setItem('nexusRecentSearches', JSON.stringify(recent));
+}
+
+function showSuggestions(q) {
+  var box = document.getElementById('suggestBox');
+  if (!box) return;
+  q = (q||'').trim().toLowerCase();
+  if (!q || q.length < 2) { box.style.display = 'none'; return; }
+  var matches = SEARCH_DB.filter(function(p){
+    return (p.name + ' ' + p.brand).toLowerCase().includes(q);
+  }).slice(0, 5);
+  if (!matches.length) { box.style.display = 'none'; return; }
+  box.innerHTML = matches.map(function(p, i){
+    return '<div class="suggest-item" data-idx="' + i + '" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .15s">' +
+      '<span style="font-size:20px">' + p.icon + '</span>' +
+      '<div style="flex:1;min-width:0"><div style="font-size:13px;color:var(--white)">' + highlight(p.name, q) + '</div>' +
+      '<div style="font-size:11px;color:var(--muted)">' + p.brand + ' · ' + p.cat + '</div></div>' +
+      '<span style="font-family:Bebas Neue,sans-serif;color:var(--accent);font-size:16px">' + p.price + '€</span>' +
+      '</div>';
+  }).join('');
+  // Wire clicks via event delegation
+  box.onclick = function(e) {
+    var item = e.target.closest('.suggest-item');
+    if (!item) return;
+    var idx = parseInt(item.dataset.idx);
+    var name = matches[idx].name;
+    document.getElementById('bigSearch').value = name;
+    box.style.display = 'none';
+    runSearch(name);
+  };
+  box.style.display = 'block';
+}
+
 function runSearch(q) {
-  q = q.trim().toLowerCase();
+  var box = document.getElementById('suggestBox');
+  if (box) box.style.display = 'none';
+  q = (q||'').trim();
+  var ql = q.toLowerCase();
   document.getElementById("defaultView").style.display = q ? "none" : "block";
   document.getElementById("searchResults").style.display = q ? "block" : "none";
   document.getElementById("searchStats").style.display = q ? "block" : "none";
-  if (!q) return;
+  if (!q) { renderRecentSearches(); return; }
 
-  const results = SEARCH_DB.filter(p => {
-    const hay = (p.name + " " + p.brand + " " + p.cat + " " + p.specs).toLowerCase();
-    return q.split(" ").every(word => hay.includes(word));
-  });
+  saveRecentSearch(q);
+  document.getElementById("bigSearch").value = q;
+
+  // Score-based search
+  var results = SEARCH_DB.map(function(p) {
+    var hay = (p.name + ' ' + p.brand + ' ' + p.cat + ' ' + p.specs).toLowerCase();
+    var words = ql.split(' ').filter(Boolean);
+    var score = 0;
+    words.forEach(function(w){
+      if (p.name.toLowerCase().includes(w)) score += 3;
+      else if (p.brand.toLowerCase().includes(w)) score += 2;
+      else if (hay.includes(w)) score += 1;
+    });
+    return { p: p, score: score };
+  }).filter(function(x){ return x.score > 0; })
+    .sort(function(a,b){ return b.score - a.score; })
+    .map(function(x){ return x.p; });
 
   document.getElementById("queryDisplay").textContent = q;
   document.getElementById("resultCount").textContent = results.length;
 
-  const grid = document.getElementById("resultsGrid");
+  var grid = document.getElementById("resultsGrid");
   if (!results.length) {
-    grid.innerHTML = `<div class="no-results"><div class="no-results-icon">🔍</div><p style="font-size:16px;color:var(--text);margin-bottom:8px">Sin resultados para "${q}"</p><p style="font-size:13px">Prueba con otras palabras o <a href="productos.html" style="color:var(--accent)">explora el catálogo completo</a></p></div>`;
+    var recent = JSON.parse(localStorage.getItem('nexusRecentSearches') || '[]').filter(function(r){ return r !== q; }).slice(0,3);
+    grid.innerHTML = '<div class="no-results"><div class="no-results-icon">🔍</div>' +
+      '<p style="font-size:16px;color:var(--text);margin-bottom:8px">Sin resultados para "' + q + '"</p>' +
+      '<p style="font-size:13px;margin-bottom:20px">Prueba con otras palabras o <a href="productos.html" style="color:var(--accent)">explora el catálogo</a></p>' +
+      (recent.length ? '<p style="font-size:12px;color:var(--muted);margin-bottom:8px">Búsquedas recientes:</p>' + recent.map(function(r){ return '<span data-q="' + r.replace(/"/g,'&quot;') + '" class="rv-recent-tag" style="display:inline-block;margin:3px;background:var(--card);border:1px solid var(--border);padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;color:var(--text)">' + r + '</span>'; }).join('') : '') +
+    '</div>';
     return;
   }
 
-  grid.innerHTML = results.map(p => `
-    <div class="search-result-card" onclick="window.location.href='producto-' +'${""}'+p.slug+'.html'">
-      <div class="result-icon">${p.icon}</div>
-      <div class="result-info">
-        <div class="result-cat">${p.brand} · ${p.cat}</div>
-        <div class="result-name">${p.name}</div>
-        <div class="result-specs">${p.specs}</div>
-        <div><span class="result-price">${p.price}€</span>${p.oldPrice ? `<span class="result-price-old">${p.oldPrice}€</span>` : ""}</div>
-      </div>
-    </div>
-  `).join("");
+  grid.innerHTML = results.map(function(p) {
+    var discount = p.oldPrice ? Math.round((1 - p.price/p.oldPrice)*100) : 0;
+    return '<div class="search-result-card" data-slug="'+p.slug+'" style="animation:fadeUp .25s ease both;cursor:pointer">' +
+      '<div class="result-icon">' + p.icon + '</div>' +
+      '<div class="result-info">' +
+        '<div class="result-cat">' + p.brand + ' · ' + p.cat + '</div>' +
+        '<div class="result-name">' + highlight(p.name, q) + '</div>' +
+        '<div class="result-specs">' + p.specs + '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+          '<span class="result-price">' + p.price + '€</span>' +
+          (p.oldPrice ? '<span class="result-price-old">' + p.oldPrice + '€</span>' : '') +
+          (discount ? '<span style="background:rgba(0,255,148,.1);color:#00ff94;border:1px solid rgba(0,255,148,.2);padding:2px 7px;border-radius:3px;font-size:10px;font-family:JetBrains Mono,monospace">−' + discount + '%</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div style="flex-shrink:0"><button class="nexus-add-btn" data-name="' + p.name.replace(/"/g,'&quot;') + '" data-price="' + p.price + '" style="background:var(--accent);color:var(--black);border:none;padding:6px 12px;border-radius:4px;font-size:11px;font-family:Bebas Neue,sans-serif;letter-spacing:1px;cursor:pointer;transition:opacity .15s" onmouseover="this.style.opacity=.8" onmouseout="this.style.opacity=1">+ CARRITO</button></div>' +
+    '</div>';
+  }).join('');
 
-  // Fix onclick after render
-  grid.querySelectorAll(".search-result-card").forEach((card, i) => {
-    card.onclick = () => { window.location.href = "producto-" + results[i].slug + ".html"; };
-    // Also wire add to cart button if present
+  grid.querySelectorAll('.search-result-card').forEach(function(card, i) {
+    card.onclick = function(e) {
+      if (e.target.tagName === 'BUTTON') return;
+      window.location.href = 'producto-' + results[i].slug + '.html';
+    };
   });
 }
 
-// Check URL params on load
-window.addEventListener("DOMContentLoaded", () => {
-  const params = new URLSearchParams(window.location.search);
-  const q = params.get("q");
-  if (q) {
-    document.getElementById("bigSearch").value = q;
-    runSearch(q);
+function renderRecentSearches() {
+  var el = document.getElementById('recentSearches');
+  if (!el) return;
+  var recent = JSON.parse(localStorage.getItem('nexusRecentSearches') || '[]');
+  if (!recent.length) { el.style.display = 'none'; return; }
+  el.innerHTML = '<div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-family:JetBrains Mono,monospace;margin-bottom:12px">// BÚSQUEDAS RECIENTES</div><div id="recentTagsRow" style="display:flex;gap:8px;flex-wrap:wrap"></div>';
+  var row = document.getElementById('recentTagsRow');
+  recent.forEach(function(r) {
+    var sp = document.createElement('span');
+    sp.className = 'rv-recent-tag';
+    sp.textContent = r;
+    sp.dataset.q = r;
+    sp.style.cssText = 'background:var(--card);border:1px solid var(--border);padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;color:var(--text);transition:border-color .15s';
+    sp.onmouseenter = function(){ this.style.borderColor = 'var(--accent)'; };
+    sp.onmouseleave = function(){ this.style.borderColor = 'var(--border)'; };
+    row.appendChild(sp);
+  });
+  var clr = document.createElement('span');
+  clr.textContent = '✕ Limpiar';
+  clr.style.cssText = 'background:none;border:1px dashed var(--border);padding:6px 14px;border-radius:20px;font-size:11px;cursor:pointer;color:var(--muted)';
+  clr.onclick = function() { localStorage.removeItem('nexusRecentSearches'); renderRecentSearches(); };
+  row.appendChild(clr);
+  el.style.display = 'block';
+}
+
+// ── Voice Search ─────────────────────────────────────────────────
+function startVoiceSearch() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    showToast && showToast('Tu navegador no soporta búsqueda por voz', 'warn');
+    return;
   }
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var r = new SR();
+  r.lang = 'es-ES';
+  r.interimResults = false;
+  r.maxAlternatives = 1;
+  var vbtn = document.getElementById('voiceBtn');
+  if (vbtn) { vbtn.style.color = '#ef4444'; vbtn.style.animation = 'aiPulse 1s ease infinite'; }
+  r.onresult = function(e) {
+    var text = e.results[0][0].transcript;
+    document.getElementById('bigSearch').value = text;
+    doSearch(text);
+    if (vbtn) { vbtn.style.color = ''; vbtn.style.animation = ''; }
+  };
+  r.onerror = function() {
+    if (vbtn) { vbtn.style.color = ''; vbtn.style.animation = ''; }
+  };
+  r.onend = function() {
+    if (vbtn) { vbtn.style.color = ''; vbtn.style.animation = ''; }
+  };
+  r.start();
+}
+
+// Check URL params on load
+window.addEventListener("DOMContentLoaded", function() {
+  // Inject suggestion box below search input
+  var searchWrap = document.querySelector('.search-hero');
+  if (searchWrap) {
+    var suggestBox = document.createElement('div');
+    suggestBox.id = 'suggestBox';
+    suggestBox.style.cssText = 'position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--dark);border:1px solid var(--border);border-radius:6px;z-index:100;display:none;box-shadow:0 12px 32px rgba(0,0,0,.5);overflow:hidden';
+    var inputWrap = searchWrap.querySelector('.search-bar');
+    if (inputWrap) { inputWrap.style.position='relative'; inputWrap.appendChild(suggestBox); }
+  }
+  // Inject recent searches area in default view
+  var defView = document.getElementById('defaultView');
+  if (defView) {
+    var recentEl = document.createElement('div');
+    recentEl.id = 'recentSearches';
+    recentEl.style.cssText = 'display:none;margin:32px auto;max-width:700px;padding:0 20px';
+    defView.insertBefore(recentEl, defView.firstChild);
+    renderRecentSearches();
+  }
+  // Hide suggestions on click outside
+  document.addEventListener('click', function(e) {
+    // Add to cart buttons in results
+    if (e.target.classList.contains('nexus-add-btn')) {
+      e.stopPropagation();
+      var n = e.target.dataset.name, pr = parseFloat(e.target.dataset.price);
+      addToCart(n, pr);
+      e.target.textContent = '✓';
+      setTimeout(function(){ e.target.textContent = '+ CARRITO'; }, 1400);
+      return;
+    }
+    // Search result cards
+    var card = e.target.closest('.search-result-card');
+    if (card && !e.target.closest('button')) {
+      window.location.href = 'producto-' + card.dataset.slug + '.html';
+      return;
+    }
+    // Recent search tags
+    if (e.target.classList.contains('rv-recent-tag')) {
+      var q = e.target.dataset.q || e.target.textContent;
+      document.getElementById('bigSearch').value = q;
+      doSearch(q);
+      return;
+    }
+    var box = document.getElementById('suggestBox');
+    var inp = document.getElementById('bigSearch');
+    if (box && inp && !inp.contains(e.target) && !box.contains(e.target)) box.style.display = 'none';
+  });
+
+  var params = new URLSearchParams(window.location.search);
+  var q = params.get("q");
+  if (q) { document.getElementById("bigSearch").value = q; runSearch(q); }
 });
 </script>
 <script src="./nexus-ai-chat.js"></script>
