@@ -120,6 +120,16 @@
 </style>
 </head>
 <body>
+<div id="nexusPreloader">
+  <div class="preloader-logo">NEX<span>U</span>S</div>
+  <div class="preloader-bar-wrap"><div class="preloader-bar-fill"></div></div>
+  <div class="preloader-dots">
+    <div class="preloader-dot"></div>
+    <div class="preloader-dot"></div>
+    <div class="preloader-dot"></div>
+  </div>
+</div>
+
 <nav>
   <a href="index.html" class="nav-logo">NEXUS</a>
   <div class="nav-links">
@@ -312,8 +322,14 @@
       </div>
       <div style="text-align:right">
         <div class="total-price" id="totalPrice">0€</div>
-        <button class="btn-primary" style="margin-top:16px" onclick="addSetupToCart()">🛒 Añadir al carrito</button>
-        <button class="btn-ghost" style="margin-top:8px" onclick="buySetupNow()">⚡ Comprar ahora</button>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button class="btn-primary" style="flex:1" onclick="addSetupToCart()">🛒 Añadir al carrito</button>
+          <button class="btn-ghost" onclick="buySetupNow()" style="flex:1">⚡ Comprar ahora</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn-ghost" style="flex:1;font-size:12px" onclick="saveBuild()">💾 Guardar build</button>
+          <button class="btn-ghost" style="flex:1;font-size:12px" onclick="shareBuild()">🔗 Compartir</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1101,7 +1117,42 @@ document.addEventListener('click', function(e) {
 });
 </script>
 <script src="./nexus-ai-chat.js"></script>
-<script src="./nexus-pwa.js"></script>
+<script src="./nexus-pwa.js">
+function saveBuild() {
+  var items = Object.values(setup);
+  if (!items.length) { showToast('⚠ Selecciona al menos un componente', 'warn'); return; }
+  var builds = JSON.parse(localStorage.getItem('nexusBuilds') || '[]');
+  var build = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('es-ES'),
+    name: 'Mi Build ' + (builds.length + 1),
+    items: items,
+    total: items.reduce(function(s,i){ return s+i.price; }, 0)
+  };
+  builds.unshift(build);
+  if (builds.length > 5) builds = builds.slice(0,5);
+  localStorage.setItem('nexusBuilds', JSON.stringify(builds));
+  showToast('💾 Build guardada correctamente', 'success');
+}
+
+function shareBuild() {
+  var items = Object.values(setup);
+  if (!items.length) { showToast('⚠ Selecciona componentes primero', 'warn'); return; }
+  var total = items.reduce(function(s,i){ return s+i.price; }, 0);
+  var text = 'Mi Build NEXUS (' + total.toLocaleString('es-ES') + '€):\n' +
+    items.map(function(i){ return '• ' + i.name + ' — ' + i.price + '€'; }).join('\n') +
+    '\n🛒 nexustech.es/gaming';
+  if (navigator.share) {
+    navigator.share({ title: 'Mi Build NEXUS', text: text });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('🔗 Build copiada al portapapeles', 'success');
+    });
+  } else {
+    showToast('🔗 Comparte: ' + window.location.href, 'info');
+  }
+}
+</script>
 <footer>
   <div class="footer-brand">
     <span class="nav-logo" style="display:block;margin-bottom:16px">NEXUS</span>

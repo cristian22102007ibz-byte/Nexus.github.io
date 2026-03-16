@@ -111,6 +111,16 @@
 </style>
 </head>
 <body>
+<div id="nexusPreloader">
+  <div class="preloader-logo">NEX<span>U</span>S</div>
+  <div class="preloader-bar-wrap"><div class="preloader-bar-fill"></div></div>
+  <div class="preloader-dots">
+    <div class="preloader-dot"></div>
+    <div class="preloader-dot"></div>
+    <div class="preloader-dot"></div>
+  </div>
+</div>
+
 
 <nav>
   <a href="index.html" class="nav-logo">NEXUS</a>
@@ -444,6 +454,95 @@ function addToCartPage(name, price, btn) {
   }, 4000);
 })();
 document.addEventListener('DOMContentLoaded', () => { updateCartCount(); renderNavAuth(); renderRecentlyViewed(); if (typeof addToRecentlyViewed !== 'undefined') addToRecentlyViewed('rtx-4090','GeForce RTX 4090 24GB',1549,'🎮'); });
+
+// Countdown timer
+(function() {
+  var key = 'nexusCd_' + location.pathname;
+  var stored = localStorage.getItem(key);
+  var end;
+  if (stored) {
+    end = parseInt(stored);
+    if (end < Date.now()) {
+      end = Date.now() + (Math.floor(Math.random()*3)+2)*3600000 + Math.floor(Math.random()*3600000);
+      localStorage.setItem(key, end);
+    }
+  } else {
+    end = Date.now() + (Math.floor(Math.random()*3)+2)*3600000 + Math.floor(Math.random()*3600000);
+    localStorage.setItem(key, end);
+  }
+  function pad(n){ return n<10?'0'+n:n; }
+  function tick(){
+    var diff = Math.max(0, end - Date.now());
+    var h = Math.floor(diff/3600000);
+    var m = Math.floor((diff%3600000)/60000);
+    var s = Math.floor((diff%60000)/1000);
+    var elH=document.getElementById('cdH'), elM=document.getElementById('cdM'), elS=document.getElementById('cdS');
+    if(elH) elH.textContent=pad(h);
+    if(elM) elM.textContent=pad(m);
+    if(elS) elS.textContent=pad(s);
+    if(diff>0) setTimeout(tick,1000);
+  }
+  tick();
+})();
+
+
+// Sticky buy bar
+(function() {
+  var bar = document.getElementById('stickyBar');
+  var stickyBtn = document.getElementById('stickyBtn');
+  var stickyName = document.getElementById('stickyName');
+  var stickyPrice = document.getElementById('stickyPrice');
+  if (!bar) return;
+
+  // Get product info from page
+  var mainBtn = document.querySelector('.btn-primary[onclick*="addToCartPage"]');
+  if (!mainBtn) return;
+  var onclickStr = mainBtn.getAttribute('onclick') || '';
+  var nameMatch = onclickStr.match(/addToCartPage\('([^']+)'/);
+  var priceMatch = onclickStr.match(/,\s*(\d+),/);
+  var prodName = nameMatch ? nameMatch[1] : document.title.split('·')[0].trim();
+  var prodPrice = priceMatch ? parseInt(priceMatch[1]) : 0;
+
+  if (stickyName) stickyName.textContent = prodName;
+  if (stickyPrice) stickyPrice.textContent = prodPrice ? prodPrice.toLocaleString('es-ES') + '€' : '';
+  if (stickyBtn) stickyBtn.onclick = function() {
+    addToCartPage(prodName, prodPrice, stickyBtn);
+  };
+
+  // Show after scrolling past the add-to-cart button
+  var target = document.querySelector('.btn-group') || document.querySelector('.btn-primary');
+  window.addEventListener('scroll', function() {
+    if (!target) return;
+    var rect = target.getBoundingClientRect();
+    bar.classList.toggle('show', rect.bottom < 0);
+  }, { passive: true });
+})();
+
+
+// Gallery emoji zoom on click
+(function() {
+  var main = document.querySelector('.gallery-main');
+  if (!main) return;
+  var emoji = main.querySelector('.gallery-emoji');
+  if (!emoji) return;
+  main.addEventListener('mousemove', function(e) {
+    if (!main.classList.contains('zoomed')) return;
+    var r = main.getBoundingClientRect();
+    var x = ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%';
+    var y = ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%';
+    emoji.style.setProperty('--mx', x);
+    emoji.style.setProperty('--my', y);
+    emoji.style.transformOrigin = x + ' ' + y;
+  });
+  main.addEventListener('click', function() {
+    main.classList.toggle('zoomed');
+  });
+  main.addEventListener('mouseleave', function() {
+    main.classList.remove('zoomed');
+    emoji.style.transformOrigin = '';
+  });
+})();
+
 </script>
 <footer>
   <div class="footer-brand">
@@ -490,5 +589,12 @@ document.addEventListener('DOMContentLoaded', () => { updateCartCount(); renderN
     </div>
   </div>
 </footer>
+
+  <!-- Sticky buy bar -->
+  <div id="stickyBar">
+    <div class="sticky-name" id="stickyName"></div>
+    <div class="sticky-price" id="stickyPrice"></div>
+    <button class="sticky-btn" id="stickyBtn">🛒 Añadir al carrito</button>
+  </div>
 </body>
 </html>

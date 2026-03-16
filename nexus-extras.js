@@ -1519,7 +1519,7 @@ function initWishlist() {
     .wishlist-btn.active { border-color: #ff6b9d; color: #ff6b9d; background: rgba(255,107,157,0.1); }
     .wishlist-btn.active::after { content: ''; }
     #wishlistFloating {
-      position: fixed; bottom: 100px; right: 24px; z-index: 9999;
+      position: fixed; bottom: 90px; right: 24px; z-index: 10001;
       background: var(--card); border: 1px solid var(--border);
       border-radius: 50%; width: 48px; height: 48px;
       display: flex; align-items: center; justify-content: center;
@@ -2587,4 +2587,156 @@ document.addEventListener('DOMContentLoaded', function () {
   initNewsletter();
   initSkeletonLoader();
   initCompareRadar();
+});
+
+// ── Preloader ─────────────────────────────────────────────
+function initPreloader() {
+  var pl = document.getElementById('nexusPreloader');
+  if (!pl) return;
+  // Hide after page loads
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      pl.classList.add('hidden');
+      setTimeout(function() { pl.remove(); }, 600);
+    }, 800);
+  });
+  // Failsafe: hide after 3s regardless
+  setTimeout(function() {
+    if (pl && !pl.classList.contains('hidden')) {
+      pl.classList.add('hidden');
+    }
+  }, 3000);
+}
+
+// ── Scroll Progress Bar ───────────────────────────────────
+function initScrollProgress() {
+  var bar = document.createElement('div');
+  bar.id = 'scrollProgress';
+  document.body.prepend(bar);
+  window.addEventListener('scroll', function() {
+    var scrolled = window.scrollY;
+    var total = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (total > 0 ? (scrolled / total * 100) : 0) + '%';
+  }, { passive: true });
+}
+
+// ── Custom Cursor ─────────────────────────────────────────
+function initCustomCursor() {
+  // Only on desktop (pointer: fine)
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+
+  var wrapper = document.createElement('div');
+  wrapper.id = 'nexusCursor';
+  wrapper.innerHTML = '<div id="nexusCursorDot"></div><div id="nexusCursorRing"></div>';
+  document.body.appendChild(wrapper);
+
+  var mx = window.innerWidth / 2, my = window.innerHeight / 2;
+  var rx = mx, ry = my;
+
+  document.addEventListener('mousemove', function(e) {
+    mx = e.clientX; my = e.clientY;
+    wrapper.style.left = mx + 'px';
+    wrapper.style.top = my + 'px';
+  });
+
+  // Hover effect on interactive elements
+  document.addEventListener('mouseover', function(e) {
+    var el = e.target.closest('a,button,[onclick],select');
+    document.body.classList.toggle('cursor-hover', !!el);
+  });
+  document.addEventListener('mousedown', function() { document.body.classList.add('cursor-click'); });
+  document.addEventListener('mouseup', function() { document.body.classList.remove('cursor-click'); });
+}
+
+// ── Social Proof Notifications ────────────────────────────
+function initSocialProof() {
+  var products = [
+    { icon: '🎮', name: 'RTX 5080 16GB', loc: 'Madrid', price: '1.149€' },
+    { icon: '🖥️', name: 'Intel Core Ultra 9', loc: 'Barcelona', price: '589€' },
+    { icon: '💾', name: 'Corsair DDR5 64GB', loc: 'Valencia', price: '189€' },
+    { icon: '⌨️', name: 'HyperX Alloy Origins', loc: 'Sevilla', price: '129€' },
+    { icon: '🖱️', name: 'Logitech G Pro X2', loc: 'Bilbao', price: '159€' },
+    { icon: '📺', name: 'LG 27" 4K 144Hz', loc: 'Málaga', price: '499€' },
+    { icon: '⚡', name: 'Corsair AX1000W', loc: 'Zaragoza', price: '219€' },
+    { icon: '💿', name: 'Samsung 990 Pro 2TB', loc: 'Murcia', price: '149€' },
+  ];
+
+  var box = document.createElement('div');
+  box.id = 'socialProof';
+  box.innerHTML = '<div class="sp-icon"></div><div class="sp-text"><strong></strong><span class="sp-badge">COMPRADO AHORA</span></div>';
+  document.body.appendChild(box);
+
+  var icon = box.querySelector('.sp-icon');
+  var name = box.querySelector('strong');
+
+  var times = [8000, 18000, 30000, 44000, 60000];
+  var shown = 0;
+
+  function showNext() {
+    if (shown >= 5) return;
+    var p = products[Math.floor(Math.random() * products.length)];
+    var mins = Math.floor(Math.random() * 4) + 1;
+    icon.textContent = p.icon;
+    name.textContent = p.name + ' · ' + p.price;
+    box.querySelector('.sp-text').lastChild.textContent = 'hace ' + mins + ' min · ' + p.loc;
+    box.classList.add('show');
+    setTimeout(function() { box.classList.remove('show'); }, 4000);
+    shown++;
+    if (shown < 5) setTimeout(showNext, times[shown]);
+  }
+
+  setTimeout(showNext, times[0]);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  initPreloader();
+  initScrollProgress();
+  initCustomCursor();
+  initSocialProof();
+});
+
+// ── Floating WhatsApp / Help button ──────────────────────────────
+function initFloatHelp() {
+  var wrap = document.createElement('div');
+  wrap.id = 'floatHelp';
+  wrap.innerHTML =
+    '<button id="floatHelpBtn" onclick="openFloatHelp()" title="Ayuda por WhatsApp">📱</button>';
+  document.body.appendChild(wrap);
+
+  // Create bubble separately, positioned to the LEFT of button
+  var bubble = document.createElement('div');
+  bubble.id = 'floatBubble';
+  bubble.className = 'float-help-bubble';
+  bubble.innerHTML = '<strong>💬 ¿Necesitas ayuda?</strong>Chatea con nosotros ahora';
+  bubble.style.cssText = 'position:fixed;bottom:28px;right:90px;z-index:10002;';
+  document.body.appendChild(bubble);
+
+  // Show bubble after 5s
+  setTimeout(function() {
+    var b = document.getElementById('floatBubble');
+    if (b) {
+      b.classList.add('show');
+      setTimeout(function() { b.classList.remove('show'); }, 4000);
+    }
+  }, 5000);
+}
+
+function openFloatHelp() {
+  var bubble = document.getElementById('floatBubble');
+  if (bubble) {
+    bubble.classList.toggle('show');
+    if (bubble.classList.contains('show')) {
+      setTimeout(function() { bubble.classList.remove('show'); }, 5000);
+    }
+  }
+  // In real site: window.open('https://wa.me/34900123456?text=Hola, necesito ayuda con NEXUS', '_blank');
+  showToast('💬 Conectando con soporte...', 'info');
+  setTimeout(function() { window.location.href = 'soporte.html'; }, 1200);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Don't show on soporte page
+  if (!window.location.pathname.includes('soporte')) {
+    initFloatHelp();
+  }
 });

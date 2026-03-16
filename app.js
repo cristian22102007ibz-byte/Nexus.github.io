@@ -26,25 +26,21 @@ function updateCartCount() {
 
 // ── Toast ─────────────────────────────────────────────────────────
 function showToast(msg, type) {
-  // type: 'success' | 'error' | 'info' | 'warn' — default success
   var t = document.getElementById('toast');
   if (!t) return;
-  // Clear classes
   t.className = 'toast';
-  // Style by type
-  var colors = {
-    success: 'var(--accent)',
-    error:   '#ef4444',
-    info:    '#818cf8',
-    warn:    '#f59e0b',
-  };
-  var icons = { success:'✓', error:'✕', info:'ℹ', warn:'⚠' };
-  var tp = type || (msg.startsWith('✓') ? 'success' : msg.startsWith('✕') ? 'error' : 'success');
+  var colors = { success:'#00c8ff', error:'#ef4444', info:'#818cf8', warn:'#f59e0b' };
+  var icons  = { success:'✓', error:'✕', info:'ℹ', warn:'⚠' };
+  var tp = type || (msg.startsWith('✓')||msg.startsWith('🛒')||msg.startsWith('✔') ? 'success' : msg.startsWith('✕') ? 'error' : msg.startsWith('⚠') ? 'warn' : 'success');
   var ic = icons[tp] || '✓';
   var bg = colors[tp] || colors.success;
-  t.style.background = bg;
-  t.style.color = tp === 'info' || tp === 'warn' ? '#0f1c2e' : '#0f1c2e';
-  t.innerHTML = '<span style="font-weight:700;margin-right:6px">' + ic + '</span>' + msg.replace(/^[✓✕⚠ℹ📍📄📦↩🎉🔧🚀⭐]\s?/, '');
+  var cleanMsg = msg.replace(/^[✓✕⚠ℹ📍📄📦↩🎉🔧🚀⭐🛒✔]\s?/, '');
+  t.style.background = 'var(--card)';
+  t.style.borderLeft = '3px solid ' + bg;
+  t.style.color = 'var(--text)';
+  t.innerHTML =
+    '<span class="toast-icon" style="color:' + bg + '">' + ic + '</span>' +
+    '<span>' + cleanMsg + '</span>';
   t.classList.add('show');
   clearTimeout(t._tid);
   t._tid = setTimeout(function() { t.classList.remove('show'); }, 2800);
@@ -349,4 +345,53 @@ document.addEventListener('keydown', function(e) {
       if (aiBtn) aiBtn.classList.remove('open');
     }
   }
+});
+
+// ── Animated counters ─────────────────────────────────────────────
+(function() {
+  function animateCounter(el) {
+    var target = parseInt(el.dataset.count, 10);
+    var suffix = el.dataset.suffix || '';
+    var duration = 1800;
+    var start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var progress = Math.min((ts - start) / duration, 1);
+      var ease = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      var val = Math.floor(ease * target);
+      el.textContent = val.toLocaleString('es-ES') + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !entry.target.dataset.counted) {
+        entry.target.dataset.counted = '1';
+        animateCounter(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-count]').forEach(function(el) {
+      observer.observe(el);
+    });
+  });
+})();
+
+// ── Ripple effect on buttons ──────────────────────────────────────────────────
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.btn-primary, .btn-ghost, .btn-accent');
+  if (!btn) return;
+  var rect = btn.getBoundingClientRect();
+  var size = Math.max(rect.width, rect.height);
+  var x = e.clientX - rect.left - size/2;
+  var y = e.clientY - rect.top - size/2;
+  var ripple = document.createElement('span');
+  ripple.className = 'ripple-effect';
+  ripple.style.cssText = 'width:'+size+'px;height:'+size+'px;left:'+x+'px;top:'+y+'px';
+  btn.appendChild(ripple);
+  setTimeout(function(){ ripple.remove(); }, 600);
 });

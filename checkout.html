@@ -129,6 +129,16 @@
 </style>
 </head>
 <body>
+<div id="nexusPreloader">
+  <div class="preloader-logo">NEX<span>U</span>S</div>
+  <div class="preloader-bar-wrap"><div class="preloader-bar-fill"></div></div>
+  <div class="preloader-dots">
+    <div class="preloader-dot"></div>
+    <div class="preloader-dot"></div>
+    <div class="preloader-dot"></div>
+  </div>
+</div>
+
 <nav>
   <a href="index.html" class="nav-logo">NEXUS</a>
   <div class="nav-links">
@@ -345,7 +355,41 @@
 
 <div class="toast" id="toast"></div>
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="./app.js"></script>
-<script src="./nexus-extras.js"></script>
+<script src="./nexus-extras.js">
+// Confetti on purchase success
+function launchConfetti() {
+  var colors = ['#00c8ff','#8b5cf6','#f59e0b','#22c55e','#ef4444','#fff'];
+  var count = 0;
+  var max = 80;
+  function create() {
+    if (count >= max) return;
+    count++;
+    var el = document.createElement('div');
+    var color = colors[Math.floor(Math.random()*colors.length)];
+    var size = Math.random()*8+4;
+    var startX = Math.random()*window.innerWidth;
+    el.style.cssText = [
+      'position:fixed','top:-10px','left:'+startX+'px',
+      'width:'+size+'px','height:'+size+'px',
+      'background:'+color,'border-radius:'+(Math.random()>0.5?'50%':'2px'),
+      'pointer-events:none','z-index:99999',
+      'animation:confettiFall '+(Math.random()*2+1.5)+'s linear forwards',
+      'transform:rotate('+Math.random()*360+'deg)'
+    ].join(';');
+    document.body.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 4000);
+    if (count < max) setTimeout(create, 30);
+  }
+  // Add keyframe if not exists
+  if (!document.getElementById('confettiStyle')) {
+    var s = document.createElement('style');
+    s.id = 'confettiStyle';
+    s.textContent = '@keyframes confettiFall{to{transform:translateY('+window.innerHeight+'px) rotate(720deg);opacity:0}}';
+    document.head.appendChild(s);
+  }
+  create();
+}
+</script>
 <script>
 let currentStep = 1;
 let selectedShipping = { cost: 0, label: 'Estándar 3–5 días' };
@@ -518,7 +562,7 @@ function processPayment() {
     // Award points
     if (user.email) { user.points = (user.points||500) + Math.round(subtotal * 0.05); localStorage.setItem('nexusUser', JSON.stringify(user)); }
 
-    goStep(4);
+    goStep(4); setTimeout(launchConfetti, 400);
     btn.textContent = '🔒 Pagar ahora';
     btn.disabled = false;
     btn.style.opacity = '';

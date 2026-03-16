@@ -369,7 +369,7 @@ footer { padding: 60px 40px 32px; display: grid; grid-template-columns: 2fr 1fr 
 .page-title span { color: var(--accent); }
 
 /* TOAST */
-.toast { position: fixed; bottom: 32px; right: 32px; z-index: 999; background: var(--accent); color: var(--black); padding: 14px 24px; font-size: 13px; font-weight: 500; border-radius: 4px; letter-spacing: 0.5px; transform: translateY(80px); opacity: 0; transition: all 0.3s; pointer-events: none; }
+.toast { position: fixed; bottom: 28px; left: 28px; z-index: 10005; background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--accent); color: var(--text); padding: 14px 18px; font-size: 13px; font-weight: 500; border-radius: 8px; transform: translateY(100px) scale(0.9); opacity: 0; transition: transform .35s cubic-bezier(.34,1.56,.64,1), opacity .35s ease; pointer-events: none; display: flex; align-items: center; gap: 10px; min-width: 220px; max-width: 340px; box-shadow: 0 8px 32px rgba(0,0,0,.5); }
 .toast.show { transform: translateY(0); opacity: 1; }
 
 /* ANIMATIONS */
@@ -1050,3 +1050,164 @@ img:not(.loaded) { opacity: 0; }
 }
 
 /* Scroll-reveal init script — se llama automáticamente */
+
+/* ═══════════════════════════════════════════════════════════
+   PRELOADER
+═══════════════════════════════════════════════════════════ */
+#nexusPreloader {
+  position: fixed; inset: 0; background: var(--black);
+  z-index: 99999; display: flex; align-items: center;
+  justify-content: center; flex-direction: column; gap: 24px;
+  transition: opacity .5s ease, visibility .5s ease;
+}
+#nexusPreloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.preloader-logo {
+  font-family: 'Bebas Neue', sans-serif; font-size: 48px;
+  letter-spacing: 8px; color: var(--white);
+  animation: preloaderPulse 1.2s ease-in-out infinite;
+}
+.preloader-logo span { color: var(--accent); }
+.preloader-bar-wrap {
+  width: 200px; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden;
+}
+.preloader-bar-fill {
+  height: 100%; background: var(--accent); border-radius: 2px;
+  animation: preloaderFill 1.4s cubic-bezier(.4,0,.2,1) forwards;
+}
+.preloader-dots {
+  display: flex; gap: 6px;
+}
+.preloader-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  animation: preloaderDot 1s ease-in-out infinite;
+}
+.preloader-dot:nth-child(2) { animation-delay: .15s; }
+.preloader-dot:nth-child(3) { animation-delay: .3s; }
+@keyframes preloaderPulse {
+  0%, 100% { opacity: 1; } 50% { opacity: .5; }
+}
+@keyframes preloaderFill {
+  0% { width: 0%; } 100% { width: 100%; }
+}
+@keyframes preloaderDot {
+  0%, 100% { transform: translateY(0); opacity: .4; }
+  50% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLL PROGRESS BAR
+═══════════════════════════════════════════════════════════ */
+#scrollProgress {
+  position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  z-index: 99998; transition: width .05s linear;
+  box-shadow: 0 0 8px var(--accent);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════════════════════ */
+@media (pointer: fine) {
+  body { cursor: none; }
+  a, button, [onclick], select, input, textarea, label { cursor: none; }
+}
+#nexusCursor {
+  position: fixed; pointer-events: none; z-index: 99997;
+  mix-blend-mode: difference;
+  transition: transform .15s ease;
+}
+#nexusCursorDot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  transition: width .2s, height .2s, opacity .2s;
+}
+#nexusCursorRing {
+  width: 28px; height: 28px; border: 1px solid var(--accent);
+  border-radius: 50%; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  opacity: .5; transition: width .25s, height .25s, opacity .25s, border-color .25s;
+}
+body.cursor-hover #nexusCursorDot { width: 12px; height: 12px; }
+body.cursor-hover #nexusCursorRing { width: 44px; height: 44px; opacity: .8; border-color: var(--accent2); }
+body.cursor-click #nexusCursorRing { width: 18px; height: 18px; opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════
+   SOCIAL PROOF NOTIFICATION
+═══════════════════════════════════════════════════════════ */
+#socialProof {
+  position: fixed; bottom: 88px; left: 20px; z-index: 10000;
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent); border-radius: 8px;
+  padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+  max-width: 300px; box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  transform: translateX(-120%); transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+}
+#socialProof.show { transform: translateX(0); }
+.sp-icon { font-size: 24px; flex-shrink: 0; }
+.sp-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.sp-text strong { color: var(--white); font-size: 13px; display: block; margin-bottom: 2px; }
+.sp-badge { font-family: JetBrains Mono, monospace; font-size: 10px; color: var(--accent); letter-spacing: 1px; }
+
+/* ═══════════════════════════════════════════════════════════
+   ENHANCED TOAST
+═══════════════════════════════════════════════════════════ */
+.toast {
+  min-width: 240px; max-width: 360px;
+  padding: 14px 18px;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.05);
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: 500;
+}
+.toast-icon { font-size: 18px; flex-shrink: 0; }
+
+@keyframes onlinePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.5)} }
+
+/* ═══════════════════════════════════════════════════════════
+   RIPPLE EFFECT
+═══════════════════════════════════════════════════════════ */
+.btn-primary, .btn-ghost, .btn-accent {
+  position: relative; overflow: hidden;
+}
+.ripple-effect {
+  position: absolute; border-radius: 50%;
+  transform: scale(0); animation: rippleAnim .5s linear;
+  pointer-events: none; background: rgba(255,255,255,0.25);
+}
+@keyframes rippleAnim {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FLOATING WHATSAPP / HELP BUTTON
+═══════════════════════════════════════════════════════════ */
+#floatHelp {
+  position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+  display: flex; align-items: center;
+}
+#floatHelpBtn {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: #25d366; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; box-shadow: 0 4px 20px rgba(37,211,102,.4);
+  transition: transform .2s, box-shadow .2s;
+  animation: floatPulseWA 3s ease-in-out infinite;
+}
+#floatHelpBtn:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,211,102,.6); animation: none; }
+.float-help-bubble {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px 0 8px 8px; padding: 10px 14px;
+  font-size: 12px; color: var(--text); white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  transform: scale(0); transform-origin: bottom right;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+}
+.float-help-bubble.show { transform: scale(1); pointer-events: auto; }
+.float-help-bubble strong { color: var(--white); display: block; margin-bottom: 2px; }
+@keyframes floatPulseWA {
+  0%,100%{ box-shadow: 0 4px 20px rgba(37,211,102,.4); }
+  50%{ box-shadow: 0 4px 32px rgba(37,211,102,.7), 0 0 0 8px rgba(37,211,102,.1); }
+}
