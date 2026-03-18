@@ -1056,7 +1056,7 @@ img:not(.loaded) { opacity: 0; }
 ═══════════════════════════════════════════════════════════ */
 #nexusPreloader {
   position: fixed; inset: 0; background: var(--black);
-  z-index: 99999; display: flex; align-items: center;
+  z-index: 100000; display: flex; align-items: center; pointer-events: none;
   justify-content: center; flex-direction: column; gap: 24px;
   transition: opacity .5s ease, visibility .5s ease;
 }
@@ -1112,7 +1112,7 @@ img:not(.loaded) { opacity: 0; }
   a, button, [onclick], select, input, textarea, label { cursor: none; }
 }
 #nexusCursor {
-  position: fixed; pointer-events: none; z-index: 99997;
+  position: fixed; pointer-events: none; z-index: 100001;
   mix-blend-mode: normal;
   transition: transform .15s ease;
 }
@@ -1120,7 +1120,7 @@ img:not(.loaded) { opacity: 0; }
   width: 6px; height: 6px; border-radius: 50%;
   background: #00c8ff; position: absolute;
   top: 50%; left: 50%; transform: translate(-50%,-50%);
-  transition: width .2s, height .2s, opacity .2s;
+  transition: width .2s, height .2s, opacity .2s, background .2s, box-shadow .2s;
   box-shadow: 0 0 6px rgba(0,200,255,.6);
 }
 #nexusCursorRing {
@@ -1128,6 +1128,15 @@ img:not(.loaded) { opacity: 0; }
   border-radius: 50%; position: absolute;
   top: 50%; left: 50%; transform: translate(-50%,-50%);
   opacity: .4; transition: width .25s, height .25s, opacity .25s, border-color .25s;
+}
+/* Cursor sobre el announcement bar (fondo cian/violeta) */
+body.cursor-on-ann #nexusCursorDot {
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(0,0,0,.4), 0 0 0 1px rgba(0,0,0,.2);
+}
+body.cursor-on-ann #nexusCursorRing {
+  border-color: #ffffff;
+  opacity: .7;
 }
 body.cursor-hover #nexusCursorDot { width: 12px; height: 12px; background: #8b5cf6; box-shadow: 0 0 10px rgba(139,92,246,.7); }
 body.cursor-hover #nexusCursorRing { width: 44px; height: 44px; opacity: .7; border-color: #8b5cf6; }
